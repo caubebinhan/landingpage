@@ -81,6 +81,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
 .menu-dd.show{display:block}
 .menu-dd a{display:block;padding:10px 15px;color:#333;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.05em;transition:background .14s}
 .menu-dd a:hover{background:var(--rs);color:var(--red)}
+.menu-lang{padding:9px 15px 11px;border-top:1px solid rgba(0,0,0,.07)}
+.menu-lang-label{font-size:9px;font-weight:900;letter-spacing:.12em;color:#888;margin-bottom:5px}
+.menu-lang .lang-sw ul{gap:4px;flex-wrap:wrap}
+.menu-lang .lang-sw a{padding:4px 7px;background:#f5f3f0}
 
 /* Progress bar moved to bottom center */
 .progress{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:7px}
@@ -88,7 +92,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
 .bar span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--red),var(--green))}
 
 .copy{position:relative;z-index:5;min-height:380px}
-.copy-scene{position:absolute;left:0;right:0;top:50%;transform:translateY(-42%) translateY(24px);opacity:0;filter:blur(10px);pointer-events:none}
+.copy-scene{position:absolute;left:0;right:0;top:50%;transform:translateY(-42%) translateY(16px);opacity:0;filter:blur(3px);pointer-events:none}
 .copy-scene.active{opacity:1;filter:blur(0);transform:translateY(-42%);pointer-events:auto}
 .kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:900;margin-bottom:16px;font-family:"Inter",sans-serif}
 h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-weight:700;max-width:560px;color:#0f0f0f;text-wrap:balance}
@@ -141,6 +145,10 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 .data-view .tg tbody tr{height:28px}
 .data-view-status{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:1px solid rgba(0,0,0,.07);font:10px "Inter",sans-serif;color:#666}
 .data-view-status strong{color:var(--green)}
+.data-scrollbar{position:absolute;z-index:5;right:4px;top:38px;bottom:5px;width:7px;border-radius:7px;background:rgba(0,0,0,.05);transition:background .18s,box-shadow .18s}
+.data-scrollbar.highlight{background:rgba(137,24,24,.16);box-shadow:0 0 0 3px rgba(137,24,24,.08)}
+.data-scroll-thumb{position:absolute;left:1px;top:0;width:5px;height:22%;border-radius:6px;background:#aaa;transition:top .08s linear,background .18s}
+.data-scrollbar.highlight .data-scroll-thumb{background:var(--red)}
 .relation-pop{position:absolute;z-index:8;width:210px;padding:11px;border-radius:9px;background:#171716;color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.22);font:10px "Inter",sans-serif;opacity:0;transform:translateY(5px);transition:opacity .18s,transform .18s;pointer-events:none}
 .relation-pop.show{opacity:1;transform:none}
 .relation-pop b{display:block;margin-bottom:7px;font-size:11px}
@@ -196,11 +204,11 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 .feat-sc{display:none;position:absolute;z-index:6;overflow:hidden;background:#fafaf8;border:1px solid rgba(0,0,0,.12);border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.14);pointer-events:none}
 .feat-sc.show{display:flex;flex-direction:column}
 #featS1{right:12px;top:12px;width:min(430px,72%);height:210px}
-#featS2{left:50%;bottom:18px;width:min(430px,78%);height:160px;transform:translateX(-50%)}
+#featS2{display:none!important}
 #featS3{right:12px;top:12px;width:min(440px,76%);height:230px}
 #featS4{display:none!important}
 #featS5{right:12px;bottom:12px;width:190px;height:100px}
-#featS6{right:12px;top:12px;width:min(440px,78%);height:260px!important}
+#featS6{left:12px;right:12px;top:12px;width:auto;height:min(300px,calc(100% - 24px))!important}
 
 /* Scene 1: Autocomplete */
 #s1{display:grid;grid-template-columns:1fr 1fr;height:100%}
@@ -299,6 +307,11 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 .pm-it{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(0,0,0,.07);border-radius:10px;background:#fff;transition:all .18s;font-family:"Inter",sans-serif}
 .pm-it.on{border-color:rgba(15,107,62,.2);background:rgba(15,107,62,.02)}
 .pm-it:hover{border-color:rgba(0,0,0,.12)}
+.pm-it.installing{border-color:rgba(137,24,24,.22);background:rgba(137,24,24,.025)}
+.pm-layout{display:grid;grid-template-columns:minmax(250px,1.35fr) minmax(130px,.65fr);height:100%}
+.pm-install{border:0;border-radius:6px;padding:6px 10px;background:var(--red);color:#fff;font:700 9px "Inter",sans-serif;cursor:pointer;min-width:55px}
+.pm-install.installing{background:#8b817a;color:#fff}
+.pm-install.done{background:var(--green)}
 .pm-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(0,0,0,.04);flex-shrink:0}
 .pm-inf{flex:1}.pm-nm{font-size:11px;font-weight:700;color:#222}.pm-ds{font-size:9px;color:#aaa;margin-top:1px}
 .pm-tg{width:28px;height:15px;border-radius:99px;border:none;cursor:pointer;position:relative;transition:background .18s;flex-shrink:0}
@@ -340,18 +353,6 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 .cc-lnks{display:flex;flex-direction:column;gap:10px}
 .cc-itm{display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.01);text-decoration:none;color:#333;font-family:"JetBrains Mono",monospace;font-size:11px;transition:all .18s}
 .cc-itm.fb{color:#1877f2}.cc-itm:hover{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.14)}
-.pm-body{padding:18px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
-.pm-srch{width:100%;border:1px solid rgba(0,0,0,.11);border-radius:7px;padding:8px 13px;font-family:"JetBrains Mono",monospace;font-size:11px;outline:none;transition:border .18s;background:#fafafa}
-.pm-srch:focus{border-color:rgba(137,24,24,.32)}
-.pm-mi{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(0,0,0,.07);border-radius:11px;background:#fafafa;transition:all .18s}
-.pm-mi:hover{border-color:rgba(137,24,24,.18);background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.04)}
-.pm-mico{width:36px;height:36px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:17px;background:rgba(0,0,0,.04);flex-shrink:0}
-.pm-min{flex:1}.pm-mnm{font-size:12px;font-weight:700;color:#111;margin-bottom:2px}.pm-mds{font-size:10px;color:#999;line-height:1.35}
-.pm-mbg{font-size:8px;padding:2px 7px;border-radius:999px;font-weight:700;white-space:nowrap}
-.pm-mbg.inst{background:rgba(15,107,62,.1);color:var(--green)}.pm-mbg.pop{background:rgba(137,24,24,.1);color:var(--red)}
-.pm-ib{padding:6px 13px;border-radius:999px;border:1px solid rgba(137,24,24,.28);background:transparent;color:var(--red);font-family:"Inter",sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
-.pm-ib:hover,.pm-ib.done{background:linear-gradient(135deg,var(--red),#a82525);color:#fff;border-color:transparent}
-
 @media(max-width:980px){
   body{height:680vh}
   .stage{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding:66px 13px 26px;gap:10px}
@@ -363,6 +364,8 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
   .workspace-frame{grid-template-columns:140px 530px 180px;width:850px;min-width:850px;transform:translateX(var(--camera-x,0px))}
   .mouse{display:block;transform:scale(.82)}
   #featS1,#featS2,#featS3{width:390px}
+  #featS6{left:10px;right:10px;top:10px;height:280px!important}
+  .pm-layout{grid-template-columns:minmax(270px,1fr) 145px}
 }
 @media(max-width:620px){
   .stage{grid-template-columns:1fr;padding:86px 14px 28px}
@@ -370,6 +373,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
   .canvas{height:52vh;min-height:390px}
   .workspace-frame{transform:translateX(var(--camera-x,-130px))}
   .topbar{right:14px}.brand{left:14px}
+  #featS6{height:300px!important}
+  .pm-layout{grid-template-columns:1fr}
+  .pm-r{display:none}
 }
 </style>
 </head>
@@ -411,10 +417,6 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 
   <!-- Top right -->
   <div class="topbar">
-    <?php if(function_exists('pll_the_languages')): ?>
-    <div class="lang-sw"><ul><?php pll_the_languages(['show_flags'=>0,'show_names'=>1,'hide_current'=>0]); ?></ul></div>
-    <?php endif; ?>
-    <button class="tb-chip" id="btnPlugins"><span class="tb-dot"></span><?php echo esc_html($t['plugins']); ?></button>
     <div class="menu-wrap">
       <button class="menu-btn" id="menuBtn" aria-label="Menu">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -422,6 +424,12 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
       <div class="menu-dd" id="menuDd">
         <a href="<?php echo esc_url(home_url('/blog/')); ?>"><?php echo esc_html($t['blog']); ?></a>
         <a href="#" id="btnContact"><?php echo esc_html($t['contact']); ?></a>
+        <?php if(function_exists('pll_the_languages')): ?>
+        <div class="menu-lang">
+          <div class="menu-lang-label">LANGUAGE</div>
+          <div class="lang-sw"><ul><?php pll_the_languages(['show_flags'=>0,'show_names'=>1,'hide_current'=>0]); ?></ul></div>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
   </div>
@@ -431,9 +439,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
   <!-- Copy left -->
   <div class="copy">
     <section class="copy-scene active">
-      <div class="kicker"><?php esc_html_e('01 / CONNECT', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('A focused workspace for every database.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Connect, write queries, inspect relationships, explore large tables, and shape the workspace around the way you work.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('DATABASE WORKSPACE', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('One workspace. Every database operation.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Connect environments, write SQL, inspect relationships, scan massive tables, and control the workspace without breaking context.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Grouped Envs', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('PG · MySQL · SQLite', 'hoasen-theme'); ?></span>
@@ -442,9 +450,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('02 / SMART JOIN', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Write JOIN. HoaSen supplies the relationship.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Type JOIN in the editor and HoaSen completes the foreign-key relationship at the cursor. No result data appears until you run it.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('SMART JOIN', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Type JOIN. Get the exact foreign-key clause.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('HoaSen reads the live schema and completes the correct table, key, and ON condition directly at the cursor.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('FK-aware', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('Exact ON clause', 'hoasen-theme'); ?></span>
@@ -452,9 +460,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('03 / RUN & INSPECT', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Run it. Then inspect the relationship in place.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Click Run to populate the table, then hover user_id to inspect the linked user without leaving the result.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('RUN & INSPECT', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Run the query. Inspect linked rows in place.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Run populates the grid. Hover any foreign key to open the referenced record without another query or tab.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Run in place', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('Linked-row popup', 'hoasen-theme'); ?></span>
@@ -462,9 +470,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('04 / MILLION ROWS', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Click a million-row table. It opens now.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Click transactions, load the million-row result, then sweep from the first rows to the final viewport in one continuous scroll.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('MILLION-ROW GRID', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Open one million rows. Scroll straight through.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Click transactions to load the full dataset, then scan continuously from the first row to the final viewport.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('1M rows', 'hoasen-theme'); ?></span>
         <span class="chip go"><?php esc_html_e('Instant viewport', 'hoasen-theme'); ?></span>
@@ -473,9 +481,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('05 / PLUGINS', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Open Plugin Manager without leaving your data.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('After the large-table scan, click Plugins to open the manager above the same result view.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('PLUGIN MANAGER', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Extend the tool without leaving the result.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Open Plugin Manager over the active table. Your query, rows, and scroll position stay exactly where they are.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Same workspace', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('Focused panel', 'hoasen-theme'); ?></span>
@@ -483,9 +491,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('06 / WIDGETS', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Keep only the context you need.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Move to Table Statistics and click remove. The widget disappears while the query and data remain untouched.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('WORKSPACE WIDGETS', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Remove noise. Keep the data.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Hover any widget and remove it in one click. The query and result grid remain untouched.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Hover controls', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('One-click remove', 'hoasen-theme'); ?></span>
@@ -493,9 +501,9 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('07 / RESOURCES', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Everything you need for the next query.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('The product tour ends here. Continue with the guide, documentation, blog, or a direct conversation with the team.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('KEEP BUILDING', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('From first query to production workflow.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Start with the guide, go deeper in the documentation, follow the blog, or talk directly with the HoaSen team.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Documentation', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('Guide & Blog', 'hoasen-theme'); ?></span>
@@ -570,6 +578,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
                       <div><span>status</span><span>active</span></div>
                     </div>
                   </div>
+                  <div class="data-scrollbar" id="dataScrollbar"><div class="data-scroll-thumb" id="dataScrollThumb"></div></div>
                 </div>
                 <div class="resource-panel" id="resourcePanel">
                   <h3>Keep building with HoaSen.</h3>
@@ -692,13 +701,13 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 
                 <!-- S6: Plugin Manager (occupies middle panel) -->
                 <div class="feat-sc" id="featS6" style="background:#fafaf8;height:100%">
-                  <div style="display:grid;grid-template-columns:1.1fr 0.9fr;height:100%">
+                  <div class="pm-layout">
                     <div class="pm-l">
                       <div class="pm-hd">Installed Plugins</div>
                       <div class="pm-lst">
                         <div class="pm-it on"><div class="pm-ico">🌙</div><div class="pm-inf"><div class="pm-nm">Dark Mode Pro</div><div class="pm-ds">OLED-optimized theme</div></div><span class="pm-st on">ON</span><button class="pm-tg on"></button></div>
                         <div class="pm-it on" id="pmAicop"><div class="pm-ico">✦</div><div class="pm-inf"><div class="pm-nm">AI Copilot</div><div class="pm-ds">NL → SQL, query explain</div></div><span class="pm-st on">ON</span><button class="pm-tg on"></button></div>
-                        <div class="pm-it" id="pmRed"><div class="pm-ico">🔴</div><div class="pm-inf"><div class="pm-nm">Redis Inspector</div><div class="pm-ds">Keys, TTL, cluster</div></div><span class="pm-st off" id="redSt">OFF</span><button class="pm-tg off" id="redTg"></button></div>
+                        <div class="pm-it" id="pmRed"><div class="pm-ico">🔴</div><div class="pm-inf"><div class="pm-nm">Redis Inspector</div><div class="pm-ds">Keys, TTL, cluster</div></div><span class="pm-st off" id="redSt">AVAILABLE</span><button class="pm-install" id="redTg">Install</button></div>
                       </div>
                     </div>
                     <div class="pm-r">
@@ -780,23 +789,10 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
   </div>
 </div>
 
-<!-- Plugin Catalog Dialog/Modal (Opens in Scene 6) -->
-<div class="ov" id="pluginMod">
-  <div class="mc">
-    <button class="xbtn" id="closePlugin">&times;</button>
-    <div class="mhd"><div class="mhdi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><?php esc_html_e('Plugin Manager', 'hoasen-theme'); ?></div>
-    <div class="pm-body">
-      <input class="pm-srch" id="pmSrch" placeholder="<?php esc_attr_e('Search plugins…', 'hoasen-theme'); ?>"/>
-      <div class="pm-mi"><div class="pm-mico">🌙</div><div class="pm-min"><div class="pm-mnm">Dark Mode Pro</div><div class="pm-mds"><?php esc_html_e('Full dark theme, OLED-optimized, zero flicker.', 'hoasen-theme'); ?></div></div><span class="pm-mbg inst"><?php echo esc_html($t['inst']); ?></span><button class="pm-ib done"><?php echo esc_html($t['inst']); ?></button></div>
-      <div class="pm-mi"><div class="pm-mico">✦</div><div class="pm-min"><div class="pm-mnm">AI Copilot</div><div class="pm-mds"><?php esc_html_e('Natural language to SQL. Explain and optimize plans.', 'hoasen-theme'); ?></div></div><span class="pm-mbg inst"><?php echo esc_html($t['inst']); ?></span><button class="pm-ib done"><?php echo esc_html($t['inst']); ?></button></div>
-      <div class="pm-mi" id="popRedisRow"><div class="pm-mico">🔴</div><div class="pm-min"><div class="pm-mnm">Redis Inspector</div><div class="pm-mds"><?php esc_html_e('Browse keys, TTL, memory. Supports cluster + Sentinel.', 'hoasen-theme'); ?></div></div><span class="pm-mbg pop"><?php esc_html_e('Popular', 'hoasen-theme'); ?></span><button class="pm-ib" id="btnInstallRedis" onclick="this.textContent='…';setTimeout(()=>{this.classList.add('done');this.textContent='<?php echo esc_js($t['inst']); ?>'},700)"><?php echo esc_html($t['install']); ?></button></div>
-      <div class="pm-mi"><div class="pm-mico">📊</div><div class="pm-min"><div class="pm-mnm">Chart Builder</div><div class="pm-mds"><?php esc_html_e('Visualize query results as bar, line, pie charts.', 'hoasen-theme'); ?></div></div><span class="pm-mbg pop"><?php esc_html_e('Popular', 'hoasen-theme'); ?></span><button class="pm-ib" onclick="this.textContent='…';setTimeout(()=>{this.classList.add('done');this.textContent='<?php echo esc_js($t['inst']); ?>'},700)"><?php echo esc_html($t['install']); ?></button></div>
-    </div>
-  </div>
-</div>
-
 <script>
 const SCENES=7,LANG='<?php echo esc_js($is_vi?"vi":"en"); ?>';
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+scrollTo(0,0);
 const progEl=document.getElementById('progress');
 for(let i=0;i<SCENES;i++){const b=document.createElement('div');b.className='bar';b.innerHTML='<span></span>';progEl.appendChild(b);}
 const bars=[...progEl.querySelectorAll('span')];
@@ -826,6 +822,8 @@ const spBs=[document.getElementById('spB1'),document.getElementById('spB2'),docu
 const cBs=[document.getElementById('cB1'),document.getElementById('cB2')];
 const dataRows=document.getElementById('dataRows');
 const dataView=document.getElementById('dataView');
+const dataScrollbar=document.getElementById('dataScrollbar');
+const dataScrollThumb=document.getElementById('dataScrollThumb');
 const dataViewName=document.getElementById('dataViewName');
 const dataViewStatus=document.getElementById('dataViewStatus');
 const relationPop=document.getElementById('relationPop');
@@ -850,15 +848,12 @@ const pmAicop=document.getElementById('pmAicop');
 
 // Modals
 const menuBtn=document.getElementById('menuBtn'),menuDd=document.getElementById('menuDd');
-const contactMod=document.getElementById('contactMod'),pluginMod=document.getElementById('pluginMod');
+const contactMod=document.getElementById('contactMod');
 menuBtn.addEventListener('click',e=>{e.stopPropagation();menuDd.classList.toggle('show');});
 document.addEventListener('click',()=>menuDd.classList.remove('show'));
 document.getElementById('btnContact').addEventListener('click',e=>{e.preventDefault();contactMod.classList.add('show');});
-document.getElementById('btnPlugins').addEventListener('click',()=>pluginMod.classList.add('show'));
-winBtnPlugins.addEventListener('click',()=>pluginMod.classList.add('show'));
-
-['closeContact','closePlugin'].forEach(id=>document.getElementById(id).addEventListener('click',()=>{contactMod.classList.remove('show');pluginMod.classList.remove('show');}));
-[contactMod,pluginMod].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+document.getElementById('closeContact').addEventListener('click',()=>contactMod.classList.remove('show'));
+contactMod.addEventListener('click',e=>{if(e.target===contactMod)contactMod.classList.remove('show');});
 
 function clamp(v,a=0,b=1){return Math.min(b,Math.max(a,v));}
 function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
@@ -869,6 +864,7 @@ let connectionEnd=null;
 let joinEnd=null;
 let pluginEnd=null;
 let widgetEnd=null;
+let millionEnd=null;
 function setMouse(p,click=false){
   mouse.style.transform=`translate(${p.x}px,${p.y}px)`;
   mouse.classList.toggle('click',click);
@@ -931,10 +927,8 @@ function removeHighlights() {
   fkLine.classList.remove('highlight-box-green');
   vgMetricsBox.classList.remove('highlight-box-green');
   pmAicop.classList.remove('highlight-box');
-  document.getElementById('popRedisRow')?.classList.remove('highlight-box');
   document.getElementById('cardA').classList.remove('highlight-box');
   winBtnPlugins.classList.remove('highlight-box');
-  pluginMod.querySelector('.mc')?.classList.remove('highlight-box');
   relationPop.classList.remove('show');
 }
 
@@ -1106,46 +1100,23 @@ function sc5(p){
   setMouse(mix(firstCell?getElementPoint(firstCell):gp(.5,.45),tailRow?getElementPoint(tailRow):gp(.5,.72),p),false);
 }
 
-// Scene 6: Plugin Manager
-function sc6(p){
-  winPath.innerHTML='<strong>plugin manager</strong> · extensions';
-  removeHighlights();
-  pluginMod.classList.remove('show');
-  renderData('transactions',999955);
-  const ptBtn=getElementPoint(winBtnPlugins);
-  const tailRow=dataRows.querySelector('tr:last-child');
-  const priorPoint=tailRow?getElementPoint(tailRow):gp(.5,.72);
-
-  if(p<.28){
-    showScene(5);
-    setCamera('middle');
-    setMouse(mix(priorPoint,ptBtn,p/.28),false);
-    winBtnPlugins.classList.add('highlight-box');
-    return;
-  }
-  showScene(6);
-  setCamera('detail');
-  const ptToggle=getElementPoint(redTg);
-  if(p<.38){setMouse(ptBtn,true);return;}
-  setMouse(mix(ptBtn,ptToggle,(p-.38)/.42),p>.72&&p<.82);
-  if(p>.76){
-    pmRed.classList.add('on');
-    redSt.textContent='ON';redSt.className='pm-st on';
-    redTg.className='pm-tg on';
-    redAct.style.opacity='1';
-    pmCnt.textContent='3';
-  }
-}
-
 function resetFlowUi(){
   removeHighlights();
-  pluginMod.classList.remove('show');
   resourcePanel.classList.remove('show');
   canvas.classList.remove('resources-mode');
   stage.classList.remove('resources-mode');
   siteOutro.classList.remove('show');
   dataView.classList.remove('is-empty');
+  dataScrollbar.classList.remove('highlight');
+  dataScrollThumb.style.top='0%';
   widgetTStats.classList.remove('removed');
+  pmRed.classList.remove('on','installing');
+  redSt.textContent='AVAILABLE';
+  redSt.className='pm-st off';
+  redTg.className='pm-install';
+  redTg.textContent='Install';
+  redAct.style.opacity='0';
+  pmCnt.textContent='2';
 }
 
 function flowJoin(p){
@@ -1188,31 +1159,55 @@ function flowRunInspect(p){
 function flowMillion(p){
   showScene(4);resetFlowUi();setCamera(p<.46?'left':'middle');
   winPath.innerHTML='<strong>transactions</strong> · data';
-  const sweep=clamp((p-.46)/.54);
-  const start=p>.46?Math.max(1,Math.floor(sweep*999977)):90020;
-  renderData(p>.46?'transactions':'orders',start);
-  const start=document.getElementById('activeFkCell');
+  const sweep=clamp((p-.58)/.42);
+  const startRow=p>.46?Math.max(1,Math.floor(sweep*999977)):90020;
+  renderData(p>.46?'transactions':'orders',startRow);
+  const startCell=document.getElementById('activeFkCell');
   const tablePoint=getElementPoint(wlTransactions);
-  if(p<.34){setMouse(mix(start?getElementPoint(start):gp(.5,.55),tablePoint,p/.34),false);return;}
+  if(p<.34){setMouse(mix(startCell?getElementPoint(startCell):gp(.5,.55),tablePoint,p/.34),false);return;}
   if(p<.46){setMouse(tablePoint,true);return;}
   wlTransactions.classList.add('active');
   sqlEd.innerHTML='<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">transactions</span>;';
-  dataViewStatus.textContent=`Viewing ${start.toLocaleString()}–${Math.min(start+13,1000000).toLocaleString()} of 1,000,000`;
-  const first=document.getElementById('activeFkCell');
-  const tail=dataRows.querySelector('tr:last-child');
-  const scanPoint=mix(first?getElementPoint(first):gp(.5,.48),tail?getElementPoint(tail):gp(.5,.72),sweep);
-  setMouse(mix(tablePoint,scanPoint,sweep),false);
+  dataViewStatus.textContent=`Viewing ${startRow.toLocaleString()}–${Math.min(startRow+13,1000000).toLocaleString()} of 1,000,000`;
+  const gridRect=dataRows.closest('div').getBoundingClientRect();
+  const gridCenter={x:gridRect.left+gridRect.width*.5,y:gridRect.top+gridRect.height*.5};
+  millionEnd=gridCenter;
+  if(p<.58){
+    setMouse(mix(tablePoint,gridCenter,(p-.46)/.12),false);
+    return;
+  }
+  dataScrollbar.classList.add('highlight');
+  dataScrollThumb.style.top=(sweep*78)+'%';
+  const scrollRect=dataScrollbar.getBoundingClientRect();
+  const thumbPoint={x:scrollRect.left+scrollRect.width/2,y:scrollRect.top+11+(scrollRect.height-22)*sweep};
+  millionEnd=thumbPoint;
+  setMouse(thumbPoint,false);
 }
 
 function flowPlugins(p){
   renderData('transactions',999978);resetFlowUi();
   const buttonPoint=getElementPoint(winBtnPlugins);
-  const tail=dataRows.querySelector('tr:last-child');
-  if(p<.34){showScene(4);setCamera('middle');setMouse(mix(tail?getElementPoint(tail):gp(.5,.72),buttonPoint,p/.34),false);return;}
+  if(p<.3){showScene(4);setCamera('middle');setMouse(mix(millionEnd||gp(.5,.55),buttonPoint,p/.3),false);return;}
   showScene(6);setCamera('detail');
-  if(p<.46){setMouse(buttonPoint,true);return;}
+  if(p<.4){setMouse(buttonPoint,true);return;}
   const togglePoint=getElementPoint(redTg);pluginEnd=togglePoint;
-  setMouse(mix(buttonPoint,togglePoint,(p-.46)/.54),false);
+  if(p<.62){setMouse(mix(buttonPoint,togglePoint,(p-.4)/.22),false);return;}
+  if(p<.72){
+    pmRed.classList.add('installing');
+    redSt.textContent='INSTALLING';
+    redTg.className='pm-install installing';
+    redTg.textContent='Installing…';
+    setMouse(togglePoint,true);
+    return;
+  }
+  pmRed.classList.add('on');
+  redSt.textContent='ON';
+  redSt.className='pm-st on';
+  redTg.className='pm-install done';
+  redTg.textContent='Installed';
+  redAct.style.opacity='1';
+  pmCnt.textContent='3';
+  setMouse(togglePoint,false);
 }
 
 function flowRemoveWidget(p){
@@ -1241,9 +1236,14 @@ function update(){
   const idx=Math.floor(raw),loc=raw-idx;
   bars.forEach((b,i)=>b.style.width=(i<idx?100:i>idx?0:loc*100)+'%');
   copies.forEach((c,i)=>{
-    const d=i-(idx+loc),op=clamp(1-Math.abs(d)*1.7);
-    c.style.opacity=op;c.style.filter=`blur(${Math.abs(d)*10}px)`;
-    c.style.transform=`translateY(-42%) translateY(${d*22}px)`;
+    const entering=idx===0?1:clamp((loc-.18)/.14);
+    const leaving=clamp((1-loc)/.12);
+    const current=i===idx?entering*leaving:0;
+    const previous=i===idx-1?clamp((.18-loc)/.18):0;
+    const op=Math.max(current,previous);
+    const offset=i===idx?(1-entering)*12:-loc*8;
+    c.style.opacity=op;c.style.filter=`blur(${(1-op)*3}px)`;
+    c.style.transform=`translateY(-42%) translateY(${offset}px)`;
     c.classList.toggle('active',op>.55);
   });
   
@@ -1253,6 +1253,7 @@ function update(){
 let tick=false;
 addEventListener('scroll',()=>{if(!tick){requestAnimationFrame(()=>{update();tick=false;});tick=true;}},{passive:true});
 addEventListener('resize',update);
+addEventListener('pageshow',()=>{scrollTo(0,0);requestAnimationFrame(update);});
 setTimeout(update,80);
 </script>
 <?php wp_footer(); ?>
