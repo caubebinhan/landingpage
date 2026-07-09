@@ -1,0 +1,4 @@
+wordpress/
+*.php
+!hoasen-theme/**/*.php
+!hoasen-theme/*.php
