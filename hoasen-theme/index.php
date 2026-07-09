@@ -368,11 +368,21 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
   .pm-layout{grid-template-columns:minmax(270px,1fr) 145px}
 }
 @media(max-width:620px){
-  .stage{grid-template-columns:1fr;padding:86px 14px 28px}
-  .copy{height:34vh;min-height:250px}
-  .canvas{height:52vh;min-height:390px}
+  body{height:700vh}
+  .stage{grid-template-columns:1fr;grid-template-rows:28vh 1fr;padding:68px 10px 20px;gap:4px}
+  .copy{height:28vh;min-height:0}
+  .copy-scene{top:48%}
+  .kicker{font-size:8px;letter-spacing:.17em;margin-bottom:9px}
+  h1{font-size:clamp(25px,7.2vw,29px);line-height:.98;letter-spacing:-.025em;max-width:350px}
+  .copy p{display:block;font-size:11px;line-height:1.45;margin-top:10px;max-width:340px}
+  .chips{display:none}
+  .canvas{height:56vh;min-height:430px}
+  .brand-name{font-size:18px}
+  .brand-tag{font-size:6px;letter-spacing:.16em}
+  .brand-logo{width:32px;height:32px}
+  .menu-btn{width:34px;height:34px}
   .workspace-frame{transform:translateX(var(--camera-x,-130px))}
-  .topbar{right:14px}.brand{left:14px}
+  .topbar{right:10px;top:12px}.brand{left:10px;top:12px}
   #featS6{height:300px!important}
   .pm-layout{grid-template-columns:1fr}
   .pm-r{display:none}
