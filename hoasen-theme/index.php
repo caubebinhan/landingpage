@@ -1,972 +1,1259 @@
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='lg' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='%23fca5a5'/><stop offset='50%' stop-color='%23f43f5e'/><stop offset='100%' stop-color='%23be123c'/></linearGradient><mask id='lm'><path d='M50 15 C 62 30, 62 70, 50 90 C 38 70, 38 30, 50 15 Z' fill='white'/><path d='M40 30 C 25 30, 15 50, 25 75 C 32 82, 45 88, 50 90 C 32 70, 32 45, 40 30 Z' fill='white'/><path d='M60 30 C 75 30, 85 50, 75 75 C 68 82, 55 88, 50 90 C 68 70, 68 45, 60 30 Z' fill='white'/></mask></defs><rect width='100' height='100' fill='url(%23lg)' mask='url(%23lm)'/><g stroke='%23ffffff' stroke-width='3' mask='url(%23lm)'><line x1='0' y1='36' x2='100' y2='36'/><line x1='0' y1='52' x2='100' y2='52'/><line x1='0' y1='68' x2='100' y2='68'/><path d='M38 10 Q45 50 48 90' fill='none'/><path d='M50 0 V100' fill='none'/><path d='M62 10 Q55 50 52 90' fill='none'/></g></svg>" />
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<?php
+$lang = function_exists('pll_current_language') ? pll_current_language() : 'en';
+$is_vi = (strpos($lang,'vi')===0);
+$t = [
+  'title'   => $is_vi ? 'HoaSen Table — SQL Client tốc độ ánh sáng' : 'HoaSen Table — Blazing Fast SQL Client',
+  'desc'    => $is_vi ? 'Truy vấn SQL cực nhanh: autocomplete ngữ pháp AST, join thông minh FK, hover quan hệ inline, virtual grid 1 triệu dòng, plugin manager hot-reload.' : 'Query databases at lightning speed: AST grammar autocomplete, FK smart joins, inline relation hover, 1M-row virtual grid, hot-reload plugin manager.',
+  'blog'    => $is_vi ? 'BLOG' : 'BLOG',
+  'contact' => $is_vi ? 'LIÊN HỆ' : 'CONTACT',
+  'scroll'  => $is_vi ? 'Cuộn khám phá ↓' : 'Scroll to explore ↓',
+  'inst'    => $is_vi ? 'Đã cài' : 'Installed',
+  'install' => $is_vi ? 'Cài đặt' : 'Install',
+  'plugins' => 'PLUGINS',
+  'learn'   => $is_vi ? 'Chi tiết Autocomplete →' : 'Deep dive: Autocomplete →',
+  'loaded'  => $is_vi ? '✓ đã tải · 50 hàng' : '✓ loaded · 50 rows',
+  'active'  => $is_vi ? 'hoạt động' : 'active',
+  'viewrow' => $is_vi ? 'Đang xem hàng' : 'Viewing row',
+  'of'      => $is_vi ? 'trong' : 'of',
+];
+?>
+<link rel="icon" type="image/png" href="<?php echo get_stylesheet_directory_uri(); ?>/logo.png"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title><?php echo esc_html($t['title']); ?></title>
+<meta name="description" content="<?php echo esc_attr($t['desc']); ?>"/>
+<meta name="robots" content="index,follow"/>
+<meta property="og:title" content="<?php echo esc_attr($t['title']); ?>"/>
+<meta property="og:description" content="<?php echo esc_attr($t['desc']); ?>"/>
+<?php if(function_exists('pll_the_languages')): ?>
+<link rel="alternate" hreflang="vi" href="<?php echo esc_url(pll_home_url('vi')); ?>"/>
+<link rel="alternate" hreflang="en" href="<?php echo esc_url(pll_home_url('en')); ?>"/>
+<link rel="alternate" hreflang="x-default" href="<?php echo esc_url(home_url('/')); ?>"/>
+<?php endif; ?>
 <?php wp_head(); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f0f0f0; --panel:#ffffff; --panel2:#f8f8f8; --line:#d2d6dc;
-  --text:#111827; --muted:#55667d; --blue:#881818; --green:#107a4a;
-  --red:#b91c1c; --yellow:#b45309; --orange:#c2410c; --pink:#9d174d;
+  --bg:#f0efed;--red:#891818;--red2:#a82525;--green:#0f6b3e;--blue:#1a4fc4;--amber:#a16207;
+  --text:#0f0f0f;--muted:#6b7280;
+  --rs:rgba(137,24,24,.07);--rb:rgba(137,24,24,.18);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  height:620vh; overflow-x:hidden; background:#f0f0f0; color:var(--text);
-  font-family:"Cormorant Garamond", Georgia, serif;
-}
-body:before{
-  content:""; position:fixed; inset:0; pointer-events:none;
-  background:
-    radial-gradient(circle at 18% 16%, rgba(136,24,24,.05), transparent 34%),
-    radial-gradient(circle at 80% 24%, rgba(16,122,74,.04), transparent 32%),
-    radial-gradient(circle at 48% 86%, rgba(157,23,77,.04), transparent 30%),
-    linear-gradient(180deg,#f0f0f0,#e5e5e5);
-  z-index: -1;
-}
-.stage{position:fixed; inset:0; display:grid; grid-template-columns:.78fr 1.4fr; gap:56px; align-items:center; padding:56px; overflow:hidden}
-.grid{position:absolute; inset:0; opacity:.18; pointer-events:none; background-image:linear-gradient(rgba(0,0,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.06) 1px,transparent 1px); background-size:54px 54px; mask-image:radial-gradient(circle at 58% 50%,black,transparent 78%)}
-
-.brand{position:absolute;top:28px;left:38px;z-index:40;display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:-.01em;font-size:20px;font-family:"Inter",sans-serif}
-.logo{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,var(--blue),var(--green));box-shadow:0 0 20px rgba(136,24,24,.20);position:relative}
-.logo:after{content:"";position:absolute;inset:7px;border-radius:3px;background:#f0f0f0}
-
-/* Menu Header */
-.menu-container{position:absolute;top:28px;right:38px;z-index:100;display:inline-block}
-.menu-btn{background:transparent;border:none;cursor:pointer;color:var(--text);padding:8px;border-radius:6px;transition:background .2s;display:flex;align-items:center;justify-content:center}
+body{height:740vh;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:"Cormorant Garamond",Georgia,serif}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle at 14% 13%,rgba(137,24,24,.042),transparent 31%),
+             radial-gradient(circle at 83% 21%,rgba(15,107,62,.03),transparent 29%),
+             linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);
+  width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;
+  background-image:url('<?php echo get_stylesheet_directory_uri(); ?>/logo.png');
+  background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:radial-gradient(ellipse at 64% 52%,black,transparent 70%)}
+.stage{position:fixed;inset:0;display:grid;grid-template-columns:.7fr 1.42fr;gap:48px;
+  align-items:center;padding:52px;overflow:hidden}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px}
+.brand-name{font-family:"Cormorant Garamond",serif;font-size:21px;font-weight:700;color:var(--text);letter-spacing:-.025em}
+.brand-tag{font-family:"Inter",sans-serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);font-weight:700;margin-top:1px}
+.topbar{position:absolute;top:22px;right:32px;z-index:100;display:flex;align-items:center;gap:9px}
+.tb-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;
+  background:rgba(137,24,24,.06);border:1px solid rgba(137,24,24,.14);
+  font-family:"Inter",sans-serif;font-size:10px;font-weight:700;color:var(--red);
+  cursor:pointer;transition:all .18s;letter-spacing:.04em}
+.tb-chip:hover{background:rgba(137,24,24,.13)}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--red)}
+.lang-sw{font-family:"Inter",sans-serif;font-size:10px;font-weight:600}
+.lang-sw ul{list-style:none;display:flex;gap:5px}
+.lang-sw a{text-decoration:none;color:#aaa;padding:3px 6px;border-radius:4px;transition:color .15s}
+.lang-sw .current-lang a{color:var(--red);font-weight:900;pointer-events:none}
+.menu-wrap{position:relative}
+.menu-btn{background:transparent;border:none;cursor:pointer;color:var(--text);padding:7px;border-radius:6px;transition:background .18s;display:flex;align-items:center}
 .menu-btn:hover{background:rgba(0,0,0,.06)}
-.menu-dropdown{position:absolute;right:0;top:100%;margin-top:8px;min-width:140px;background:#ffffff;border:1px solid rgba(0,0,0,.1);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.08);display:none;z-index:101;overflow:hidden;font-family:"Inter",sans-serif}
-.menu-dropdown.show{display:block}
-.menu-dropdown a{display:block;padding:10px 16px;color:#333333;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.05em;transition:background .2s}
-.menu-dropdown a:hover{background:rgba(136,24,24,.06);color:var(--blue)}
+.menu-dd{position:absolute;right:0;top:calc(100% + 8px);min-width:138px;background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.1);display:none;z-index:200;overflow:hidden;font-family:"Inter",sans-serif}
+.menu-dd.show{display:block}
+.menu-dd a{display:block;padding:10px 15px;color:#333;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.05em;transition:background .14s}
+.menu-dd a:hover{background:var(--rs);color:var(--red)}
 
-/* Modal overlays */
-.overlay-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease;font-family:"Inter",sans-serif}
-.overlay-modal.show{display:flex;opacity:1}
-.modal-card{background:#ffffff;border:1px solid rgba(0,0,0,.15);border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.2);width:min(90vw,720px);max-height:85vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.modal-card.mini{width:min(90vw,420px)}
-.close-btn{position:absolute;top:16px;right:18px;background:transparent;border:none;font-size:24px;cursor:pointer;color:#888888;transition:color .2s;z-index:10}
-.close-btn:hover{color:#111111}
-.modal-header{padding:20px 24px;border-bottom:1px solid rgba(0,0,0,.08);font-size:18px;font-weight:800;color:#111111}
-.blog-layout{display:grid;grid-template-columns:220px 1fr;height:450px}
-.blog-sidebar{border-right:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.015);padding:18px}
-.blog-sidebar h3{font-size:10px;text-transform:uppercase;color:#888888;letter-spacing:.05em;margin-bottom:12px}
-.blog-link{padding:10px 12px;border-radius:6px;font-size:12px;font-weight:700;color:#555555;cursor:pointer;margin-bottom:6px;transition:all .2s}
-.blog-link.active,.blog-link:hover{background:rgba(136,24,24,.06);color:var(--blue)}
-.blog-content{padding:24px;overflow-y:auto;background:#ffffff;font-family:"Cormorant Garamond",serif}
-.blog-post{display:none}
-.blog-post.active{display:block}
-.blog-post h2{font-size:24px;font-weight:800;margin-bottom:8px;color:#111111;line-height:1.2}
-.post-meta{font-size:12px;color:#888888;margin-bottom:16px;font-family:"Inter",sans-serif}
-.blog-post p{font-size:17px;line-height:1.6;color:#333333;margin-bottom:14px}
-.contact-content{padding:24px}
-.contact-content p{font-size:14px;color:#4b5563;line-height:1.5;margin-bottom:20px}
-.contact-links{display:flex;flex-direction:column;gap:12px}
-.contact-item{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.01);text-decoration:none;color:#333333;font-family:"JetBrains Mono",monospace;font-size:12px;transition:all .2s}
-.contact-item.fb{color:#1877f2}
-.contact-item:hover{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.15)}
+/* Progress bar moved to bottom center */
+.progress{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:7px}
+.bar{width:26px;height:3px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden}
+.bar span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--red),var(--green))}
 
-.progress{position:absolute;right:84px;top:38px;z-index:50;display:flex;gap:8px}
-.bar{width:32px;height:4px;border-radius:99px;background:rgba(0,0,0,0.08);overflow:hidden}
-.bar span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--green))}
+.copy{position:relative;z-index:5;min-height:380px}
+.copy-scene{position:absolute;left:0;right:0;top:50%;transform:translateY(-42%) translateY(24px);opacity:0;filter:blur(10px);pointer-events:none}
+.copy-scene.active{opacity:1;filter:blur(0);transform:translateY(-42%);pointer-events:auto}
+.kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:900;margin-bottom:16px;font-family:"Inter",sans-serif}
+h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-weight:700;max-width:560px;color:#0f0f0f;text-wrap:balance}
+.copy p{font-size:16px;line-height:1.6;color:#4b5563;margin-top:20px;max-width:400px;font-family:"Inter",sans-serif;text-wrap:pretty}
+.chips{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap;font-family:"Inter",sans-serif}
+.chip{padding:5px 11px;border-radius:999px;border:1px solid rgba(0,0,0,.09);background:rgba(0,0,0,.03);font-size:10px;color:#374151;font-weight:700}
+.chip.hot{background:linear-gradient(135deg,rgba(137,24,24,.92),rgba(168,37,37,.88));color:#fff;border:0;box-shadow:0 3px 12px rgba(137,24,24,.18)}
+.chip.go{background:linear-gradient(135deg,rgba(15,107,62,.9),rgba(11,87,45,.88));color:#fff;border:0}
+.learn-more{display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:8px 16px;border-radius:999px;border:1px solid rgba(137,24,24,.28);background:transparent;color:var(--red);font-family:"Inter",sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;cursor:pointer;text-decoration:none;transition:all .18s}
+.learn-more:hover{background:var(--red);color:#fff}
+.canvas{position:relative;z-index:3;height:min(76vh,780px);min-height:560px;width:100%;display:flex;align-items:center;justify-content:center}
 
-.copy{position:relative;z-index:5;min-height:360px}
-.copy-scene{position:absolute;left:0;right:0;top:50%;transform:translateY(-42%) translateY(24px);opacity:0;filter:blur(10px)}
-.copy-scene.active{opacity:1;filter:blur(0);transform:translateY(-42%)}
-.kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:900;margin-bottom:14px;font-family:"Inter",sans-serif}
-h1{font-size:clamp(36px,5vw,72px);line-height:.94;letter-spacing:-.03em;font-weight:800;max-width:650px;color:#111111;text-wrap:balance}
-.copy p{font-size:18px;line-height:1.5;color:#4b5563;margin-top:22px;max-width:430px;font-family:"Inter",sans-serif;text-wrap:pretty}
-.chips{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;font-family:"Inter",sans-serif}
-.chip{padding:7px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.03);font-size:11px;color:#374151;font-weight:700}
-.chip.hot{background:linear-gradient(135deg,rgba(136,24,24,.9),rgba(136,24,24,.85));color:#ffffff;border:0;box-shadow:0 4px 12px rgba(136,24,24,.15)}
+.window{position:relative;width:min(100%,870px);height:100%;overflow:hidden;border-radius:18px;border:1px solid rgba(0,0,0,.11);background:#fdfdfc;box-shadow:0 42px 120px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.9);display:flex;flex-direction:column}
+.window.connection-mode{width:min(88%,720px);height:82%}
+.window.connection-mode .wb-tags{display:none}
+.window::before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 22% 0%,rgba(137,24,24,.03),transparent 28%);pointer-events:none;z-index:1}
+.winbar{height:48px;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid rgba(0,0,0,.07);background:rgba(0,0,0,.016);font-size:11px;color:#777;position:relative;z-index:10;font-family:"JetBrains Mono",monospace;flex-shrink:0}
+.traf{display:flex;gap:6px}
+.traf i{width:10px;height:10px;border-radius:50%;display:block}
+.r{background:#ff5f57}.y{background:#febc2e}.g{background:#28c840}
+.wpath{flex:1;margin-left:8px}.wpath strong{color:#111}
+.wb-tags{display:flex;gap:5px;margin-left:auto;align-items:center}
+.wb-tag{padding:2px 8px;border-radius:999px;background:rgba(137,24,24,.07);border:1px solid rgba(137,24,24,.12);font-size:8px;font-weight:700;color:var(--red);font-family:"Inter",sans-serif;letter-spacing:.05em}
+.wb-tag.on{background:linear-gradient(135deg,var(--red),#a82525);color:#fff;border-color:transparent}
 
-/* Unified Fixed Window Layout */
-.canvas{position:relative;z-index:3;height:min(74vh,760px);min-height:580px;width:100%;display:flex;align-items:center;justify-content:center}
-.window{position:relative;width:min(100%,840px);height:100%;overflow:hidden;border-radius:20px;border:1px solid rgba(0,0,0,.14);background:#ffffff;box-shadow:0 35px 100px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.8);display:flex;flex-direction:column}
-.window:before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 22% 0%,rgba(136,24,24,.04),transparent 34%);pointer-events:none}
-.winbar{height:54px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.025);font-size:12px;color:#555555;position:relative;z-index:2;font-family:"JetBrains Mono",monospace;flex-shrink:0}
-.traffic{display:flex;gap:7px}
-.traffic i{width:11px;height:11px;border-radius:50%;display:block}
-.r{background:#ff5f57}
-.y{background:#febc2e}
-.g{background:#28c840}
-.path strong{color:#111111}
+/* Standard Client Workspace Layout */
+.sc-container{position:relative;flex:1;width:100%;height:100%;overflow:hidden}
+.sc{position:absolute;inset:0;transition:opacity .28s,visibility .28s;opacity:0;visibility:hidden;pointer-events:none;background:#fafaf8}
+.sc.show{opacity:1;visibility:visible;pointer-events:auto}
 
-/* Workspace sub-layouts */
-.connection-board, .software-layout {
-  position: absolute; inset: 54px 0 0 0;
-  transition: opacity 0.3s, visibility 0.3s;
-  opacity: 0; visibility: hidden; pointer-events: none;
-}
-.connection-board.show, .software-layout.show {
-  opacity: 1; visibility: visible; pointer-events: auto;
-}
+/* Workspace Frame (Scenes 1-6) */
+.workspace-frame{display:grid;grid-template-columns:140px 1fr 180px;height:100%;width:100%;background:#fafaf8;overflow:hidden;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.w-left{border-right:1px solid rgba(0,0,0,.07);background:#fafaf8;padding:12px;display:flex;flex-direction:column;gap:8px}
+.w-middle{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.w-right{border-left:1px solid rgba(0,0,0,.07);background:#fafaf8;padding:12px;display:flex;flex-direction:column;gap:12px}
 
-/* Connection Board styles */
-.connection-board{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:34px;background:#fcfcfc}
-.conn-group{border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#ffffff;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 12px rgba(0,0,0,.02)}
-.conn-group.dev{border-top:4px solid var(--green)}
-.conn-group.prod{border-top:4px solid var(--blue)}
-.group-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.group-name{font-family:"Inter",sans-serif;font-size:11px;font-weight:900;letter-spacing:.05em;color:#555555;text-transform:uppercase}
-.group-badge{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:700;font-family:"Inter",sans-serif}
-.group-badge.dev{background:rgba(16,122,74,.1);color:var(--green)}
-.group-badge.prod{background:rgba(136,24,24,.1);color:var(--blue)}
-.conn-card{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid rgba(0,0,0,.06);border-radius:10px;background:rgba(0,0,0,.005);cursor:pointer;position:relative;transition:all .2s;font-family:"Inter",sans-serif}
-.conn-card:hover,.conn-card.active{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.12)}
-.conn-card.active{box-shadow:inset 0 0 0 1px rgba(136,24,24,.18), 0 4px 12px rgba(0,0,0,.05)}
-.db-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:900;color:#ffffff}
-.db-icon.pg{background:#336791}
-.db-icon.my{background:#00758f}
-.db-icon.sq{background:#003b57}
-.conn-details{display:flex;flex-direction:column;gap:2px}
-.conn-name{font-size:13px;font-weight:700;color:#222222}
-.conn-host{font-size:10px;color:#888888;font-family:"JetBrains Mono",monospace}
+/* Left panel styles */
+.wl-hd{font-family:"Inter",sans-serif;font-size:8px;font-weight:900;letter-spacing:.1em;color:#aaa;text-transform:uppercase;margin-bottom:4px}
+.wl-item{font-family:"Inter",sans-serif;font-size:11px;color:#555;padding:6px 10px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+.wl-item:hover{background:rgba(0,0,0,.03)}
+.wl-item.active{background:var(--rs);color:var(--red);font-weight:700}
+.wl-badge{font-size:8px;padding:1px 5px;border-radius:99px;background:rgba(0,0,0,.04);color:#888}
 
-.software-layout{display:grid;grid-template-columns:170px 1fr 230px;overflow:hidden;background:#ffffff}
+/* Middle panel splitter parts */
+.w-mid-top{padding:14px 16px 12px;border-bottom:1px solid rgba(0,0,0,.05);background:#fff;flex-shrink:0;position:relative}
+.run-btn{position:absolute;right:12px;bottom:9px;border:0;border-radius:6px;background:var(--red);color:#fff;padding:6px 13px;font:700 10px "Inter",sans-serif;cursor:pointer}
+.w-mid-bottom{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column;background:#fff}
+.data-view{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+.data-view .tg{font-size:10px}
+.data-view .tg tbody tr{height:28px}
+.data-view-status{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:1px solid rgba(0,0,0,.07);font:10px "Inter",sans-serif;color:#666}
+.data-view-status strong{color:var(--green)}
+.relation-pop{position:absolute;z-index:8;width:210px;padding:11px;border-radius:9px;background:#171716;color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.22);font:10px "Inter",sans-serif;opacity:0;transform:translateY(5px);transition:opacity .18s,transform .18s;pointer-events:none}
+.relation-pop.show{opacity:1;transform:none}
+.relation-pop b{display:block;margin-bottom:7px;font-size:11px}
+.relation-pop div{display:flex;justify-content:space-between;padding:3px 0;color:#bbb}
+.relation-pop div span:last-child{color:#fff}
 
-/* Column 1: Sidebar */
-.sidebar{border-right:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.012);padding:18px 12px;display:flex;flex-direction:column}
-.side-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#777777;font-weight:700;margin-bottom:13px;font-family:"Inter",sans-serif}
-.table-row{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border-radius:8px;margin-bottom:5px;color:#555555;font-size:12px;position:relative;transition:.25s;font-family:"JetBrains Mono",monospace;cursor:pointer}
-.table-row span{color:#999999;font-size:10px}
-.table-row.active,.table-row.demo-hot{background:rgba(136,24,24,.07);color:var(--blue);box-shadow:inset 0 0 0 1px rgba(136,24,24,.12);font-weight:700}
-.table-row.active span,.table-row.demo-hot span{color:var(--blue)}
+/* Right panel Widget Manager */
+.wr-title{font-family:"Inter",sans-serif;font-size:8px;font-weight:900;letter-spacing:.12em;color:#aaa;text-transform:uppercase;margin-bottom:2px}
+.widget-box{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,.02)}
+.widget-box.removed{opacity:0;transform:translateX(18px);pointer-events:none}
+.widget-box{transition:opacity .25s,transform .25s}
+.widget-remove{margin-left:auto;border:0;background:transparent;color:#999;font-size:15px;line-height:1;cursor:pointer}
+.resource-panel{display:none;position:absolute;inset:12px;z-index:9;background:#fafaf8;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:22px}
+.resource-panel.show{display:block}
+.resource-panel h3{margin:0 0 14px;font:700 22px "Cormorant Garamond",serif}
+.resource-links{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.resource-links a{padding:11px;border-radius:7px;background:#fff;color:#222;text-decoration:none;font:600 11px "Inter",sans-serif}
+.data-view.is-empty{opacity:0;pointer-events:none}
+.canvas.resources-mode .window{opacity:0;transform:translateY(18px) scale(.97);pointer-events:none}
+.window{transition:width .45s cubic-bezier(.22,1,.36,1),height .45s cubic-bezier(.22,1,.36,1),opacity .35s,transform .35s}
+.site-outro{display:none;position:absolute;z-index:8;left:50%;top:50%;width:min(100%,870px);transform:translate(-50%,-50%);padding:28px 0;border-top:1px solid rgba(0,0,0,.12);border-bottom:1px solid rgba(0,0,0,.12)}
+.site-outro.show{display:block}
+.site-outro h3{margin:0 0 18px;font:700 clamp(26px,4vw,42px) "Cormorant Garamond",serif}
+.outro-links{display:flex;flex-wrap:wrap;gap:10px}
+.outro-links a{color:#222;text-decoration:none;padding:10px 14px;background:#fff;border-radius:7px;font:600 11px "Inter",sans-serif}
+.stage.resources-mode .copy{opacity:0;pointer-events:none}
+.stage.resources-mode .canvas{grid-column:1/-1}
+.wb-hd{font-family:"Inter",sans-serif;font-size:9px;font-weight:800;color:#6b7280;border-bottom:1px solid rgba(0,0,0,.04);padding-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.wb-list{display:flex;flex-direction:column;gap:5px}
+.wb-row{display:flex;justify-content:space-between;align-items:center;font-family:"JetBrains Mono",monospace;font-size:9px;color:#555}
 
-/* Column 2: Main Area */
-.main-area{display:grid;grid-template-rows:48% 52%;overflow:hidden;border-right:1px solid rgba(0,0,0,.08)}
-.sql-pane{border-bottom:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.003);position:relative;padding:18px;overflow-y:auto}
-.editor{font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.62;color:#222222;position:relative;z-index:2}
-.kw{color:var(--blue);font-weight:700}
-.tbl{color:#0c58a6}
-.col{color:var(--green)}
-.num{color:var(--yellow)}
-.muted{color:#888888}
-.caret{display:inline-block;width:2px;height:1.2em;background:var(--blue);vertical-align:-.22em;margin-left:2px;animation:blink .7s steps(1,end) infinite}@keyframes blink{50%{opacity:0}}
+/* Active Highlight Styling */
+.highlight-box{box-shadow:0 0 0 2px rgba(137,24,24,.35), 0 0 16px rgba(137,24,24,.18) !important}
+.highlight-box-green{box-shadow:0 0 0 2px rgba(15,107,62,.35), 0 0 16px rgba(15,107,62,.18) !important}
 
-.run-chip{position:absolute;right:18px;top:18px;border-radius:999px;background:linear-gradient(135deg,var(--blue),#a82525);color:#ffffff;padding:7px 12px;font-size:11px;font-weight:800;box-shadow:0 6px 18px rgba(136,24,24,.2);font-family:"Inter",sans-serif;cursor:pointer;transition:transform .1s}
-.run-chip.clicking{transform:scale(0.92)}
+/* Scene 0: Connection Board (Full frame) */
+#s0{padding:28px;background:#fafaf8;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cg{border:1px solid rgba(0,0,0,.07);border-radius:14px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:10px}
+.cg.dev{border-top:3px solid var(--green)}.cg.prod{border-top:3px solid var(--red)}
+.cg-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.cg-n{font-family:"Inter",sans-serif;font-size:9px;font-weight:900;letter-spacing:.08em;color:#888;text-transform:uppercase}
+.cg-b{font-size:8px;padding:2px 7px;border-radius:99px;font-weight:700;font-family:"Inter",sans-serif}
+.cg-b.dev{background:rgba(15,107,62,.1);color:var(--green)}.cg-b.prod{background:rgba(137,24,24,.1);color:var(--red)}
+.cc{display:flex;align-items:center;gap:11px;padding:9px 12px;border:1px solid rgba(0,0,0,.06);border-radius:9px;cursor:pointer;transition:all .18s;font-family:"Inter",sans-serif;position:relative}
+.cc:hover,.cc.on{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.12)}
+.cc.on{box-shadow:inset 0 0 0 1.5px rgba(137,24,24,.2)}
+.dbi{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:900;color:#fff;flex-shrink:0}
+.dbi.pg{background:#336791}.dbi.my{background:#00758f}.dbi.sq{background:#003b57}
+.cc-n{font-size:12px;font-weight:700;color:#222}.cc-h{font-size:9px;color:#aaa;font-family:"JetBrains Mono",monospace;margin-top:1px}
+.cc-p{font-size:9px;font-weight:700;color:var(--green);background:rgba(15,107,62,.08);padding:2px 6px;border-radius:99px;font-family:"Inter",sans-serif;margin-left:auto}
 
-.popup{position:absolute;z-index:20;min-width:230px;overflow:hidden;border-radius:10px;border:1px solid rgba(136,24,24,.22);background:rgba(255,255,255,.98);box-shadow:0 15px 35px rgba(0,0,0,.08);backdrop-filter:blur(8px);opacity:0;transform:translateY(-8px) scale(.965);transition:.22s cubic-bezier(.16,1,.3,1);visibility:hidden;pointer-events:none}
-.popup.show{visibility:visible;pointer-events:auto;opacity:1;transform:translateY(0) scale(1)}
-.popup .head{padding:6px 10px;border-bottom:1px solid rgba(0,0,0,.06);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#777777;font-family:"Inter",sans-serif;font-weight:700}
-.item{display:flex;justify-content:space-between;gap:18px;padding:9px 11px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#222222}
-.item.active{background:linear-gradient(90deg,rgba(136,24,24,.07),rgba(136,24,24,.01))}
-.tag{font-family:Inter,system-ui;font-size:9px;color:#777777}
+/* Dynamic workspace inner wrappers */
+.feat-sc{display:none;position:absolute;z-index:6;overflow:hidden;background:#fafaf8;border:1px solid rgba(0,0,0,.12);border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,.14);pointer-events:none}
+.feat-sc.show{display:flex;flex-direction:column}
+#featS1{right:12px;top:12px;width:min(430px,72%);height:210px}
+#featS2{left:50%;bottom:18px;width:min(430px,78%);height:160px;transform:translateX(-50%)}
+#featS3{right:12px;top:12px;width:min(440px,76%);height:230px}
+#featS4{display:none!important}
+#featS5{right:12px;bottom:12px;width:190px;height:100px}
+#featS6{right:12px;top:12px;width:min(440px,78%);height:260px!important}
 
-#autoPopup{top:54px;left:18px}
-#snippetPopup{top:84px;left:18px;width:340px}
-.snippet-result{margin-top:10px;padding:12px;border-radius:8px;background:rgba(16,122,74,.04);border:1px solid rgba(16,122,74,.14);opacity:0;transform:translateY(12px);transition:.28s cubic-bezier(.16,1,.3,1);font-family:"JetBrains Mono",monospace;font-size:12px}
-.snippet-result.show{opacity:1;transform:translateY(0)}
+/* Scene 1: Autocomplete */
+#s1{display:grid;grid-template-columns:1fr 1fr;height:100%}
+.ast-left{background:#fafaf8;border-right:1px solid rgba(0,0,0,.07);padding:14px;display:flex;flex-direction:column;gap:0;overflow:hidden}
+.ed-lbl{font-family:"Inter",sans-serif;font-size:8px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.ed{font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.7;color:#222;min-height:30px;padding:4px 72px 4px 6px;margin:-4px -6px;border-radius:5px;transition:background .18s,box-shadow .18s}
+.ed.focused{background:#fff;box-shadow:0 0 0 2px rgba(137,24,24,.18)}
+.kw{color:var(--red);font-weight:700}.tbl{color:var(--blue)}.col{color:var(--green)}.num{color:var(--amber)}.cm{color:#bbb}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--red);vertical-align:-.18em;margin-left:1px;animation:blink .7s steps(1,end) infinite}
+@keyframes blink{50%{opacity:0}}
+.ac-pop{margin-top:10px;border:1px solid var(--rb);border-radius:9px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.07);overflow:hidden;opacity:0;transform:translateY(-5px) scale(.97);transition:.2s cubic-bezier(.16,1,.3,1)}
+.ac-pop.show{opacity:1;transform:none}
+.ac-hd{padding:4px 10px;background:rgba(0,0,0,.018);border-bottom:1px solid rgba(0,0,0,.05);font-family:"Inter",sans-serif;font-size:8px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em}
+.ac-it{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#222}
+.ac-it.sel{background:linear-gradient(90deg,rgba(137,24,24,.06),transparent)}
+.ac-cat{font-family:"Inter",sans-serif;font-size:8px;padding:1px 6px;border-radius:3px;font-weight:700}
+.ck{background:rgba(137,24,24,.08);color:var(--red)}.ct{background:rgba(15,107,62,.08);color:var(--green)}.cc2{background:rgba(26,79,196,.08);color:var(--blue)}
+.ast-right{padding:14px;display:flex;flex-direction:column;overflow:hidden}
+.ast-ttl{font-family:"Inter",sans-serif;font-size:8px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.ast-row{display:flex;align-items:center;gap:6px;font-family:"JetBrains Mono",monospace;font-size:10px;color:#555;padding:3px 6px;border-radius:5px;transition:background .15s}
+.ast-row.hi{background:rgba(137,24,24,.06);color:var(--red);font-weight:700}
+.ast-row.ok{color:var(--green)}
+.ast-tag{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;font-family:"Inter",sans-serif;background:rgba(0,0,0,.05);color:#888}
+.ast-lg{font-size:8px;color:var(--green);font-weight:700;font-family:"Inter",sans-serif}
+.ast-il{font-size:8px;color:#ef4444;font-weight:700;font-family:"Inter",sans-serif}
 
-/* Data grid */
-.data-pane{display:flex;flex-direction:column;overflow:hidden;background:#ffffff}
-.data-toolbar{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid rgba(0,0,0,.06);font-size:11px;color:#666666;font-family:"Inter",sans-serif;font-weight:500;flex-shrink:0}
-.status-ok{color:var(--green);opacity:0;transform:translateY(5px);transition:.2s}
-.loaded .status-ok{opacity:1;transform:translateY(0)}
+/* Scene 2: FK Join Diagram */
+.fk-dia{flex:1;padding:16px 20px;display:flex;align-items:center;justify-content:center;gap:0}
+.fk-tbl{border:1px solid rgba(0,0,0,.1);border-radius:10px;background:#fff;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.04);min-width:128px}
+.fk-th{padding:7px 12px;background:rgba(0,0,0,.02);border-bottom:1px solid rgba(0,0,0,.07);font-family:"Inter",sans-serif;font-size:10px;font-weight:900;color:#555;text-transform:uppercase;letter-spacing:.06em}
+.fk-r{padding:5px 12px;font-family:"JetBrains Mono",monospace;font-size:10px;color:#333;border-bottom:1px solid rgba(0,0,0,.04);display:flex;align-items:center;gap:6px}
+.fk-r:last-child{border-bottom:0}
+.pk{font-size:8px;background:rgba(137,24,24,.1);color:var(--red);padding:1px 5px;border-radius:3px;font-weight:700;font-family:"Inter",sans-serif}
+.fk{font-size:8px;background:rgba(15,107,62,.1);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:700;font-family:"Inter",sans-serif}
+.fk-arr{display:flex;flex-direction:column;align-items:center;padding:0 14px;gap:4px}
+.fk-ln{width:56px;height:2px;background:linear-gradient(90deg,var(--green),rgba(15,107,62,.2));position:relative;transition:all .3s}
+.fk-ln::after{content:"▶";position:absolute;right:-8px;top:-7px;font-size:11px;color:var(--green)}
+.fk-snip{margin:0 20px 16px;border-radius:8px;background:rgba(15,107,62,.04);border:1px solid rgba(15,107,62,.14);padding:10px 14px;font-family:"JetBrains Mono",monospace;font-size:12px;opacity:0;transform:translateY(8px);transition:.24s}
+.fk-snip.show{opacity:1;transform:none}
 
-.grid-viewport{flex:1;overflow:hidden;position:relative}
-.table-grid{width:100%;border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:11px;color:#333333;opacity:.23;filter:blur(2px);transform:translateY(8px);transition:.24s}
-.loaded .table-grid{opacity:1;filter:blur(0);transform:translateY(0)}
-.table-grid th,.table-grid td{padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.05);text-align:left;white-space:nowrap}
-.table-grid th{color:#555555;background:rgba(0,0,0,.025);border-bottom:1px solid rgba(0,0,0,.08);font-weight:700}
-.sweep{position:absolute;inset:0 -40% 0 -40%;background:linear-gradient(90deg,transparent,rgba(136,24,24,.08),rgba(16,122,74,.05),transparent);transform:translateX(-70%);opacity:0;pointer-events:none;z-index:2}
-.loaded .sweep{animation:sweep .55s ease}@keyframes sweep{0%{opacity:0;transform:translateX(-70%)}28%{opacity:1}100%{opacity:0;transform:translateX(70%)}}
+/* Scene 3: Speed comparison */
+#s3{display:grid;grid-template-columns:1fr 1fr;background:#fafaf8;height:100%}
+.sp-l{border-right:1px solid rgba(0,0,0,.07);padding:24px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.sp-stat{display:flex;flex-direction:column;gap:2px}
+.sp-num{font-family:"JetBrains Mono",monospace;font-size:clamp(22px,2.8vw,36px);font-weight:900;color:#0f0f0f;letter-spacing:-.03em;line-height:1}
+.sp-unit{font-family:"Inter",sans-serif;font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.1em}
+.sp-desc{font-family:"Inter",sans-serif;font-size:9px;color:#bbb;margin-top:1px}
+.sp-bar{height:3px;border-radius:99px;background:rgba(0,0,0,.06);margin-top:4px;overflow:hidden}
+.sp-fill{height:100%;border-radius:99px;width:0;transition:width .6s ease}
+.sp-r{padding:20px;display:flex;flex-direction:column;gap:12px}
+.cmp-card{border:1px solid rgba(0,0,0,.07);border-radius:10px;padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.cmp-lbl{font-family:"Inter",sans-serif;font-size:9px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.cmp-row{display:flex;align-items:center;gap:8px}
+.cmp-name{font-family:"Inter",sans-serif;font-size:10px;color:#555;font-weight:600;min-width:76px}
+.cmp-bw{flex:1;height:6px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden}
+.cmp-bf{height:100%;border-radius:99px;transition:width .5s ease}
+.cmp-bf.hs{background:linear-gradient(90deg,var(--red),#a82525)}.cmp-bf.el{background:rgba(0,0,0,.15)}
+.cmp-v{font-family:"JetBrains Mono",monospace;font-size:10px;color:#555;min-width:36px;text-align:right}
 
-.fk-cell{position:relative;display:inline-flex;gap:5px;align-items:center;border-radius:4px;padding:2px 6px;background:rgba(136,24,24,.05);box-shadow:inset 0 0 0 1px rgba(136,24,24,.1);color:var(--blue);font-weight:700;cursor:pointer}
-.fk-cell.demo-hover,.fk-cell:hover{background:rgba(136,24,24,.12);box-shadow:inset 0 0 0 1px rgba(136,24,24,.28)}
+/* Scene 4: Hover Inspect */
+.dt{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid rgba(0,0,0,.05);font-size:10px;color:#888;font-family:"Inter",sans-serif;font-weight:600;flex-shrink:0}
+.dt-ok{color:var(--green);font-weight:700}
+.tg{width:100%;border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:11px;color:#2a2a2a}
+.tg th{padding:6px 12px;background:rgba(0,0,0,.02);border-bottom:1px solid rgba(0,0,0,.07);font-size:9px;font-weight:700;color:#777;text-align:left;white-space:nowrap}
+.tg td{padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04);white-space:nowrap}
+.fk-c{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:4px;background:rgba(137,24,24,.05);box-shadow:inset 0 0 0 1px rgba(137,24,24,.12);color:var(--red);font-weight:700;cursor:pointer;position:relative;transition:all .15s}
+.fk-c.hl,.fk-c:hover{background:rgba(137,24,24,.12);box-shadow:inset 0 0 0 1px rgba(137,24,24,.3)}
+.fk-pop{position:absolute;z-index:30;min-width:170px;border-radius:10px;border:1px solid rgba(15,107,62,.22);background:#fff;box-shadow:0 10px 32px rgba(0,0,0,.1);padding:10px 12px;font-family:"JetBrains Mono",monospace;font-size:10px;opacity:0;transform:translateY(-4px) scale(.96);transition:.18s cubic-bezier(.16,1,.3,1);visibility:hidden;pointer-events:none}
+.fk-pop.show{opacity:1;transform:none;visibility:visible}
+.fkp-t{font-family:"Inter",sans-serif;font-size:8px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.fkp-r{display:flex;justify-content:space-between;gap:10px;color:#444;padding:1.5px 0}
+.fkp-r span:first-child{color:#bbb}
+.fkp-p{margin-top:5px;padding-top:4px;border-top:1px solid rgba(0,0,0,.05);font-size:9px;color:#bbb;font-family:"Inter",sans-serif}
+.ok-g{color:var(--green);font-weight:700}.ok-a{color:var(--amber)}.ok-r{color:#ef4444}
 
-/* Column 3: Widget Pane */
-.widget-pane{background:rgba(0,0,0,.008);padding:18px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;font-family:"Inter",sans-serif}
-.widget-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888888;font-weight:700;border-bottom:1px solid rgba(0,0,0,.06);padding-bottom:6px}
-.connection-status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#222222}
-.indicator{width:8px;height:8px;border-radius:50%;display:block}
-.indicator.green{background:var(--green)}
-.widget-details{display:flex;flex-direction:column;gap:6px}
-.detail-row{display:flex;justify-content:space-between;font-size:11px;color:#555555;font-family:"JetBrains Mono",monospace}
-.detail-row span:first-child{color:#888888}
-.text-green{color:var(--green);font-weight:700}
-.schema-tree{display:flex;flex-direction:column;gap:4px;font-family:"JetBrains Mono",monospace;font-size:11px;color:#333333}
-.schema-node{font-weight:700;color:#111111}
-.schema-leaf{padding-left:10px;color:#666666}
-.stat-large{font-size:28px;font-weight:900;color:#111111;font-family:"JetBrains Mono",monospace}
-.stat-label{font-size:10px;color:#888888;font-weight:500;margin-top:2px}
-.hover-card{border-radius:10px;border:1px solid rgba(16,122,74,0.2);background:#ffffff;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.04);display:flex;flex-direction:column;gap:8px}
-.badge{font-size:9px;color:#ffffff;background:var(--green);border-radius:99px;padding:2px 6px;font-weight:700;align-self:flex-start}
-.path-line{color:#0b572d;font-family:"JetBrains Mono",monospace;font-size:10px;padding:6px;border-radius:6px;background:rgba(16,122,74,.06);margin-top:4px}
-.fps-meter{font-size:10px;font-weight:700;color:var(--green);background:rgba(16,122,74,.08);padding:4px 8px;border-radius:4px;align-self:flex-start}
+/* Scene 5: Virtual Grid */
+#s5{display:flex;flex-direction:column;height:100%}
+.vg-hd{border-bottom:1px solid rgba(0,0,0,.07);padding:10px 16px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.vg-ctr{font-family:"JetBrains Mono",monospace;font-size:11px;color:#555}
+.vg-ctr strong{color:var(--green);font-size:13px}
+.vg-badge{padding:3px 9px;border-radius:999px;background:rgba(15,107,62,.08);border:1px solid rgba(15,107,62,.15);font-family:"Inter",sans-serif;font-size:9px;font-weight:700;color:var(--green)}
+.vg-grid{flex:1;overflow:hidden;position:relative}
+.vg-t{width:100%;border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:11px;color:#2a2a2a}
+.vg-t th{padding:5px 10px;background:rgba(0,0,0,.02);border-bottom:1px solid rgba(0,0,0,.07);font-size:9px;font-weight:700;color:#888;text-align:left}
+.vg-t td{padding:5px 10px;border-bottom:1px solid rgba(0,0,0,.04);white-space:nowrap}
+.vg-thumb{position:absolute;right:5px;top:0;width:3px;border-radius:99px;background:linear-gradient(var(--red),#a82525);box-shadow:0 0 6px rgba(137,24,24,.3)}
+.vg-m{position:absolute;bottom:14px;right:14px;background:rgba(255,255,255,.95);border:1px solid rgba(15,107,62,.18);border-radius:8px;padding:8px 12px;font-family:"JetBrains Mono",monospace;font-size:10px;display:flex;flex-direction:column;gap:3px;backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,.08);transition:all .3s}
+.vm-r{display:flex;justify-content:space-between;gap:14px}
+.vm-r span:first-child{color:#bbb}.vm-r span:last-child{color:var(--green);font-weight:700}
 
-.scrollbar{position:absolute;right:6px;top:8px;bottom:8px;width:4px;background:rgba(0,0,0,.04);border-radius:99px}
-.thumb{position:absolute;right:0;top:0;width:4px;height:44px;background:linear-gradient(var(--blue),#a82525);border-radius:99px;box-shadow:0 0 8px rgba(136,24,24,.3)}
+/* Scene 6: Plugin Manager (Mock workspace integration) */
+#s6{display:grid;grid-template-columns:1fr 1fr;height:100%;background:#fafaf8}
+.pm-l{border-right:1px solid rgba(0,0,0,.07);padding:14px;overflow-y:auto}
+.pm-hd{font-family:"Inter",sans-serif;font-size:9px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.pm-lst{display:flex;flex-direction:column;gap:8px}
+.pm-it{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(0,0,0,.07);border-radius:10px;background:#fff;transition:all .18s;font-family:"Inter",sans-serif}
+.pm-it.on{border-color:rgba(15,107,62,.2);background:rgba(15,107,62,.02)}
+.pm-it:hover{border-color:rgba(0,0,0,.12)}
+.pm-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(0,0,0,.04);flex-shrink:0}
+.pm-inf{flex:1}.pm-nm{font-size:11px;font-weight:700;color:#222}.pm-ds{font-size:9px;color:#aaa;margin-top:1px}
+.pm-tg{width:28px;height:15px;border-radius:99px;border:none;cursor:pointer;position:relative;transition:background .18s;flex-shrink:0}
+.pm-tg.on{background:var(--green)}.pm-tg.off{background:#ddd}
+.pm-tg::after{content:"";position:absolute;top:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:left .18s}
+.pm-tg.on::after{left:15px}.pm-tg.off::after{left:2px}
+.pm-st{font-size:8px;padding:2px 6px;border-radius:999px;font-weight:700;font-family:"Inter",sans-serif}
+.pm-st.on{background:rgba(15,107,62,.1);color:var(--green)}.pm-st.off{background:rgba(0,0,0,.05);color:#bbb}
+.pm-r{padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+.pm-sc{border:1px solid rgba(0,0,0,.07);border-radius:10px;background:#fff;padding:14px;display:flex;flex-direction:column;gap:6px}
+.pm-sl{font-family:"Inter",sans-serif;font-size:9px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em}
+.pm-sv{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:900;color:#0f0f0f;line-height:1}
+.pm-ss{font-family:"Inter",sans-serif;font-size:9px;color:var(--green);font-weight:600}
+.pm-ac{border:1px solid rgba(0,0,0,.07);border-radius:10px;background:#fff;padding:12px}
+.pm-at{font-family:"Inter",sans-serif;font-size:9px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.pm-ar{display:flex;align-items:center;gap:8px;padding:4px 0;font-family:"JetBrains Mono",monospace;font-size:10px;color:#555}
+.pm-ad{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
-/* Mouse, highlight spots */
+/* Mouse */
 .mouse{position:fixed;z-index:9000;pointer-events:none;left:0;top:0}
-.mouse-scale{transition:transform .12s cubic-bezier(0.1, 0.8, 0.2, 1.0);transform-origin:0 0;filter:drop-shadow(0 8px 12px rgba(0,0,0,.15))}
-.mouse.click .mouse-scale{transform:scale(0.82)}
-.mouse-scale:after{content:"";position:absolute;left:9px;top:9px;width:18px;height:18px;border:2px solid rgba(136,24,24,.8);border-radius:50%;opacity:0}
-.mouse.click .mouse-scale:after{animation:mouseRing .55s ease forwards}@keyframes mouseRing{0%{opacity:1;transform:scale(.6)}100%{opacity:0;transform:scale(3.4)}}
+.mouse-s{transition:transform .11s cubic-bezier(.1,.8,.2,1);transform-origin:0 0;filter:drop-shadow(0 5px 9px rgba(0,0,0,.13))}
+.mouse.click .mouse-s{transform:scale(.82)}
+.click-rip{position:fixed;border:2px solid rgba(137,24,24,.7);border-radius:50%;pointer-events:none;z-index:8999;transform:translate(-50%,-50%);animation:rip-out .36s ease-out forwards}
+@keyframes rip-out{from{width:0;height:0;opacity:1}to{width:34px;height:34px;opacity:0}}
+.scroll-note{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);z-index:50;color:#bbb;font-size:10px;letter-spacing:.12em;font-family:"Inter",sans-serif;font-weight:700;text-transform:uppercase}
 
-/* Physical Click Ripple in DOM */
-.click-ripple {
-  position: fixed;
-  border: 2px solid rgba(136,24,24,0.8);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 8999;
-  transform: translate(-50%, -50%);
-  animation: ripple-out 0.4s ease-out forwards;
-}
-@keyframes ripple-out {
-  from { width: 0; height: 0; opacity: 1; }
-  to { width: 40px; height: 40px; opacity: 0; }
-}
+/* Modals */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.38);backdrop-filter:blur(10px);z-index:300;display:none;align-items:center;justify-content:center;font-family:"Inter",sans-serif}
+.ov.show{display:flex}
+.mc{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:18px;box-shadow:0 40px 100px rgba(0,0,0,.2);width:min(92vw,680px);max-height:86vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.mc.mini{width:min(92vw,420px)}
+.xbtn{position:absolute;top:13px;right:15px;background:transparent;border:none;font-size:22px;cursor:pointer;color:#ccc;transition:color .15s;z-index:10}
+.xbtn:hover{color:#111}
+.mhd{padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.07);font-size:16px;font-weight:800;color:#111;display:flex;align-items:center;gap:9px}
+.mhdi{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--red),#a82525);display:flex;align-items:center;justify-content:center}
 
-
-
-.scroll-note{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:50;color:#888888;font-size:11px;letter-spacing:.1em;font-family:"Inter",sans-serif;font-weight:700;text-transform:uppercase}
-
-.table-row.clicking:after,.run-chip.clicking:after,.load1m.clicking:after,.fk-cell.demo-hover:after{content:"";position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border:2px solid rgba(136,24,24,.8);border-radius:50%;animation:ripple .55s ease forwards}
-
-.big-num-container{padding:14px;border:1px solid rgba(0,0,0,.06);border-radius:12px;background:rgba(0,0,0,.008);display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.load1m{border:0;border-radius:999px;background:linear-gradient(135deg,var(--blue),#a82525);padding:10px 15px;color:#ffffff;font-weight:800;font-size:11px;box-shadow:0 8px 24px rgba(136,24,24,.2);font-family:"Inter",sans-serif;cursor:pointer}
+.cc-cnt{padding:24px}
+.cc-cnt p{font-size:13px;color:#555;line-height:1.6;margin-bottom:20px}
+.cc-lnks{display:flex;flex-direction:column;gap:10px}
+.cc-itm{display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(0,0,0,.01);text-decoration:none;color:#333;font-family:"JetBrains Mono",monospace;font-size:11px;transition:all .18s}
+.cc-itm.fb{color:#1877f2}.cc-itm:hover{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.14)}
+.pm-body{padding:18px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.pm-srch{width:100%;border:1px solid rgba(0,0,0,.11);border-radius:7px;padding:8px 13px;font-family:"JetBrains Mono",monospace;font-size:11px;outline:none;transition:border .18s;background:#fafafa}
+.pm-srch:focus{border-color:rgba(137,24,24,.32)}
+.pm-mi{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(0,0,0,.07);border-radius:11px;background:#fafafa;transition:all .18s}
+.pm-mi:hover{border-color:rgba(137,24,24,.18);background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.04)}
+.pm-mico{width:36px;height:36px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:17px;background:rgba(0,0,0,.04);flex-shrink:0}
+.pm-min{flex:1}.pm-mnm{font-size:12px;font-weight:700;color:#111;margin-bottom:2px}.pm-mds{font-size:10px;color:#999;line-height:1.35}
+.pm-mbg{font-size:8px;padding:2px 7px;border-radius:999px;font-weight:700;white-space:nowrap}
+.pm-mbg.inst{background:rgba(15,107,62,.1);color:var(--green)}.pm-mbg.pop{background:rgba(137,24,24,.1);color:var(--red)}
+.pm-ib{padding:6px 13px;border-radius:999px;border:1px solid rgba(137,24,24,.28);background:transparent;color:var(--red);font-family:"Inter",sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
+.pm-ib:hover,.pm-ib.done{background:linear-gradient(135deg,var(--red),#a82525);color:#fff;border-color:transparent}
 
 @media(max-width:980px){
-  body{height:560vh}
-  .stage{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding:74px 16px 32px;gap:14px}
-  .brand{top:18px;left:18px}
-  .menu-container{top:18px;right:18px}
-  .progress{right:64px;top:25px}
-  .copy{min-height:132px}
-  .copy p{display:none}
-  h1{font-size:36px}
-  .canvas{min-height:540px;height:64vh}
-  .software-layout{grid-template-columns:120px 1fr}
-  .widget-pane{display:none}
-  .sidebar{padding:12px 6px}
-  .table-row{font-size:11px;padding:9px 5px}
-  .mouse{display:none}
-  .editor{font-size:12px}
+  body{height:680vh}
+  .stage{grid-template-columns:1fr;grid-template-rows:auto 1fr;padding:66px 13px 26px;gap:10px}
+  .brand{top:15px;left:15px}.topbar{top:15px;right:13px}
+  .progress{bottom:12px}.copy{min-height:110px}
+  .copy p,.chips{display:none}
+  h1{font-size:33px}.canvas{min-height:500px;height:60vh;overflow:hidden}
+  .window{width:100%;overflow:hidden}
+  .workspace-frame{grid-template-columns:140px 530px 180px;width:850px;min-width:850px;transform:translateX(var(--camera-x,0px))}
+  .mouse{display:block;transform:scale(.82)}
+  #featS1,#featS2,#featS3{width:390px}
+}
+@media(max-width:620px){
+  .stage{grid-template-columns:1fr;padding:86px 14px 28px}
+  .copy{height:34vh;min-height:250px}
+  .canvas{height:52vh;min-height:390px}
+  .workspace-frame{transform:translateX(var(--camera-x,-130px))}
+  .topbar{right:14px}.brand{left:14px}
 }
 </style>
 </head>
 <body>
+
+<!-- Background lotus watermark -->
+<svg class="bg-lotus" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="bgl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fca5a5"/><stop offset="50%" stop-color="#f43f5e"/><stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <mask id="bgm">
+      <path d="M50 15 C 62 30, 62 70, 50 90 C 38 70, 38 30, 50 15 Z" fill="white" />
+      <path d="M40 30 C 25 30, 15 50, 25 75 C 32 82, 45 88, 50 90 C 32 70, 32 45, 40 30 Z" fill="white" />
+      <path d="M60 30 C 75 30, 85 50, 75 75 C 68 82, 55 88, 50 90 C 68 70, 68 45, 60 30 Z" fill="white" />
+      <path d="M22 50 C 5 50, 0 65, 25 80 C 35 85, 45 88, 50 90 C 25 78, 15 65, 22 50 Z" fill="white" />
+      <path d="M78 50 C 95 50, 100 65, 75 80 C 65 85, 55 88, 50 90 C 75 78, 85 65, 78 50 Z" fill="white" />
+    </mask>
+  </defs>
+  <rect width="100" height="100" fill="url(#bgl)" mask="url(#bgm)"/>
+  <g stroke="#e8e5df" stroke-width="2" mask="url(#bgm)">
+    <line x1="0" y1="31" x2="100" y2="31"/><line x1="0" y1="38" x2="100" y2="38"/><line x1="0" y1="45" x2="100" y2="45"/><line x1="0" y1="52" x2="100" y2="52"/><line x1="0" y1="59" x2="100" y2="59"/><line x1="0" y1="66" x2="100" y2="66"/><line x1="0" y1="73" x2="100" y2="73"/><line x1="0" y1="80" x2="100" y2="80"/>
+    <path d="M38 10 Q45 50 48 90" fill="none"/><path d="M50 0 V100" fill="none"/><path d="M62 10 Q55 50 52 90" fill="none"/>
+    <line x1="28" y1="20" x2="28" y2="90"/><line x1="72" y1="20" x2="72" y2="90"/>
+  </g>
+</svg>
+
 <div class="stage">
-  <div class="grid"></div>
+  <div class="dot-grid"></div>
+
+  <!-- Brand -->
   <div class="brand">
-  <svg class="site-logo-icon" width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 10px rgba(185,28,28,0.25))">
-    <defs>
-      <linearGradient id="logoGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#fca5a5" />
-        <stop offset="50%" stop-color="#f43f5e" />
-        <stop offset="100%" stop-color="#be123c" />
-      </linearGradient>
-      <mask id="logoMask">
-        <path d="M50 15 C 62 30, 62 70, 50 90 C 38 70, 38 30, 50 15 Z" fill="white" />
-        <path d="M40 30 C 25 30, 15 50, 25 75 C 32 82, 45 88, 50 90 C 32 70, 32 45, 40 30 Z" fill="white" />
-        <path d="M60 30 C 75 30, 85 50, 75 75 C 68 82, 55 88, 50 90 C 68 70, 68 45, 60 30 Z" fill="white" />
-        <path d="M22 50 C 5 50, 0 65, 25 80 C 35 85, 45 88, 50 90 C 25 78, 15 65, 22 50 Z" fill="white" />
-        <path d="M78 50 C 95 50, 100 65, 75 80 C 65 85, 55 88, 50 90 C 75 78, 85 65, 78 50 Z" fill="white" />
-      </mask>
-    </defs>
-    <rect width="100" height="100" fill="url(#logoGrad)" mask="url(#logoMask)" />
-    <g stroke="#ffffff" stroke-width="2.5" mask="url(#logoMask)">
-      <line x1="0" y1="36" x2="100" y2="36" />
-      <line x1="0" y1="46" x2="100" y2="46" />
-      <line x1="0" y1="56" x2="100" y2="56" />
-      <line x1="0" y1="66" x2="100" y2="66" />
-      <line x1="0" y1="76" x2="100" y2="76" />
-      <path d="M38 10 Q45 50 48 90" fill="none" />
-      <path d="M50 0 V100" fill="none" />
-      <path d="M62 10 Q55 50 52 90" fill="none" />
-      <line x1="28" y1="20" x2="28" y2="90" />
-      <line x1="72" y1="20" x2="72" y2="90" />
-    </g>
-  </svg>
-  <span style="font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:800; color:var(--text); letter-spacing:-0.02em;">HoaSen Table</span>
-</div>
-  
-  <!-- Menu Button top right -->
-  <div class="menu-container">
-        <?php if (function_exists('pll_the_languages')): ?>
-    <div class="lang-switcher" style="display:inline-block;margin-right:12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;">
-      <ul style="list-style:none;display:flex;gap:8px;margin:0;padding:0;">
-        <?php pll_the_languages(array('show_flags'=>0,'show_names'=>1,'hide_current'=>0)); ?>
-      </ul>
+    <img src="<?php echo get_stylesheet_directory_uri(); ?>/logo.png" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(185,28,28,.28))"/>
+    <div>
+      <div class="brand-name">HoaSen Table</div>
+      <div class="brand-tag"><?php esc_html_e('Blazing Fast SQL', 'hoasen-theme'); ?></div>
     </div>
-    <style>.lang-switcher a { text-decoration:none; color:#888; } .lang-switcher .current-lang a { color:var(--blue); pointer-events:none; }</style>
+  </div>
+
+  <!-- Top right -->
+  <div class="topbar">
+    <?php if(function_exists('pll_the_languages')): ?>
+    <div class="lang-sw"><ul><?php pll_the_languages(['show_flags'=>0,'show_names'=>1,'hide_current'=>0]); ?></ul></div>
     <?php endif; ?>
-    <button class="menu-btn" id="menuBtn" aria-label="Menu">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-    </button>
-    <div class="menu-dropdown" id="menuDropdown">
-      <a href="#" id="btnBlog"><?php esc_html_e('BLOG', 'hoasen-theme'); ?></a>
-      <a href="#" id="btnContact"><?php esc_html_e('CONTACT', 'hoasen-theme'); ?></a>
+    <button class="tb-chip" id="btnPlugins"><span class="tb-dot"></span><?php echo esc_html($t['plugins']); ?></button>
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="menu-dd" id="menuDd">
+        <a href="<?php echo esc_url(home_url('/blog/')); ?>"><?php echo esc_html($t['blog']); ?></a>
+        <a href="#" id="btnContact"><?php echo esc_html($t['contact']); ?></a>
+      </div>
     </div>
   </div>
 
   <div class="progress" id="progress"></div>
 
+  <!-- Copy left -->
   <div class="copy">
     <section class="copy-scene active">
       <div class="kicker"><?php esc_html_e('01 / CONNECT', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Start smart with the Connection Board.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Manage grouped and color-coded connection profiles. Easily distinguish between Production (Red) and Development (Green) environments to avoid mistakes.', 'hoasen-theme'); ?></p>
+      <h1><?php esc_html_e('A focused workspace for every database.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Connect, write queries, inspect relationships, explore large tables, and shape the workspace around the way you work.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot">Grouped Connections</span>
-        <span class="chip">Color-Coded Labels</span>
+        <span class="chip hot"><?php esc_html_e('Grouped Envs', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('PG · MySQL · SQLite', 'hoasen-theme'); ?></span>
+        <span class="chip go">⚡ <?php esc_html_e('< 10ms ping', 'hoasen-theme'); ?></span>
       </div>
     </section>
 
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('02 / AUTOCOMPLETE', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Grammar-Precise Autocomplete.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Understands deep syntax and dialects of MySQL, Postgres, SQLite... Completely prevents invalid suggestions.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('02 / SMART JOIN', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Write JOIN. HoaSen supplies the relationship.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Type JOIN in the editor and HoaSen completes the foreign-key relationship at the cursor. No result data appears until you run it.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot">Grammar-Legality</span>
-        <span class="chip">Dialect-Aware</span>
+        <span class="chip hot"><?php esc_html_e('FK-aware', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('Exact ON clause', 'hoasen-theme'); ?></span>
       </div>
     </section>
-    
+
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('03 / INTELLIGENCE', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Smart Snippets via Foreign Keys.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Automatically analyzes foreign key (FK) relations to suggest exact JOIN structures. Quickly fill complex ON clauses with a single keystroke.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('03 / RUN & INSPECT', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Run it. Then inspect the relationship in place.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Click Run to populate the table, then hover user_id to inspect the linked user without leaving the result.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot">FK-Based Join</span>
-        <span class="chip">Predictive Logic</span>
+        <span class="chip hot"><?php esc_html_e('Run in place', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('Linked-row popup', 'hoasen-theme'); ?></span>
       </div>
     </section>
-    
+
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('04 / PRODUCTIVITY', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Minimalist High-Performance Native Workspace.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('A pure workspace designed to maximize workflow. Visualize schemas and data instantly without redundant details.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('04 / MILLION ROWS', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Click a million-row table. It opens now.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Click transactions, load the million-row result, then sweep from the first rows to the final viewport in one continuous scroll.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot">Focus-First UI</span>
-        <span class="chip">Pure Performance</span>
+        <span class="chip hot"><?php esc_html_e('1M rows', 'hoasen-theme'); ?></span>
+        <span class="chip go"><?php esc_html_e('Instant viewport', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('Continuous scroll', 'hoasen-theme'); ?></span>
       </div>
     </section>
-    
+
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('05 / DISCOVERY', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Instant Table Relations (Hover Relation).', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Hover over foreign key values to quickly view linked record contents without writing sub-queries or switching tabs.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('05 / PLUGINS', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Open Plugin Manager without leaving your data.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('After the large-table scan, click Plugins to open the manager above the same result view.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot">Instant Inspection</span>
-        <span class="chip">Zero Friction</span>
+        <span class="chip hot"><?php esc_html_e('Same workspace', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('Focused panel', 'hoasen-theme'); ?></span>
       </div>
     </section>
-    
+
     <section class="copy-scene">
-      <div class="kicker"><?php esc_html_e('06 / CAPACITY', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Smoothly Scroll Millions of Rows with Virtual Grid.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Renders only the data visible in the viewport. Ensures ultra-smooth scrolling even with massive databases.', 'hoasen-theme'); ?></p>
+      <div class="kicker"><?php esc_html_e('06 / WIDGETS', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Keep only the context you need.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Move to Table Statistics and click remove. The widget disappears while the query and data remain untouched.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot">1,000,000+ Rows</span>
-        <span class="chip">Viewport Rendering</span>
+        <span class="chip hot"><?php esc_html_e('Hover controls', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('One-click remove', 'hoasen-theme'); ?></span>
+      </div>
+    </section>
+
+    <section class="copy-scene">
+      <div class="kicker"><?php esc_html_e('07 / RESOURCES', 'hoasen-theme'); ?></div>
+      <h1><?php esc_html_e('Everything you need for the next query.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('The product tour ends here. Continue with the guide, documentation, blog, or a direct conversation with the team.', 'hoasen-theme'); ?></p>
+      <div class="chips">
+        <span class="chip hot"><?php esc_html_e('Documentation', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('Guide & Blog', 'hoasen-theme'); ?></span>
+        <span class="chip go"><?php esc_html_e('Contact', 'hoasen-theme'); ?></span>
       </div>
     </section>
   </div>
 
+  <!-- App window mockup -->
   <div class="canvas" id="canvas">
-    <div class="window">
+    <div class="window connection-mode" id="appWindow">
       <div class="winbar">
-        <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
-        <span class="path" id="winPath"><strong>HoaSen Table</strong> · Connection Board</span>
-      </div>
-      
-      <!-- Connection Board Sub-Layout (Scene 0) -->
-      <div class="connection-board" id="connectionBoard">
-        <div class="conn-group dev">
-          <div class="group-header">
-            <span class="group-name">Development</span>
-            <span class="group-badge dev">DEV</span>
-          </div>
-          <div class="conn-card">
-            <div class="db-icon my">My</div>
-            <div class="conn-details">
-              <span class="conn-name">miraiai_dev</span>
-              <span class="conn-host">localhost:3306</span>
-            </div>
-          </div>
-          <div class="conn-card">
-            <div class="db-icon sq">Sq</div>
-            <div class="conn-details">
-              <span class="conn-name">hoasentable_local</span>
-              <span class="conn-host">local.db</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="conn-group prod">
-          <div class="group-header">
-            <span class="group-name">Production</span>
-            <span class="group-badge prod">PROD</span>
-          </div>
-          <div class="conn-card" id="cardAipbx">
-            <div class="db-icon pg">Pg</div>
-            <div class="conn-details">
-              <span class="conn-name">aipbx_prod</span>
-              <span class="conn-host">10.0.0.4:5432</span>
-            </div>
-          </div>
-          <div class="conn-card">
-            <div class="db-icon pg">Pg</div>
-            <div class="conn-details">
-              <span class="conn-name">payments_db</span>
-              <span class="conn-host">10.0.0.5:5432</span>
-            </div>
-          </div>
+        <div class="traf"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <span class="wpath" id="winPath"><strong>HoaSen Table</strong> · Connection Board</span>
+        <div class="wb-tags">
+          <span class="wb-tag" id="winBtnPlugins" style="cursor:pointer;background:rgba(137,24,24,.07)">🔌 Plugins</span>
         </div>
       </div>
 
-      <!-- Workspace Sub-Layout (Scenes 1 - 5) -->
-      <div class="software-layout" id="softwareLayout">
-        <!-- Sidebar (Left Column) -->
-        <aside class="sidebar">
-          <div class="side-title">Tables</div>
-          <div class="table-row" id="row-users">users <span>12k</span></div>
-          <div class="table-row" id="row-orders">orders <span>1M</span></div>
-          <div class="table-row" id="row-payments">payments <span>88k</span></div>
-          <div class="table-row" id="row-clinics">clinics <span>42</span></div>
-          <div class="table-row" id="row-settings">settings <span>json</span></div>
-        </aside>
-
-        <!-- Main Area (Middle Column) -->
-        <main class="main-area">
-          <div class="sql-pane" id="sqlPane">
-            <div class="editor" id="sqlEditor"></div>
-            <div class="popup" id="autoPopup"><div class="head">Expected keyword</div><div class="item active"><span>FROM</span><span class="tag">keyword</span></div><div class="item"><span>FOR UPDATE</span><span class="tag">keyword</span></div><div class="item"><span>FETCH</span><span class="tag">keyword</span></div></div>
-            <div class="popup" id="snippetPopup"><div class="head"><?php esc_html_e('Smart snippet', 'hoasen-theme'); ?></div><div class="item active"><span>JOIN orders by FK</span><span class="tag">orders.user_id → users.id</span></div><div class="item"><span>LEFT JOIN profile</span><span class="tag">profiles.user_id → users.id</span></div></div>
-            <div class="run-chip" id="runChip">RUN</div>
+      <div class="sc-container">
+        <!-- Scene 0: Connection Board (Full screen connection cards) -->
+        <div class="sc show" id="s0">
+          <div style="padding:28px;background:#fafaf8;display:grid;grid-template-columns:1fr 1fr;gap:18px;height:100%;width:100%">
+            <div class="cg dev">
+              <div class="cg-hd"><span class="cg-n">Development</span><span class="cg-b dev">DEV</span></div>
+              <div class="cc"><div class="dbi my">My</div><div><div class="cc-n">miraiai_dev</div><div class="cc-h">localhost:3306</div></div><span class="cc-p">4ms</span></div>
+              <div class="cc"><div class="dbi sq">Sq</div><div><div class="cc-n">hoasentable_local</div><div class="cc-h">local.db</div></div><span class="cc-p">0ms</span></div>
+            </div>
+            <div class="cg prod">
+              <div class="cg-hd"><span class="cg-n">Production</span><span class="cg-b prod">PROD</span></div>
+              <div class="cc" id="cardA"><div class="dbi pg">Pg</div><div><div class="cc-n">aipbx_prod</div><div class="cc-h">10.0.0.4:5432</div></div><span class="cc-p">9ms</span></div>
+              <div class="cc"><div class="dbi pg">Pg</div><div><div class="cc-n">payments_db</div><div class="cc-h">10.0.0.5:5432</div></div><span class="cc-p">11ms</span></div>
+            </div>
           </div>
-          
-          <section class="data-pane" id="dataPane">
-            <div class="data-toolbar">
-              <span id="dataTitle">Data table</span>
-              <span class="status-ok" id="statusOk">✓ loaded</span>
-            </div>
-            <div class="grid-viewport">
-              <div class="sweep" id="gridSweep"></div>
-              <table class="table-grid" id="dataGrid">
-                <thead><tr id="gridHeader"></tr></thead>
-                <tbody id="dataRows"></tbody>
-              </table>
-              <div class="scrollbar" id="gridScrollbar"><div class="thumb" id="gridThumb"></div></div>
-            </div>
-          </section>
-        </main>
+        </div>
 
-        <!-- Widget Pane (Right Column) -->
-        <aside class="widget-pane" id="widgetPane">
-          <!-- Rendered dynamically -->
-        </aside>
+        <!-- 3-Column Workspace Frame for Scenes 1-6 -->
+        <div class="sc" id="workspaceLayout">
+          <div class="workspace-frame">
+            <!-- Left panel: entities -->
+            <aside class="w-left">
+              <div class="wl-hd">ENTITIES</div>
+              <div class="wl-list">
+                <div class="wl-item active" id="wlUsers">users <span class="wl-badge">1M</span></div>
+                <div class="wl-item" id="wlOrders">orders <span class="wl-badge">50k</span></div>
+                <div class="wl-item" id="wlTransactions">transactions <span class="wl-badge">1M</span></div>
+                <div class="wl-item">payments</div>
+                <div class="wl-item">products</div>
+                <div class="wl-item">categories</div>
+              </div>
+            </aside>
+
+            <!-- Middle panel: SQL Editor & Data view -->
+            <main class="w-middle">
+              <div class="w-mid-top">
+                <div class="ed-lbl">SQL EDITOR</div>
+                <div class="ed" id="sqlEd">SELECT * FROM users u;</div>
+                <button class="run-btn" id="runQuery">Run</button>
+              </div>
+              <div class="w-mid-bottom">
+                <div class="data-view" id="dataView">
+                  <div class="data-view-status"><span id="dataViewName">users · data</span><strong id="dataViewStatus">23 rows visible · ready</strong></div>
+                  <div style="flex:1;overflow:hidden;position:relative">
+                    <table class="tg">
+                      <thead><tr><th>id</th><th>user_id</th><th>name / amount</th><th>status</th></tr></thead>
+                      <tbody id="dataRows"></tbody>
+                    </table>
+                <div class="relation-pop" id="relationPop">
+                      <b>users #42</b>
+                      <div><span>name</span><span>Nguyễn Lâm</span></div>
+                      <div><span>email</span><span>lam@example.com</span></div>
+                      <div><span>status</span><span>active</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="resource-panel" id="resourcePanel">
+                  <h3>Keep building with HoaSen.</h3>
+                  <div class="resource-links">
+                    <a href="<?php echo esc_url(home_url('/contact/')); ?>">Contact</a>
+                    <a href="<?php echo esc_url(home_url('/guide/')); ?>">Getting started guide</a>
+                    <a href="<?php echo esc_url(home_url('/docs/')); ?>">Documentation</a>
+                    <a href="<?php echo esc_url(home_url('/blog/')); ?>">Blog</a>
+                  </div>
+                </div>
+                <!-- S1: Autocomplete Feature -->
+                <div class="feat-sc" id="featS1">
+                  <div style="display:grid;grid-template-columns:1.2fr 1fr;height:100%">
+                    <div class="ast-left">
+                      <div class="ac-pop" id="acPop">
+                        <div class="ac-hd"><?php esc_html_e('Legal completions at cursor', 'hoasen-theme'); ?></div>
+                        <div class="ac-it sel"><span>FROM</span><span class="ac-cat ck">keyword</span></div>
+                        <div class="ac-it"><span>FOR UPDATE</span><span class="ac-cat ck">keyword</span></div>
+                        <div class="ac-it"><span>FETCH NEXT</span><span class="ac-cat ck">keyword</span></div>
+                      </div>
+                    </div>
+                    <div class="ast-right">
+                      <div class="ast-ttl"><?php esc_html_e('Live AST Tree', 'hoasen-theme'); ?></div>
+                      <div id="astTree"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- S2: FK Join Snippet -->
+                <div class="feat-sc" id="featS2">
+                  <div class="fk-dia">
+                    <div class="fk-tbl">
+                      <div class="fk-th">users</div>
+                      <div class="fk-r"><span class="pk">PK</span> id</div>
+                      <div class="fk-r">name</div>
+                    </div>
+                    <div class="fk-arr">
+                      <div class="fk-ln" id="fkLine"></div>
+                    </div>
+                    <div class="fk-tbl">
+                      <div class="fk-th">orders</div>
+                      <div class="fk-r"><span class="pk">PK</span> id</div>
+                      <div class="fk-r"><span class="fk">FK</span> user_id</div>
+                    </div>
+                  </div>
+                  <div class="fk-snip" id="fkSnip">
+                    <div><span class="kw">JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> <span class="col">o.user_id</span>=<span class="col">u.id</span></div>
+                  </div>
+                </div>
+
+                <!-- S3: Performance Benchmark stats -->
+                <div class="feat-sc" id="featS3">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
+                    <div class="sp-l">
+                      <div class="sp-stat">
+                        <div class="sp-num" id="spN1">—</div><div class="sp-unit">First viewport</div>
+                        <div class="sp-bar"><div class="sp-fill" id="spB1" style="background:linear-gradient(90deg,var(--red),var(--green))"></div></div>
+                      </div>
+                      <div class="sp-stat">
+                        <div class="sp-num" id="spN2">—</div><div class="sp-unit">Frame time</div>
+                        <div class="sp-bar"><div class="sp-fill" id="spB2" style="background:linear-gradient(90deg,var(--green),#0f6b3e)"></div></div>
+                      </div>
+                      <div class="sp-stat">
+                        <div class="sp-num" id="spN3">—</div><div class="sp-unit">DOM rows</div>
+                        <div class="sp-bar"><div class="sp-fill" id="spB3" style="background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
+                      </div>
+                    </div>
+                    <div class="sp-r">
+                      <div class="cmp-card">
+                        <div class="cmp-lbl">Open transactions table</div>
+                        <div class="cmp-row"><div class="cmp-name">Rows</div><div class="cmp-bw"><div class="cmp-bf hs" id="cB1" style="width:0"></div></div><div class="cmp-v">1,000,000</div></div>
+                        <div class="cmp-row"><div class="cmp-name">Visible</div><div class="cmp-bw"><div class="cmp-bf el" style="width:40%"></div></div><div class="cmp-v">23 rows</div></div>
+                      </div>
+                      <div class="cmp-card">
+                        <div class="cmp-lbl">Interaction stays responsive</div>
+                        <div class="cmp-row"><div class="cmp-name">Render</div><div class="cmp-bw"><div class="cmp-bf hs" id="cB2" style="width:0"></div></div><div class="cmp-v">0.4ms</div></div>
+                        <div class="cmp-row"><div class="cmp-name">Scroll</div><div class="cmp-bw"><div class="cmp-bf el" style="width:38%"></div></div><div class="cmp-v">60 FPS</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- S4: Hover FK Inspect -->
+                <div class="feat-sc" id="featS4">
+                  <div class="dt"><span>orders</span><span class="dt-ok"><?php echo esc_html($t['loaded']); ?></span></div>
+                  <div style="flex:1;overflow:hidden;position:relative">
+                    <table class="tg" id="s4Tbl">
+                      <thead><tr><th>id</th><th>user_id</th><th>total</th><th>status</th></tr></thead>
+                      <tbody id="s4Rows"></tbody>
+                    </table>
+                    <div class="fk-pop" id="fkPop">
+                      <div class="fkp-t"><svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#0f6b3e"/></svg>users #42</div>
+                      <div class="fkp-r"><span>name</span><span>Nguyễn Lâm</span></div>
+                      <div class="fkp-r"><span>email</span><span>lam@example.com</span></div>
+                      <div class="fkp-r"><span>status</span><span class="ok-g"><?php echo esc_html($t['active']); ?></span></div>
+                      <div class="fkp-p">orders.user_id ➔ users.id</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- S5: Virtual Grid 1M rows -->
+                <div class="feat-sc" id="featS5">
+                  <div class="vg-hd">
+                    <div class="vg-ctr"><?php echo esc_html($t['viewrow']); ?> <strong id="vgS">1</strong>–<span id="vgE">23</span> <?php echo esc_html($t['of']); ?> <span>1,000,000</span></div>
+                    <span class="vg-badge">23 DOM nodes · 60 FPS</span>
+                  </div>
+                  <div class="vg-grid">
+                    <table class="vg-t" id="vgT">
+                      <thead><tr><th>#</th><th>id</th><th>user_id</th><th>total</th><th>status</th></tr></thead>
+                      <tbody id="vgR"></tbody>
+                    </table>
+                    <div class="vg-thumb" id="vgTh" style="height:20px;top:0"></div>
+                    <div class="vg-m" id="vgMetricsBox">
+                      <div class="vm-r"><span>render/frame</span><span>0.4ms</span></div>
+                      <div class="vm-r"><span>DOM nodes</span><span>23</span></div>
+                      <div class="vm-r"><span>RAM usage</span><span>12 KB</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- S6: Plugin Manager (occupies middle panel) -->
+                <div class="feat-sc" id="featS6" style="background:#fafaf8;height:100%">
+                  <div style="display:grid;grid-template-columns:1.1fr 0.9fr;height:100%">
+                    <div class="pm-l">
+                      <div class="pm-hd">Installed Plugins</div>
+                      <div class="pm-lst">
+                        <div class="pm-it on"><div class="pm-ico">🌙</div><div class="pm-inf"><div class="pm-nm">Dark Mode Pro</div><div class="pm-ds">OLED-optimized theme</div></div><span class="pm-st on">ON</span><button class="pm-tg on"></button></div>
+                        <div class="pm-it on" id="pmAicop"><div class="pm-ico">✦</div><div class="pm-inf"><div class="pm-nm">AI Copilot</div><div class="pm-ds">NL → SQL, query explain</div></div><span class="pm-st on">ON</span><button class="pm-tg on"></button></div>
+                        <div class="pm-it" id="pmRed"><div class="pm-ico">🔴</div><div class="pm-inf"><div class="pm-nm">Redis Inspector</div><div class="pm-ds">Keys, TTL, cluster</div></div><span class="pm-st off" id="redSt">OFF</span><button class="pm-tg off" id="redTg"></button></div>
+                      </div>
+                    </div>
+                    <div class="pm-r">
+                      <div class="pm-sc">
+                        <div class="pm-sl">Active Plugins</div>
+                        <div class="pm-sv" id="pmCnt">2</div>
+                        <div class="pm-ss">hot-reload enabled</div>
+                      </div>
+                      <div class="pm-ac">
+                        <div class="pm-at">Activity</div>
+                        <div class="pm-ar"><div class="pm-ad" style="background:var(--green)"></div><span>AI Copilot — active</span></div>
+                        <div class="pm-ar" id="redAct" style="opacity:0;transition:opacity .3s"><div class="pm-ad" style="background:#ef4444"></div><span>Redis Inspector — loaded</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </main>
+
+            <!-- Right panel: Widget list (Query History, Table Stats) -->
+            <aside class="w-right">
+              <div class="wr-title">WIDGET</div>
+              
+              <!-- Widget 1: Query History -->
+              <div class="widget-box" id="widgetQHist">
+                <div class="wb-hd">Query History</div>
+                <div class="wb-list">
+                  <div class="wb-row"><span>SELECT *</span><span class="ok-g">0.4ms</span></div>
+                  <div class="wb-row"><span>JOIN orders</span><span class="ok-g">1.2ms</span></div>
+                  <div class="wb-row"><span>EXPLAIN plan</span><span class="ok-a">0.8ms</span></div>
+                </div>
+              </div>
+
+              <!-- Widget 2: Table Statistics -->
+              <div class="widget-box" id="widgetTStats">
+                <div class="wb-hd" style="display:flex;align-items:center">Table Statistics <button class="widget-remove" id="removeStats" aria-label="Remove Table Statistics">×</button></div>
+                <div class="wb-list">
+                  <div class="wb-row"><span>Active connection</span><span class="ok-g">Prod</span></div>
+                  <div class="wb-row"><span>Total tables</span><span>5</span></div>
+                  <div class="wb-row"><span>Cached queries</span><span>142</span></div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
       </div>
-    </div>
 
-  </div>
-  
-  <div class="scroll-note"><?php esc_html_e('Scroll down ↓', 'hoasen-theme'); ?></div>
-</div>
-
-<!-- Fixed Viewport Mouse Cursor -->
-<div class="mouse" id="mouse" aria-hidden="true"><div class="mouse-scale"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 3L24 15.4L15.4 17.4L11.1 26L5 3Z" fill="#F3F8FF" stroke="#0B1020" stroke-width="1.8" stroke-linejoin="round"/></svg></div></div>
-
-<!-- Blog Modal -->
-<div class="overlay-modal" id="blogModal">
-  <div class="modal-card">
-    <button class="close-btn" id="closeBlog">&times;</button>
-    <div class="modal-header"><?php esc_html_e('HoaSen Table Journal', 'hoasen-theme'); ?></div>
-    <div class="blog-layout">
-      <aside class="blog-sidebar">
-        <h3><?php esc_html_e('Articles', 'hoasen-theme'); ?></h3>
-        <div class="blog-link active" data-post="post1">Tối ưu hóa Autocomplete SQL</div>
-        <div class="blog-link" data-post="post2">Cơ chế Virtual Grid triệu dòng</div>
-        <div class="blog-link" data-post="post3">Thiết kế UI vintage bằng OKLCH</div>
-      </aside>
-      <main class="blog-content">
-        <article id="post1" class="blog-post active">
-          <h2><?php esc_html_e('Optimizing SQL Autocomplete by Parsing Grammar', 'hoasen-theme'); ?></h2>
-          <p class="post-meta"><?php esc_html_e('Published on 09/07/2026 by Engineering Team', 'hoasen-theme'); ?></p>
-          <p><?php esc_html_e('In traditional SQL editors, autocomplete often works by simply scanning strings. This leads to many invalid garbage suggestions at the cursor.', 'hoasen-theme'); ?></p>
-          <p><?php esc_html_e('HoaSen Table solves this by directly integrating the parser of each DBMS. As you type, the system builds a temporary AST (Abstract Syntax Tree) to exactly determine the next valid keywords or schema objects.', 'hoasen-theme'); ?></p>
-          <p><?php _e('For example, if you just typed <code>SELECT * F</code>, the editor knows the grammar only allows a <code>FROM</code> clause here and filters out all columns or tables starting with "F".', 'hoasen-theme'); ?></p>
-        </article>
-        <article id="post2" class="blog-post">
-          <h2><?php esc_html_e('Virtual Grid Mechanism: Smoothly Handling 1 Million Rows', 'hoasen-theme'); ?></h2>
-          <p class="post-meta"><?php esc_html_e('Published on 02/07/2026 by Performance Team', 'hoasen-theme'); ?></p>
-          <p><?php esc_html_e('Displaying millions of rows in a GUI is a major challenge for memory and CPU. A standard browser or app will freeze if it tries to render hundreds of thousands of HTML elements at once.', 'hoasen-theme'); ?></p>
-          <p><?php _e('HoaSen Table uses <b>Viewport Virtualization</b>. We only render the data rows currently visible in the user\'s viewport (around 20-30 rows). As you scroll, these elements are recycled to load new data, keeping DOM nodes to a minimum and RAM footprint to a few kilobytes.', 'hoasen-theme'); ?></p>
-        </article>
-        <article id="post3" class="blog-post">
-          <h2><?php esc_html_e('Vintage UI Design: The Art of Restraint', 'hoasen-theme'); ?></h2>
-          <p class="post-meta"><?php esc_html_e('Published on 25/06/2026 by Design Team', 'hoasen-theme'); ?></p>
-          <p><?php esc_html_e('The era of flat, monotonous SaaS interfaces has diluted brand personalities. With HoaSen Table, we return to the core values of classical print typography: elegant typefaces and deep colors.', 'hoasen-theme'); ?></p>
-          <p><?php _e('The combination of the formal <b>Cormorant Garamond</b> serif font, the sharp contrast of ash-gray, and the deep oxblood red creates an inspiring workspace while maintaining maximum focus for complex technical tasks.', 'hoasen-theme'); ?></p>
-        </article>
-      </main>
+    </div><!-- .window -->
+  </div><!-- .canvas -->
+  <div class="site-outro" id="siteOutro">
+    <h3>Build the next query with HoaSen.</h3>
+    <div class="outro-links">
+      <a href="<?php echo esc_url(home_url('/contact/')); ?>">Contact</a>
+      <a href="<?php echo esc_url(home_url('/guide/')); ?>">Guide</a>
+      <a href="<?php echo esc_url(home_url('/docs/')); ?>">Documentation</a>
+      <a href="<?php echo esc_url(home_url('/blog/')); ?>">Blog</a>
     </div>
   </div>
-</div>
+  <div class="scroll-note"><?php echo esc_html($t['scroll']); ?></div>
+</div><!-- .stage -->
+
+<!-- Mouse cursor mockup -->
+<div class="mouse" id="mouse" aria-hidden="true"><div class="mouse-s"><svg width="27" height="27" viewBox="0 0 27 27" fill="none"><path d="M3.5 2L21 13.8L13.8 15.5L9.8 23.2L3.5 2Z" fill="#F5F3F0" stroke="#0a0a0a" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div>
 
 <!-- Contact Modal -->
-<div class="overlay-modal" id="contactModal">
-  <div class="modal-card mini">
-    <button class="close-btn" id="closeContact">&times;</button>
-    <div class="modal-header"><?php esc_html_e('Contact HoaSen Table', 'hoasen-theme'); ?></div>
-    <div class="contact-content">
-      <p><?php esc_html_e('We always welcome feedback and contributions from the developer community.', 'hoasen-theme'); ?></p>
-      <div class="contact-links">
-        <a href="https://facebook.com/hoasentable" target="_blank" class="contact-item fb">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg>
-          <span>facebook.com/hoasentable</span>
-        </a>
-        <a href="mailto:support@hoasentable.localhost" class="contact-item mail">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span>support@hoasentable.localhost</span>
-        </a>
+<div class="ov" id="contactMod">
+  <div class="mc mini">
+    <button class="xbtn" id="closeContact">&times;</button>
+    <div class="mhd"><div class="mhdi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><?php esc_html_e('Contact', 'hoasen-theme'); ?></div>
+    <div class="cc-cnt">
+      <p><?php esc_html_e('We welcome feedback and contributions from the developer community.', 'hoasen-theme'); ?></p>
+      <div class="cc-lnks">
+        <a href="https://facebook.com/hoasentable" target="_blank" class="cc-itm fb"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg>facebook.com/hoasentable</a>
+        <a href="mailto:support@hoasentable.localhost" class="cc-itm"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>support@hoasentable.localhost</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Plugin Catalog Dialog/Modal (Opens in Scene 6) -->
+<div class="ov" id="pluginMod">
+  <div class="mc">
+    <button class="xbtn" id="closePlugin">&times;</button>
+    <div class="mhd"><div class="mhdi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><?php esc_html_e('Plugin Manager', 'hoasen-theme'); ?></div>
+    <div class="pm-body">
+      <input class="pm-srch" id="pmSrch" placeholder="<?php esc_attr_e('Search plugins…', 'hoasen-theme'); ?>"/>
+      <div class="pm-mi"><div class="pm-mico">🌙</div><div class="pm-min"><div class="pm-mnm">Dark Mode Pro</div><div class="pm-mds"><?php esc_html_e('Full dark theme, OLED-optimized, zero flicker.', 'hoasen-theme'); ?></div></div><span class="pm-mbg inst"><?php echo esc_html($t['inst']); ?></span><button class="pm-ib done"><?php echo esc_html($t['inst']); ?></button></div>
+      <div class="pm-mi"><div class="pm-mico">✦</div><div class="pm-min"><div class="pm-mnm">AI Copilot</div><div class="pm-mds"><?php esc_html_e('Natural language to SQL. Explain and optimize plans.', 'hoasen-theme'); ?></div></div><span class="pm-mbg inst"><?php echo esc_html($t['inst']); ?></span><button class="pm-ib done"><?php echo esc_html($t['inst']); ?></button></div>
+      <div class="pm-mi" id="popRedisRow"><div class="pm-mico">🔴</div><div class="pm-min"><div class="pm-mnm">Redis Inspector</div><div class="pm-mds"><?php esc_html_e('Browse keys, TTL, memory. Supports cluster + Sentinel.', 'hoasen-theme'); ?></div></div><span class="pm-mbg pop"><?php esc_html_e('Popular', 'hoasen-theme'); ?></span><button class="pm-ib" id="btnInstallRedis" onclick="this.textContent='…';setTimeout(()=>{this.classList.add('done');this.textContent='<?php echo esc_js($t['inst']); ?>'},700)"><?php echo esc_html($t['install']); ?></button></div>
+      <div class="pm-mi"><div class="pm-mico">📊</div><div class="pm-min"><div class="pm-mnm">Chart Builder</div><div class="pm-mds"><?php esc_html_e('Visualize query results as bar, line, pie charts.', 'hoasen-theme'); ?></div></div><span class="pm-mbg pop"><?php esc_html_e('Popular', 'hoasen-theme'); ?></span><button class="pm-ib" onclick="this.textContent='…';setTimeout(()=>{this.classList.add('done');this.textContent='<?php echo esc_js($t['inst']); ?>'},700)"><?php echo esc_html($t['install']); ?></button></div>
     </div>
   </div>
 </div>
 
 <script>
-const SCENES=6;
-const progress=document.getElementById('progress');
-for(let i=0;i<SCENES;i++){const b=document.createElement('div');b.className='bar';b.innerHTML='<span></span>';progress.appendChild(b)}
-const bars=[...progress.querySelectorAll('span')];
+const SCENES=7,LANG='<?php echo esc_js($is_vi?"vi":"en"); ?>';
+const progEl=document.getElementById('progress');
+for(let i=0;i<SCENES;i++){const b=document.createElement('div');b.className='bar';b.innerHTML='<span></span>';progEl.appendChild(b);}
+const bars=[...progEl.querySelectorAll('span')];
 const copies=[...document.querySelectorAll('.copy-scene')];
 const mouse=document.getElementById('mouse');
-
-// Layout views
-const connectionBoard = document.getElementById('connectionBoard');
-const softwareLayout = document.getElementById('softwareLayout');
-
-// Software UI elements
 const winPath=document.getElementById('winPath');
-const sqlEditor=document.getElementById('sqlEditor');
-const autoPopup=document.getElementById('autoPopup');
-const snippetPopup=document.getElementById('snippetPopup');
-const runChip=document.getElementById('runChip');
-const dataPane=document.getElementById('dataPane');
-const dataTitle=document.getElementById('dataTitle');
-const statusOk=document.getElementById('statusOk');
-const gridHeader=document.getElementById('gridHeader');
+const winBtnPlugins=document.getElementById('winBtnPlugins');
+const appWindow=document.getElementById('appWindow');
+const sqlEd=document.getElementById('sqlEd');
+const acPop=document.getElementById('acPop');
+const astTree=document.getElementById('astTree');
+const fkSnip=document.getElementById('fkSnip');
+const s4Rows=document.getElementById('s4Rows');
+const fkPop=document.getElementById('fkPop');
+const s4Tbl=document.getElementById('s4Tbl');
+const vgR=document.getElementById('vgR');
+const vgTh=document.getElementById('vgTh');
+const vgS=document.getElementById('vgS');
+const vgE=document.getElementById('vgE');
+const pmRed=document.getElementById('pmRed');
+const redSt=document.getElementById('redSt');
+const redTg=document.getElementById('redTg');
+const redAct=document.getElementById('redAct');
+const pmCnt=document.getElementById('pmCnt');
+const spNs=[document.getElementById('spN1'),document.getElementById('spN2'),document.getElementById('spN3')];
+const spBs=[document.getElementById('spB1'),document.getElementById('spB2'),document.getElementById('spB3')];
+const cBs=[document.getElementById('cB1'),document.getElementById('cB2')];
 const dataRows=document.getElementById('dataRows');
-const widgetPane=document.getElementById('widgetPane');
-const gridScrollbar=document.getElementById('gridScrollbar');
-const gridThumb=document.getElementById('gridThumb');
-const gridSweep=document.getElementById('gridSweep');
+const dataView=document.getElementById('dataView');
+const dataViewName=document.getElementById('dataViewName');
+const dataViewStatus=document.getElementById('dataViewStatus');
+const relationPop=document.getElementById('relationPop');
+const runQuery=document.getElementById('runQuery');
+const removeStats=document.getElementById('removeStats');
+const resourcePanel=document.getElementById('resourcePanel');
+const canvas=document.getElementById('canvas');
+const siteOutro=document.getElementById('siteOutro');
+const stage=document.querySelector('.stage');
 
-// Sidebar rows
-const rows = {
-  users: document.getElementById('row-users'),
-  orders: document.getElementById('row-orders'),
-  payments: document.getElementById('row-payments'),
-  clinics: document.getElementById('row-clinics'),
-  settings: document.getElementById('row-settings')
-};
+// Mock Layout Dom References
+const s0=document.getElementById('s0');
+const workspaceLayout=document.getElementById('workspaceLayout');
+const wlUsers=document.getElementById('wlUsers');
+const wlOrders=document.getElementById('wlOrders');
+const wlTransactions=document.getElementById('wlTransactions');
+const widgetQHist=document.getElementById('widgetQHist');
+const widgetTStats=document.getElementById('widgetTStats');
+const fkLine=document.getElementById('fkLine');
+const vgMetricsBox=document.getElementById('vgMetricsBox');
+const pmAicop=document.getElementById('pmAicop');
 
-// Target items
-const cardAipbx = document.getElementById('cardAipbx');
+// Modals
+const menuBtn=document.getElementById('menuBtn'),menuDd=document.getElementById('menuDd');
+const contactMod=document.getElementById('contactMod'),pluginMod=document.getElementById('pluginMod');
+menuBtn.addEventListener('click',e=>{e.stopPropagation();menuDd.classList.toggle('show');});
+document.addEventListener('click',()=>menuDd.classList.remove('show'));
+document.getElementById('btnContact').addEventListener('click',e=>{e.preventDefault();contactMod.classList.add('show');});
+document.getElementById('btnPlugins').addEventListener('click',()=>pluginMod.classList.add('show'));
+winBtnPlugins.addEventListener('click',()=>pluginMod.classList.add('show'));
 
-// Menu & Overlay elements
-const menuBtn = document.getElementById('menuBtn');
-const menuDropdown = document.getElementById('menuDropdown');
-const btnBlog = document.getElementById('btnBlog');
-const btnContact = document.getElementById('btnContact');
-const blogModal = document.getElementById('blogModal');
-const contactModal = document.getElementById('contactModal');
-const closeBlog = document.getElementById('closeBlog');
-const closeContact = document.getElementById('closeContact');
+['closeContact','closePlugin'].forEach(id=>document.getElementById(id).addEventListener('click',()=>{contactMod.classList.remove('show');pluginMod.classList.remove('show');}));
+[contactMod,pluginMod].forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
 
-// Menu toggle
-menuBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  menuDropdown.classList.toggle('show');
-});
-document.addEventListener('click', () => {
-  menuDropdown.classList.remove('show');
-});
-
-// Modals logic
-btnBlog.addEventListener('click', (e) => {
-  e.preventDefault();
-  blogModal.classList.add('show');
-});
-btnContact.addEventListener('click', (e) => {
-  e.preventDefault();
-  contactModal.classList.add('show');
-});
-closeBlog.addEventListener('click', () => blogModal.classList.remove('show'));
-closeContact.addEventListener('click', () => contactModal.classList.remove('show'));
-
-// Blog tab switching
-const blogLinks = document.querySelectorAll('.blog-link');
-const blogPosts = document.querySelectorAll('.blog-post');
-blogLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    blogLinks.forEach(l => l.classList.remove('active'));
-    blogPosts.forEach(p => p.classList.remove('active'));
-    link.classList.add('active');
-    document.getElementById(link.dataset.post).classList.add('active');
-  });
-});
-
-function clamp(v,a=0,b=1){return Math.min(b,Math.max(a,v))}
-function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
-function lerp(a,b,t){return a+(b-a)*t}
-function mix(a,b,t){t=ease(clamp(t));return{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t)}}
-
-let lastClick = false;
+function clamp(v,a=0,b=1){return Math.min(b,Math.max(a,v));}
+function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+function lerp(a,b,t){return a+(b-a)*t;}
+function mix(a,b,t){t=ease(clamp(t));return{x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t)};}
+let lastClick=false;
+let connectionEnd=null;
+let joinEnd=null;
+let pluginEnd=null;
+let widgetEnd=null;
 function setMouse(p,click=false){
   mouse.style.transform=`translate(${p.x}px,${p.y}px)`;
   mouse.classList.toggle('click',click);
-  
-  if (click && !lastClick) {
-    const rip = document.createElement('div');
-    rip.className = 'click-ripple';
-    rip.style.left = p.x + 'px';
-    rip.style.top = p.y + 'px';
-    document.body.appendChild(rip);
-    setTimeout(() => rip.remove(), 400);
-  }
-  lastClick = click;
+  if(click&&!lastClick){const r=document.createElement('div');r.className='click-rip';r.style.left=p.x+'px';r.style.top=p.y+'px';document.body.appendChild(r);setTimeout(()=>r.remove(),380);}
+  lastClick=click;
 }
-
-// 100% Robust Proportional Mouse Targets relative to .window
-function getPoint(type) {
-  const w = document.querySelector('.window').getBoundingClientRect();
-  switch(type) {
-    case 'center':
-      return { x: w.left + w.width * 0.5, y: w.top + w.height * 0.5 };
-    case 'cardAipbx':
-      return { x: w.left + w.width * 0.72, y: w.top + w.height * 0.44 };
-    case 'sqlEditor':
-      return { x: w.left + w.width * 0.38, y: w.top + w.height * 0.22 };
-    case 'snippetPopup':
-      return { x: w.left + w.width * 0.42, y: w.top + w.height * 0.36 };
-    case 'rowOrders':
-      return { x: w.left + w.width * 0.11, y: w.top + w.height * 0.22 };
-    case 'runChip':
-      return { x: w.left + w.width * 0.70, y: w.top + w.height * 0.16 };
-    case 'fkCell':
-      return { x: w.left + w.width * 0.32, y: w.top + w.height * 0.58 };
-    case 'load1m':
-      return { x: w.left + w.width * 0.46, y: w.top + w.height * 0.68 };
-  }
+function gp(rx,ry){const w=document.querySelector('.window').getBoundingClientRect();return{x:w.left+w.width*rx,y:w.top+w.height*ry};}
+function getElementPoint(el){const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2};}
+function setCamera(target){
+  if(innerWidth>980){workspaceLayout.style.setProperty('--camera-x','0px');return;}
+  const centers={left:70,middle:405,detail:500,right:760};
+  const desired=innerWidth/2-(centers[target]??centers.middle);
+  const shift=clamp(desired,innerWidth-850,0);
+  workspaceLayout.style.setProperty('--camera-x',shift+'px');
 }
-
-// State helpers
-function clearStates(){
-  autoPopup.classList.remove('show');
-  snippetPopup.classList.remove('show');
-  runChip.classList.remove('clicking');
-  dataPane.classList.remove('loaded');
-  Object.values(rows).forEach(r => r.classList.remove('active','demo-hot','clicking'));
-  cardAipbx.classList.remove('active');
-  gridScrollbar.style.display = 'none';
-}
-
-function updateScene0(p) {
-  winPath.innerHTML = '<strong>HoaSen Table</strong> · Connection Board';
-  connectionBoard.classList.add('show');
-  softwareLayout.classList.remove('show');
-  
-  const m = mix(getPoint('center'), getPoint('cardAipbx'), p);
-  const click = p > 0.8 && p < 0.95;
-  if(p > 0.75) {
-    cardAipbx.classList.add('active');
-  }
-  setMouse(m, click);
-}
-
-function updateScene1(p) {
-  winPath.innerHTML = '<strong>query.sql</strong> · autocomplete';
-  connectionBoard.classList.remove('show');
-  softwareLayout.classList.add('show');
-  rows.users.classList.add('active');
-  
-  if(p<.38){sqlEditor.innerHTML='<span class="kw">SELECT</span> * <span class="caret"></span>'}
-  else if(p<.62){sqlEditor.innerHTML='<span class="kw">SELECT</span> * <span class="kw">F</span><span class="caret"></span>'}
-  else if(p<.82){sqlEditor.innerHTML='<span class="kw">SELECT</span> * <span class="kw">F</span><span class="caret"></span>';autoPopup.classList.add('show')}
-  else{sqlEditor.innerHTML='<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">users</span> u<span class="caret"></span>';autoPopup.classList.add('show')}
-  
-  widgetPane.innerHTML = `
-    <div class="widget-title"><?php esc_html_e('Connection', 'hoasen-theme'); ?></div>
-    <div class="connection-status">
-      <span class="indicator green"></span>
-      <span>PostgreSQL Local</span>
-    </div>
-    <div class="widget-details">
-      <div class="detail-row"><span>Host:</span><span>10.0.0.4</span></div>
-      <div class="detail-row"><span>Port:</span><span>5432</span></div>
-      <div class="detail-row"><span>DB:</span><span>aipbx_prod</span></div>
-      <div class="detail-row"><span>Dialect:</span><span>PostgreSQL</span></div>
-    </div>
-  `;
-  
-  dataTitle.textContent = "Data table";
-  gridHeader.innerHTML = '<th>id</th><th>name</th><th>email</th>';
-  dataRows.innerHTML = '<tr><td colspan="3" class="muted">Chưa thực thi truy vấn</td></tr>';
-  
-  const m = mix(getPoint('cardAipbx'), getPoint('sqlEditor'), p);
-  setMouse(m, false);
-}
-
-function updateScene2(p) {
-  winPath.innerHTML = '<strong>query.sql</strong> · smart snippet';
-  connectionBoard.classList.remove('show');
-  softwareLayout.classList.add('show');
-  rows.users.classList.add('active');
-  
-  sqlEditor.innerHTML = `
-    <div><span class="kw">SELECT</span> u.id, u.name, o.total</div>
-    <div><span class="kw">FROM</span> <span class="tbl">users</span> u</div>
-    <div><span class="kw">join</span><span class="caret"></span></div>
-    <div class="snippet-result ${p>.55?'show':''}" id="snippetResult">
-      <div><span class="kw">JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> <span class="col">o.user_id</span> = <span class="col">u.id</span></div>
-    </div>
-  `;
-  
-  if(p>.16 && p<.95) snippetPopup.classList.add('show');
-  
-  widgetPane.innerHTML = `
-    <div class="widget-title"><?php esc_html_e('Complete Syntax', 'hoasen-theme'); ?></div>
-    <div class="schema-tree" style="margin-top:6px;">
-      <div class="schema-node"><?php esc_html_e('users (Root Table)', 'hoasen-theme'); ?></div>
-      <div class="schema-leaf">├─ id (PK)</div>
-      <div class="schema-node"><?php esc_html_e('orders (Relation)', 'hoasen-theme'); ?></div>
-      <div class="schema-leaf">└─ user_id (FK) ➔ users.id</div>
-    </div>
-  `;
-  
-  gridHeader.innerHTML = '<th>id</th><th>name</th><th>email</th>';
-  dataRows.innerHTML = '<tr><td colspan="3" class="muted">Chưa thực thi truy vấn</td></tr>';
-  
-  const m = mix(getPoint('sqlEditor'), getPoint('snippetPopup'), p);
-  const click = p > 0.42 && p < 0.53;
-  setMouse(m, click);
-}
-
-function updateScene3(p) {
-  winPath.innerHTML = '<strong>query.sql</strong> · workspace';
-  connectionBoard.classList.remove('show');
-  softwareLayout.classList.add('show');
-  rows.orders.classList.add('active');
-  
-  sqlEditor.innerHTML = `
-    <div><span class="kw">SELECT</span> id, user_id, total, status</div>
-    <div><span class="kw">FROM</span> <span class="tbl">orders</span></div>
-    <div><span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span></div>
-    <div><span class="kw">LIMIT</span> <span class="num">100</span>;</div>
-  `;
-  
-  if(p>.20) rows.orders.classList.add('demo-hot');
-  
-  let m;
-  let click = false;
-  
-  if (p < 0.4) {
-    m = mix(getPoint('snippetPopup'), getPoint('rowOrders'), p / 0.4);
-    click = p > 0.26 && p < 0.38;
-    if(click) rows.orders.classList.add('clicking');
-  } else {
-    m = mix(getPoint('rowOrders'), getPoint('runChip'), (p - 0.4) / 0.6);
-    click = p > 0.52 && p < 0.65;
-    if(click) runChip.classList.add('clicking');
-  }
-  
-  if(p>.56) {
-    dataPane.classList.add('loaded');
-    renderOrdersGrid();
-  } else {
-    gridHeader.innerHTML = '<th>id</th><th>user_id</th><th>total</th><th>status</th>';
-    dataRows.innerHTML = '<tr><td colspan="4" class="muted">Chưa nạp dữ liệu</td></tr>';
-  }
-  
-  widgetPane.innerHTML = `
-    <div class="widget-title"><?php esc_html_e('Query Performance', 'hoasen-theme'); ?></div>
-    <div class="query-stats" style="margin-top:6px;">
-      <div class="stat-large">${p>.56?'1.2ms':'--'}</div>
-      <div class="stat-label"><?php esc_html_e('Execution Time', 'hoasen-theme'); ?></div>
-    </div>
-    <div class="widget-details" style="margin-top:8px;">
-      <div class="detail-row"><span><?php esc_html_e('Row Count:', 'hoasen-theme'); ?></span><span>${p>.56?'100':'0'}</span></div>
-      <div class="detail-row"><span><?php esc_html_e('Memory:', 'hoasen-theme'); ?></span><span>${p>.56?'0.1 MB':'0'}</span></div>
-    </div>
-  `;
-  
-  setMouse(m, click);
-}
-
-function updateScene4(p) {
-  winPath.innerHTML = '<strong>orders</strong> · relation quick view';
-  connectionBoard.classList.remove('show');
-  softwareLayout.classList.add('show');
-  rows.orders.classList.add('active');
-  
-  sqlEditor.innerHTML = `
-    <div><span class="kw">SELECT</span> id, user_id, total, status</div>
-    <div><span class="kw">FROM</span> <span class="tbl">orders</span></div>
-    <div><span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span></div>
-    <div><span class="kw">LIMIT</span> <span class="num">100</span>;</div>
-  `;
-  
-  dataPane.classList.add('loaded');
-  gridHeader.innerHTML = '<th>id</th><th>user_id</th><th>total</th><th>status</th>';
-  dataRows.innerHTML = `
-    <tr><td>90021</td><td><span class="fk-cell ${p>.18?'demo-hover':''}" id="fkCell">42 ↗</span></td><td>12,800</td><td><span style="color:var(--green)">paid</span></td></tr>
-    <tr><td>90020</td><td><span class="fk-cell">87 ↗</span></td><td>8,400</td><td>pending</td></tr>
-    <tr><td>90019</td><td><span class="fk-cell">18 ↗</span></td><td>3,200</td><td><span style="color:var(--green)">paid</span></td></tr>
-    <tr><td>90018</td><td><span class="fk-cell">92 ↗</span></td><td>19,200</td><td>paid</td></tr>
-  `;
-  
-  if(p>.26) {
-    widgetPane.innerHTML = `
-      <div class="widget-title"><?php esc_html_e('Relation Details', 'hoasen-theme'); ?></div>
-      <div class="hover-card">
-        <div class="qtop"><span class="badge">users #42</span></div>
-        <div class="kv" style="margin-top:6px;">
-          <div class="detail-row"><span><?php esc_html_e('Name:', 'hoasen-theme'); ?></span><strong>Nguyễn Lâm</strong></div>
-          <div class="detail-row"><span>Email:</span><span>lam@example.com</span></div>
-          <div class="detail-row"><span><?php esc_html_e('Status:', 'hoasen-theme'); ?></span><span class="text-green">Active</span></div>
-          <div class="detail-row"><span><?php esc_html_e('Created Date:', 'hoasen-theme'); ?></span><span>2026-07-01</span></div>
-        </div>
-        <div class="path-line">orders.user_id ➔ users.id</div>
-      </div>
-    `;
-  } else {
-    widgetPane.innerHTML = `
-      <div class="widget-title">Di chuột khám phá</div>
-      <div class="muted" style="font-size:11px; margin-top:8px;">Di chuột lên giá trị ngoại khoá để xem quan hệ.</div>
-    `;
-  }
-  
-  const m = mix(getPoint('runChip'), getPoint('fkCell'), clamp(p/0.34));
-  setMouse(m, false);
-}
-
-function updateScene5(p) {
-  winPath.innerHTML = '<strong>virtual grid</strong> · 1M rows';
-  connectionBoard.classList.remove('show');
-  softwareLayout.classList.add('show');
-  rows.orders.classList.add('active');
-  
-  sqlEditor.innerHTML = `
-    <div><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">massive_data</span>;</div>
-  `;
-  
-  const loaded = p>.34;
-  
-  if (loaded) {
-    dataPane.classList.add('loaded');
-    gridScrollbar.style.display = 'block';
-    renderVirtualRows(Math.floor(1+p*999960));
-    gridThumb.style.top = (p*70)+'%';
-  } else {
-    gridHeader.innerHTML = '<th>#</th><th>id</th><th>user_id</th><th>total</th>';
-    dataRows.innerHTML = '<tr><td colspan="4" class="muted">Chưa tải dữ liệu lớn</td></tr>';
-  }
-  
-  widgetPane.innerHTML = `
-    <div class="widget-title">Virtual Grid Metrics</div>
-    <div class="grid-stats" style="margin-top:6px; display:flex; flex-direction:column; gap:4px;">
-      <div class="detail-row"><span><?php esc_html_e('Rendered Rows:', 'hoasen-theme'); ?></span><span>${loaded?'23':'0'}</span></div>
-      <div class="detail-row"><span><?php esc_html_e('Total Rows:', 'hoasen-theme'); ?></span><span>${loaded?'1,000,000':'0'}</span></div>
-      <div class="detail-row"><span>Render:</span><span class="text-green">${loaded?'0.4ms':'--'}</span></div>
-      <div class="detail-row"><span><?php esc_html_e('RAM Usage:', 'hoasen-theme'); ?></span><span>${loaded?'12 KB':'0'}</span></div>
-    </div>
-    ${loaded?'<div class="fps-meter" style="margin-top:8px;"><?php esc_html_e('60 FPS (Smooth)', 'hoasen-theme'); ?></div>':''}
-  `;
-  
-  // Custom Load UI in data-pane if not loaded
-  if(!loaded){
-    gridHeader.innerHTML = '<th>#</th><th>id</th><th>user_id</th><th>total</th>';
-    dataRows.innerHTML = `
-      <tr>
-        <td colspan="4">
-          <div class="big-num-container">
-            <div>
-              <div class="big-num" style="font-size:28px;">1,000,000</div>
-              <div class="tiny">rows · virtual viewport</div>
-            </div>
-            <button class="load1m" id="load1m"><?php esc_html_e('LOAD', 'hoasen-theme'); ?></button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }
-  
-  const m = mix(getPoint('fkCell'), getPoint('load1m'), clamp(p/0.38));
-  const click = p > 0.26 && p < 0.45;
-  setMouse(m, click);
-}
-
-function renderOrdersGrid(){
-  gridHeader.innerHTML = '<th>id</th><th>user_id</th><th>total</th><th>status</th><th>created_at</th>';
+function renderData(table='users',start=1){
+  dataViewName.textContent=table+' · data';
+  dataViewStatus.textContent=table==='transactions'?'1,000,000 rows · 23 rendered':'23 rows visible · ready';
   let html='';
-  const st=['paid','pending','paid','failed','paid','pending','paid','paid','pending'];
-  for(let i=0;i<9;i++){
-    const id=90031-i;
-    html+=`<tr><td>${id}</td><td>${[42,87,18,92,64,21,75,36,9][i]} ↗</td><td>${(12800-i*740).toLocaleString()}</td><td>${st[i]}</td><td>2026-07-${String(8-i).padStart(2,'0')}</td></tr>`;
+  for(let i=0;i<14;i++){
+    const n=start+i,uid=(n*7)%997;
+    html+=`<tr><td>${n.toLocaleString()}</td><td><span class="fk-c" ${i===2?'id="activeFkCell"':''}>${uid}</span></td><td>${table==='users'?'User '+n:(1200+(n%200)*31).toLocaleString()}</td><td><span class="${i%7===0?'ok-a':'ok-g'}">${i%7===0?'pending':'active'}</span></td></tr>`;
   }
   dataRows.innerHTML=html;
 }
+renderData();
 
-function renderVirtualRows(start){
-  gridHeader.innerHTML = '<th>#</th><th>id</th><th>user_id</th><th>total</th><th>status</th>';
-  let html='';
-  for(let i=0;i<23;i++){
-    const n=start+i;
-    html+=`<tr><td>${n.toLocaleString()}</td><td>${800000+n}</td><td>${(n*7)%999}</td><td>${(1200+(n%200)*31).toLocaleString()}</td><td>${n%5===0?'pending':'paid'}</td></tr>`;
+function showScene(sceneId) {
+  appWindow.classList.toggle('connection-mode',sceneId===0);
+  // Show / Hide main views
+  if (sceneId === 0) {
+    s0.classList.add('show');
+    workspaceLayout.classList.remove('show');
+  } else {
+    s0.classList.remove('show');
+    workspaceLayout.classList.add('show');
+    
+    // Hide all feature sub-views in the middle panel
+    for(let i=1; i<=6; i++) {
+      document.getElementById('featS1').classList.remove('show');
+      document.getElementById('featS2').classList.remove('show');
+      document.getElementById('featS3').classList.remove('show');
+      document.getElementById('featS4').classList.remove('show');
+      document.getElementById('featS5').classList.remove('show');
+      document.getElementById('featS6').classList.remove('show');
+    }
+    
+    // Show active feature sub-view
+    document.getElementById('featS' + sceneId).classList.add('show');
   }
-  dataRows.innerHTML=html;
 }
 
+function removeHighlights() {
+  sqlEd.classList.remove('focused');
+  wlUsers.classList.remove('active');
+  wlOrders.classList.remove('active');
+  wlTransactions.classList.remove('active');
+  acPop.classList.remove('highlight-box');
+  fkSnip.classList.remove('highlight-box');
+  fkLine.classList.remove('highlight-box-green');
+  vgMetricsBox.classList.remove('highlight-box-green');
+  pmAicop.classList.remove('highlight-box');
+  document.getElementById('popRedisRow')?.classList.remove('highlight-box');
+  document.getElementById('cardA').classList.remove('highlight-box');
+  winBtnPlugins.classList.remove('highlight-box');
+  pluginMod.querySelector('.mc')?.classList.remove('highlight-box');
+  relationPop.classList.remove('show');
+}
+
+// Scene 0: Connection Board
+function sc0(p){
+  winPath.innerHTML='<strong>HoaSen Table</strong> · Connection Board';
+  showScene(0);
+  removeHighlights();
+  
+  setCamera('detail');
+  const card = document.getElementById('cardA');
+  card.classList.toggle('highlight-box', p > 0.7);
+  const cardPoint=getElementPoint(card);
+  connectionEnd=cardPoint;
+  setMouse(mix(gp(.5,.5),cardPoint,p),p>.78&&p<.92);
+}
+
+// Scene 1: Autocomplete
+const AST=[
+  [{indent:0,text:'SelectStatement',tag:'stmt',v:true,hi:false},
+   {indent:1,text:'SELECT *',tag:'projection',v:true,hi:false},
+   {indent:1,text:'_cursor_',tag:'next-clause',v:null,hi:true}],
+  [{indent:0,text:'SelectStatement',tag:'stmt',v:true,hi:false},
+   {indent:1,text:'SELECT *',tag:'projection',v:true,hi:false},
+   {indent:1,text:'F',tag:'partial-token',v:false,hi:true},
+   {indent:2,text:'→ expecting: FROM | FOR UPDATE | FETCH',tag:'hint',v:null,hi:false}],
+  [{indent:0,text:'SelectStatement',tag:'stmt',v:true,hi:false},
+   {indent:1,text:'SELECT *',tag:'projection',v:true,hi:false},
+   {indent:1,text:'FROM users u',tag:'from-clause',v:true,hi:false},
+   {indent:2,text:'TableRef: users (alias u)',tag:'table-ref',v:true,hi:false}]
+];
+function renderAst(nodes){
+  astTree.innerHTML=nodes.map(n=>`<div class="ast-row${n.hi?' hi':''}${n.v===true?' ok':''}"><div style="width:${n.indent*14}px;flex-shrink:0"></div><span>${n.text}</span><span class="ast-tag">${n.tag}</span>${n.v===true?'<span class="ast-lg">✓</span>':''}${n.v===false?'<span class="ast-il">✗</span>':''}</div>`).join('');
+}
+function sc1(p){
+  winPath.innerHTML='<strong>query.sql</strong> · grammar autocomplete';
+  showScene(1);
+  removeHighlights();
+  setCamera('detail');
+  renderData('users',1);
+  
+  const editorPoint=getElementPoint(sqlEd);
+  const phase=p<.28?0:p<.68?1:2;
+  const texts=['<span class="kw">SELECT</span> * <span class="caret"></span>','<span class="kw">SELECT</span> * <span class="kw">F</span><span class="caret"></span>','<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">users</span> u<span class="caret"></span>'];
+  sqlEd.innerHTML=texts[phase];
+  sqlEd.classList.toggle('focused',p>.18);
+  
+  acPop.classList.toggle('show',phase>0);
+  acPop.classList.toggle('highlight-box', phase>0 && p>0.4);
+  renderAst(AST[phase]);
+  
+  if(p<.18) setMouse(mix(connectionEnd||gp(.73,.44),editorPoint,p/.18),false);
+  else if(p<.27) setMouse(editorPoint,true);
+  else setMouse(editorPoint,false);
+}
+
+// Scene 2: Smart Joins
+function sc2(p){
+  winPath.innerHTML='<strong>query.sql</strong> · FK join snippet';
+  showScene(2);
+  removeHighlights();
+  setCamera('detail');
+  renderData('users',1);
+  
+  sqlEd.classList.add('focused');
+  if(p<.4){
+    sqlEd.innerHTML='<span class="kw">SELECT</span> u.id, u.name, o.total <span class="kw">FROM</span> <span class="tbl">users</span> u <span class="kw">join</span><span class="caret"></span>';
+    fkSnip.classList.remove('show');
+  }
+  else{
+    sqlEd.innerHTML='<span class="kw">SELECT</span> u.id, u.name, o.total <span class="kw">FROM</span> <span class="tbl">users</span> u <span class="kw">JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> <span class="col">o.user_id</span>=<span class="col">u.id</span>';
+    fkSnip.classList.add('show');
+    fkSnip.classList.add('highlight-box');
+    fkLine.classList.add('highlight-box-green');
+  }
+  const editorPoint=getElementPoint(sqlEd);
+  const joinPoint=p>=.4?getElementPoint(fkSnip):editorPoint;
+  if(p>=.4) joinEnd=joinPoint;
+  setMouse(mix(editorPoint,joinPoint,p),p>.4&&p<.55);
+}
+
+// Scene 3: Performance
+function sc3(p){
+  winPath.innerHTML='<strong>transactions</strong> · 1,000,000 rows';
+  showScene(3);
+  removeHighlights();
+  setCamera(p<.34?'left':'detail');
+  const tablePoint=getElementPoint(wlTransactions);
+  wlTransactions.classList.toggle('active',p>.28);
+  if(p>.34) renderData('transactions',1);
+  sqlEd.innerHTML='<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">transactions</span> <span class="kw">LIMIT</span> <span class="num">1000000</span>;';
+  
+  const t=ease(clamp(p/.5));
+  if(p>.12){
+    spNs[0].textContent=Math.round(lerp(80,12,t))+'ms';
+    spNs[1].textContent=lerp(4.8,.4,t).toFixed(1)+'ms';
+    spNs[2].textContent=Math.round(lerp(1000,23,t));
+    const w=Math.round(lerp(0,5,t))+'%';
+    spBs[0].style.width=w;spBs[1].style.width=w;spBs[2].style.width=w;
+    cBs[0].style.width=w;cBs[1].style.width=w;
+  } else {spNs.forEach(n=>n.textContent='—');spBs.forEach(b=>b.style.width='0');cBs.forEach(b=>b.style.width='0');}
+  if(p<.24) setMouse(mix(joinEnd||gp(.5,.62),tablePoint,p/.24),false);
+  else if(p<.34) setMouse(tablePoint,true);
+  else {
+    const firstCell=document.getElementById('activeFkCell');
+    setMouse(mix(tablePoint,firstCell?getElementPoint(firstCell):gp(.52,.56),(p-.34)/.66),false);
+  }
+}
+
+// Scene 4: Hover Inspect
+let s4Init=false;
+function sc4(p){
+  winPath.innerHTML='<strong>orders</strong> · hover FK inspect';
+  showScene(4);
+  removeHighlights();
+  setCamera('middle');
+  renderData('transactions',90020);
+  
+  wlUsers.classList.remove('active');
+  wlOrders.classList.add('active');
+  
+  sqlEd.innerHTML='<span class="kw">SELECT</span> id, <span class="col">user_id</span>, total, status <span class="kw">FROM</span> <span class="tbl">orders</span> <span class="kw">LIMIT</span> <span class="num">50</span>;';
+  
+  if(!s4Init){
+    const st=[['ok-g','paid'],['ok-a','pending'],['ok-g','paid'],['ok-g','paid'],['ok-r','failed']];
+    const uid=[42,87,18,92,64];
+    let h='';
+    for(let i=0;i<5;i++)h+=`<tr><td>${90020+i}</td><td style="position:relative"><span class="fk-c${i===0?' hl':''}" id="fkC${i}">${uid[i]} ↗</span></td><td>${(8000+i*1800).toLocaleString()}</td><td><span class="${st[i][0]}">${st[i][1]}</span></td></tr>`;
+    s4Rows.innerHTML=h;s4Init=true;
+  }
+  
+  const show=p>.18;
+  const fc=document.getElementById('activeFkCell');
+  if(fc&&show){
+    const gr=dataRows.closest('div').getBoundingClientRect();
+    const cr=fc.getBoundingClientRect();
+    relationPop.style.top=(cr.top-gr.top+cr.height/2-38)+'px';
+    relationPop.style.left=Math.min(cr.right-gr.left+8,gr.width-220)+'px';
+    relationPop.classList.add('show');
+  }
+  const startPoint=fc?getElementPoint(fc):gp(.5,.55);
+  setMouse(startPoint,false);
+}
+
+// Scene 5: Virtual Grid
+function sc5(p){
+  winPath.innerHTML='<strong>transactions</strong> · virtual grid';
+  showScene(5);
+  removeHighlights();
+  setCamera('middle');
+  
+  wlTransactions.classList.add('active');
+  
+  sqlEd.innerHTML='<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">transactions</span>; <span class="cm">-- 1M records</span>';
+  
+  const s=Math.floor(1+p*999977);
+  renderData('transactions',s);
+  vgS.textContent=s.toLocaleString();vgE.textContent=(s+22).toLocaleString();
+  const sc=['ok-g','ok-g','ok-a','ok-g','ok-g','ok-r','ok-g','ok-a','ok-g','ok-g','ok-g','ok-g','ok-a','ok-g','ok-g','ok-g','ok-g','ok-g','ok-g','ok-g','ok-g','ok-g','ok-a'];
+  const sn=['paid','paid','pending','paid','paid','failed','paid','pending','paid','paid','paid','paid','pending','paid','paid','paid','paid','paid','paid','paid','paid','paid','pending'];
+  let h='';
+  for(let i=0;i<23;i++){const n=s+i;h+=`<tr><td>${n.toLocaleString()}</td><td>${800000+n}</td><td>${(n*7)%999}</td><td>${(1200+(n%200)*31).toLocaleString()}</td><td><span class="${sc[i]}">${sn[i]}</span></td></tr>`;}
+  vgR.innerHTML=h;
+  vgTh.style.top=(p*80)+'%';
+  vgMetricsBox.classList.add('highlight-box-green');
+  
+  const firstCell=document.getElementById('activeFkCell');
+  const tailRow=dataRows.querySelector('tr:last-child');
+  setMouse(mix(firstCell?getElementPoint(firstCell):gp(.5,.45),tailRow?getElementPoint(tailRow):gp(.5,.72),p),false);
+}
+
+// Scene 6: Plugin Manager
+function sc6(p){
+  winPath.innerHTML='<strong>plugin manager</strong> · extensions';
+  removeHighlights();
+  pluginMod.classList.remove('show');
+  renderData('transactions',999955);
+  const ptBtn=getElementPoint(winBtnPlugins);
+  const tailRow=dataRows.querySelector('tr:last-child');
+  const priorPoint=tailRow?getElementPoint(tailRow):gp(.5,.72);
+
+  if(p<.28){
+    showScene(5);
+    setCamera('middle');
+    setMouse(mix(priorPoint,ptBtn,p/.28),false);
+    winBtnPlugins.classList.add('highlight-box');
+    return;
+  }
+  showScene(6);
+  setCamera('detail');
+  const ptToggle=getElementPoint(redTg);
+  if(p<.38){setMouse(ptBtn,true);return;}
+  setMouse(mix(ptBtn,ptToggle,(p-.38)/.42),p>.72&&p<.82);
+  if(p>.76){
+    pmRed.classList.add('on');
+    redSt.textContent='ON';redSt.className='pm-st on';
+    redTg.className='pm-tg on';
+    redAct.style.opacity='1';
+    pmCnt.textContent='3';
+  }
+}
+
+function resetFlowUi(){
+  removeHighlights();
+  pluginMod.classList.remove('show');
+  resourcePanel.classList.remove('show');
+  canvas.classList.remove('resources-mode');
+  stage.classList.remove('resources-mode');
+  siteOutro.classList.remove('show');
+  dataView.classList.remove('is-empty');
+  widgetTStats.classList.remove('removed');
+}
+
+function flowJoin(p){
+  showScene(2);resetFlowUi();setCamera('detail');
+  dataView.classList.add('is-empty');
+  winPath.innerHTML='<strong>query.sql</strong> · smart JOIN';
+  sqlEd.classList.add('focused');
+  const editorPoint=getElementPoint(sqlEd);
+  if(p<.42){
+    sqlEd.innerHTML='<span class="kw">SELECT</span> u.id, u.name, o.total <span class="kw">FROM</span> <span class="tbl">users</span> u <span class="kw">JOIN</span><span class="caret"></span>';
+    fkSnip.classList.remove('show');
+    setMouse(mix(connectionEnd||gp(.73,.44),editorPoint,p/.42),p>.28&&p<.38);
+  }else{
+    sqlEd.innerHTML='<span class="kw">SELECT</span> u.id, u.name, o.total <span class="kw">FROM</span> <span class="tbl">users</span> u <span class="kw">JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> <span class="col">o.user_id</span>=<span class="col">u.id</span>';
+    fkSnip.classList.add('show');
+    joinEnd=editorPoint;
+    setMouse(editorPoint,false);
+  }
+}
+
+function flowRunInspect(p){
+  showScene(4);resetFlowUi();setCamera('middle');
+  winPath.innerHTML='<strong>query.sql</strong> · results';
+  sqlEd.innerHTML='<span class="kw">SELECT</span> u.id, u.name, o.total <span class="kw">FROM</span> <span class="tbl">users</span> u <span class="kw">JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> <span class="col">o.user_id</span>=<span class="col">u.id</span>';
+  const runPoint=getElementPoint(runQuery);
+  if(p<.28){dataView.classList.add('is-empty');setMouse(mix(joinEnd||getElementPoint(sqlEd),runPoint,p/.28),false);return;}
+  if(p<.38){dataView.classList.add('is-empty');setMouse(runPoint,true);return;}
+  renderData('orders',90020);
+  const cell=document.getElementById('activeFkCell');
+  const cellPoint=cell?getElementPoint(cell):gp(.5,.55);
+  setMouse(mix(runPoint,cellPoint,(p-.38)/.32),false);
+  if(p>.7&&cell){
+    const host=dataRows.closest('div').getBoundingClientRect(),rect=cell.getBoundingClientRect();
+    relationPop.style.top=(rect.top-host.top-28)+'px';
+    relationPop.style.left=Math.min(rect.right-host.left+8,host.width-220)+'px';
+    relationPop.classList.add('show');
+  }
+}
+
+function flowMillion(p){
+  showScene(4);resetFlowUi();setCamera(p<.46?'left':'middle');
+  winPath.innerHTML='<strong>transactions</strong> · data';
+  const sweep=clamp((p-.46)/.54);
+  const start=p>.46?Math.max(1,Math.floor(sweep*999977)):90020;
+  renderData(p>.46?'transactions':'orders',start);
+  const start=document.getElementById('activeFkCell');
+  const tablePoint=getElementPoint(wlTransactions);
+  if(p<.34){setMouse(mix(start?getElementPoint(start):gp(.5,.55),tablePoint,p/.34),false);return;}
+  if(p<.46){setMouse(tablePoint,true);return;}
+  wlTransactions.classList.add('active');
+  sqlEd.innerHTML='<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">transactions</span>;';
+  dataViewStatus.textContent=`Viewing ${start.toLocaleString()}–${Math.min(start+13,1000000).toLocaleString()} of 1,000,000`;
+  const first=document.getElementById('activeFkCell');
+  const tail=dataRows.querySelector('tr:last-child');
+  const scanPoint=mix(first?getElementPoint(first):gp(.5,.48),tail?getElementPoint(tail):gp(.5,.72),sweep);
+  setMouse(mix(tablePoint,scanPoint,sweep),false);
+}
+
+function flowPlugins(p){
+  renderData('transactions',999978);resetFlowUi();
+  const buttonPoint=getElementPoint(winBtnPlugins);
+  const tail=dataRows.querySelector('tr:last-child');
+  if(p<.34){showScene(4);setCamera('middle');setMouse(mix(tail?getElementPoint(tail):gp(.5,.72),buttonPoint,p/.34),false);return;}
+  showScene(6);setCamera('detail');
+  if(p<.46){setMouse(buttonPoint,true);return;}
+  const togglePoint=getElementPoint(redTg);pluginEnd=togglePoint;
+  setMouse(mix(buttonPoint,togglePoint,(p-.46)/.54),false);
+}
+
+function flowRemoveWidget(p){
+  showScene(4);resetFlowUi();setCamera('right');renderData('transactions',500001);
+  winPath.innerHTML='<strong>transactions</strong> · workspace';
+  const removePoint=getElementPoint(removeStats);widgetEnd=removePoint;
+  if(p<.62){setMouse(mix(pluginEnd||gp(.62,.45),removePoint,p/.62),false);return;}
+  setMouse(removePoint,p<.76);
+  if(p>.76)widgetTStats.classList.add('removed');
+}
+
+function flowResources(p){
+  showScene(4);resetFlowUi();
+  canvas.classList.add('resources-mode');
+  stage.classList.add('resources-mode');
+  siteOutro.classList.add('show');
+  const firstLink=siteOutro.querySelector('a');
+  setMouse(mix(widgetEnd||gp(.78,.45),getElementPoint(firstLink),p),false);
+}
+
+// Main scroll loop
 function update(){
- const max=document.documentElement.scrollHeight-innerHeight; 
- const g=clamp(scrollY/max); 
- const raw=clamp(g*SCENES,0,SCENES-.0001); 
- const idx=Math.floor(raw); 
- const local=raw-idx;
- 
- bars.forEach((b,i)=>b.style.width=(i<idx?100:i>idx?0:local*100)+'%');
- 
- copies.forEach((c,i)=>{
-   const d=i-(idx+local);
-   const op=clamp(1-Math.abs(d)*1.7);
-   c.style.opacity=op;
-   c.style.filter=`blur(${Math.abs(d)*10}px)`;
-   c.style.transform=`translateY(-42%) translateY(${d*22}px)`;
-   c.classList.toggle('active',op>.55)
- });
- 
- clearStates();
- if(idx===0) updateScene0(local);
- else if(idx===1) updateScene1(local);
- else if(idx===2) updateScene2(local);
- else if(idx===3) updateScene3(local);
- else if(idx===4) updateScene4(local);
- else if(idx===5) updateScene5(local);
+  const max=document.documentElement.scrollHeight-innerHeight;
+  const g=clamp(scrollY/max);
+  const raw=clamp(g*SCENES,0,SCENES-.0001);
+  const idx=Math.floor(raw),loc=raw-idx;
+  bars.forEach((b,i)=>b.style.width=(i<idx?100:i>idx?0:loc*100)+'%');
+  copies.forEach((c,i)=>{
+    const d=i-(idx+loc),op=clamp(1-Math.abs(d)*1.7);
+    c.style.opacity=op;c.style.filter=`blur(${Math.abs(d)*10}px)`;
+    c.style.transform=`translateY(-42%) translateY(${d*22}px)`;
+    c.classList.toggle('active',op>.55);
+  });
+  
+  [sc0,flowJoin,flowRunInspect,flowMillion,flowPlugins,flowRemoveWidget,flowResources][idx]?.(loc);
 }
 
-let ticking=false;
-addEventListener('scroll',()=>{
-  if(!ticking){
-    requestAnimationFrame(()=>{update();ticking=false});
-    ticking=true;
-  }
-}, {passive:true});
+let tick=false;
+addEventListener('scroll',()=>{if(!tick){requestAnimationFrame(()=>{update();tick=false;});tick=true;}},{passive:true});
 addEventListener('resize',update);
-
-// Initial call after elements layout
-setTimeout(update, 100);
+setTimeout(update,80);
 </script>
 <?php wp_footer(); ?>
 </body>
