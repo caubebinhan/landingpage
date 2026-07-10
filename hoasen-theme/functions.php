@@ -2,6 +2,211 @@
 
 add_theme_support( 'title-tag' );
 add_theme_support( 'html5', array( 'style', 'script' ) );
+add_theme_support( 'post-thumbnails' );
+
+register_nav_menus(
+    array(
+        'primary' => 'Primary Menu',
+    )
+);
+
+function hoasen_blog_url() {
+    if ( function_exists( 'pll_current_language' ) && function_exists( 'pll_get_post' ) ) {
+        $blog_page = get_page_by_path( 'blog' );
+        if ( $blog_page ) {
+            $translated_id = pll_get_post( $blog_page->ID, pll_current_language() );
+            if ( $translated_id ) {
+                return wp_make_link_relative( get_permalink( $translated_id ) );
+            }
+        }
+    }
+
+    return '/blog/';
+}
+
+add_action( 'after_switch_theme', 'hoasen_activate_theme_routes' );
+function hoasen_activate_theme_routes() {
+    hoasen_ensure_blog_page();
+    flush_rewrite_rules();
+}
+
+add_action( 'init', 'hoasen_ensure_blog_page' );
+function hoasen_ensure_blog_page() {
+    $blog_page = get_page_by_path( 'blog' );
+
+    if ( ! $blog_page ) {
+        $page_id = wp_insert_post(
+            array(
+                'post_title'   => 'Blog',
+                'post_name'    => 'blog',
+                'post_type'    => 'page',
+                'post_status'  => 'publish',
+                'post_content' => '',
+            )
+        );
+
+        if ( is_wp_error( $page_id ) || ! $page_id ) {
+            return;
+        }
+    } else {
+        $page_id = $blog_page->ID;
+    }
+
+    if ( get_post_meta( $page_id, '_wp_page_template', true ) !== 'page-blog.php' ) {
+        update_post_meta( $page_id, '_wp_page_template', 'page-blog.php' );
+    }
+
+    update_post_meta( $page_id, '_yoast_wpseo_title', 'HoaSen Table Journal - Engineering & Performance' );
+    update_post_meta( $page_id, '_yoast_wpseo_metadesc', 'Deep technical articles on SQL autocomplete, smart joins, virtualized data grids, and HoaSen Table architecture.' );
+    update_post_meta( $page_id, '_yoast_wpseo_focuskw', 'HoaSen Table blog' );
+
+    if ( (int) get_option( 'page_for_posts' ) !== (int) $page_id ) {
+        update_option( 'page_for_posts', $page_id );
+    }
+
+    if ( get_option( 'show_on_front' ) !== 'page' ) {
+        update_option( 'show_on_front', 'page' );
+    }
+
+    hoasen_ensure_blog_menu_item( $page_id );
+}
+
+function hoasen_ensure_blog_menu_item( $blog_page_id ) {
+    $menu_name = 'HoaSen Main Menu';
+    $menu      = wp_get_nav_menu_object( $menu_name );
+
+    if ( ! $menu ) {
+        $menu_id = wp_create_nav_menu( $menu_name );
+        if ( is_wp_error( $menu_id ) ) {
+            return;
+        }
+    } else {
+        $menu_id = $menu->term_id;
+    }
+
+    $items    = wp_get_nav_menu_items( $menu_id );
+    $has_blog = false;
+
+    if ( $items ) {
+        foreach ( $items as $item ) {
+            if ( (int) $item->object_id === (int) $blog_page_id && $item->object === 'page' ) {
+                $has_blog = true;
+                break;
+            }
+        }
+    }
+
+    if ( ! $has_blog ) {
+        wp_update_nav_menu_item(
+            $menu_id,
+            0,
+            array(
+                'menu-item-title'     => 'Blog',
+                'menu-item-object'    => 'page',
+                'menu-item-object-id' => $blog_page_id,
+                'menu-item-type'      => 'post_type',
+                'menu-item-status'    => 'publish',
+            )
+        );
+    }
+
+    $locations            = get_theme_mod( 'nav_menu_locations', array() );
+    $locations['primary'] = $menu_id;
+    set_theme_mod( 'nav_menu_locations', $locations );
+}
+
+add_filter( 'template_include', 'hoasen_blog_template', 99 );
+function hoasen_blog_template( $template ) {
+    $path = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
+    $path = preg_replace( '#^(vi|ja)/#', '', $path );
+
+    if ( is_home() || is_page( 'blog' ) || $path === 'blog' ) {
+        $blog_template = locate_template( 'page-blog.php' );
+        if ( $blog_template ) {
+            return $blog_template;
+        }
+    }
+
+    return $template;
+}
+
+add_action( 'init', 'hoasen_llms_txt', 0 );
+function hoasen_llms_txt() {
+    $path = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
+
+    if ( $path !== 'llms.txt' ) {
+        return;
+    }
+
+    $posts = get_posts(
+        array(
+            'post_type'        => 'post',
+            'post_status'      => 'publish',
+            'posts_per_page'   => 24,
+            'orderby'          => 'date',
+            'order'            => 'DESC',
+            'suppress_filters' => false,
+        )
+    );
+
+    header( 'Content-Type: text/plain; charset=utf-8' );
+    echo "# HoaSen Table\n\n";
+    echo "HoaSen Table is a native database workspace for PostgreSQL, MySQL, and SQLite. It focuses on grammar-aware SQL autocomplete, smart foreign-key JOIN snippets, relation inspection, virtualized million-row grids, and plugin-driven extensibility.\n\n";
+    echo "## Key URLs\n";
+    echo "- Home: " . esc_url_raw( home_url( '/' ) ) . "\n";
+    echo "- Blog: " . esc_url_raw( home_url( '/blog/' ) ) . "\n\n";
+    echo "## Articles\n";
+
+    foreach ( $posts as $post ) {
+        $summary = wp_strip_all_tags( get_the_excerpt( $post ) ?: wp_trim_words( $post->post_content, 30, '' ) );
+        echo '- ' . html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ) . ': ' . esc_url_raw( get_permalink( $post ) ) . "\n";
+        if ( $summary ) {
+            echo '  Summary: ' . $summary . "\n";
+        }
+    }
+
+    exit;
+}
+
+add_action( 'wp_head', 'hoasen_article_ai_schema', 30 );
+function hoasen_article_ai_schema() {
+    if ( ! is_singular( 'post' ) ) {
+        return;
+    }
+
+    global $post;
+    $language = function_exists( 'pll_get_post_language' ) ? pll_get_post_language( $post->ID, 'locale' ) : get_locale();
+    $summary  = get_post_meta( $post->ID, '_hoasen_ai_summary', true );
+
+    if ( ! $summary ) {
+        $summary = wp_strip_all_tags( get_the_excerpt( $post ) ?: wp_trim_words( $post->post_content, 38, '' ) );
+    }
+
+    $schema = array(
+        '@context'         => 'https://schema.org',
+        '@type'            => 'TechArticle',
+        'headline'         => wp_strip_all_tags( get_the_title( $post ) ),
+        'description'      => $summary,
+        'inLanguage'       => $language,
+        'datePublished'    => get_the_date( DATE_W3C, $post ),
+        'dateModified'     => get_the_modified_date( DATE_W3C, $post ),
+        'author'           => array(
+            '@type' => 'Organization',
+            'name'  => 'HoaSen Table',
+        ),
+        'publisher'        => array(
+            '@type' => 'Organization',
+            'name'  => 'HoaSen Table',
+            'url'   => home_url( '/' ),
+        ),
+        'mainEntityOfPage' => get_permalink( $post ),
+        'about'            => array( 'schema-aware SQL editor', 'minimal database client', 'developer workflow', 'large-table browsing', 'custom plugins', 'creative widgets' ),
+    );
+
+    echo '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">' . "\n";
+    echo '<meta name="ai-summary" content="' . esc_attr( $summary ) . '">' . "\n";
+    echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
+}
 
 // Load translation logic without compiling .mo files
 $hoasen_translations_vi = array(

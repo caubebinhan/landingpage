@@ -13,7 +13,7 @@ $t = [
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-<link rel="icon" type="image/png" href="<?php echo get_stylesheet_directory_uri(); ?>/logo.png"/>"/>
+<link rel="icon" type="image/svg+xml" href="<?php echo get_stylesheet_directory_uri(); ?>/logo_svg.svg"/>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
 <title><?php echo esc_html($t['title']); ?> — HoaSen Table</title>
