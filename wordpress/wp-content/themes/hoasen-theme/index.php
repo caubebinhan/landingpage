@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
 <?php
 $lang = function_exists('pll_current_language') ? pll_current_language() : 'en';
 $is_vi = (strpos($lang,'vi')===0);
 $t = [
-  'title'   => $is_vi ? 'HoaSen Table — Database workspace tối giản cho developer' : 'HoaSen Table — Minimal Database Workspace for Developers',
-  'desc'    => $is_vi ? 'Database client tối giản cho developer: trải nghiệm native nhanh mượt, plugin fully custom, widget linh hoạt và các luồng SQL cần thiết không rườm rà.' : 'A minimal database client for developers with a fast native experience, fully custom plugins, creative widgets, and essential SQL workflows without UI clutter.',
+  'title'   => $is_vi ? 'HoaSen Table — SQL Client Miễn Phí, Tối Giản Cho Developer' : 'HoaSen Table — Free, Fast & Minimal SQL Client (Postgres, MySQL, SQLite)',
+  'desc'    => $is_vi ? 'SQL client miễn phí, tốc độ native, siêu nhẹ cho Postgres, MySQL và SQLite. Thiết kế tối giản giúp lập trình viên tập trung tối đa công việc.' : 'A free, native-speed, and minimal SQL client for Postgres, MySQL, and SQLite. Built with zero bloat and designed to maximize developer focus.',
   'blog'    => $is_vi ? 'BLOG' : 'BLOG',
   'contact' => $is_vi ? 'LIÊN HỆ' : 'CONTACT',
   'scroll'  => $is_vi ? 'Cuộn khám phá ↓' : 'Scroll to explore ↓',
@@ -35,6 +35,7 @@ $t = [
   '@context' => 'https://schema.org',
   '@type' => 'SoftwareApplication',
   'name' => 'HoaSen Table',
+  'inLanguage' => $lang,
   'applicationCategory' => 'DeveloperApplication',
   'operatingSystem' => 'Windows, macOS, Linux',
   'description' => $t['desc'],
@@ -225,7 +226,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 .widget-remove{margin-left:auto;border:0;background:transparent;color:#999;font-size:15px;line-height:1;cursor:pointer}
 .resource-panel{display:none;position:absolute;inset:12px;z-index:9;background:#fafaf8;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:22px}
 .resource-panel.show{display:block}
-.resource-panel h3{margin:0 0 14px;font:700 22px "Cormorant Garamond",serif}
+.resource-panel h2{margin:0 0 14px;font:700 22px "Cormorant Garamond",serif}
 .resource-links{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .resource-links a{padding:11px;border-radius:7px;background:#fff;color:#222;text-decoration:none;font:600 11px "Outfit",sans-serif}
 .data-view.is-empty{opacity:0;pointer-events:none}
@@ -233,7 +234,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 .window{transition:opacity .35s,transform .45s cubic-bezier(.22,1,.36,1)}
 .site-outro{display:none;position:absolute;z-index:8;left:50%;top:50%;width:min(100%,870px);transform:translate(-50%,-50%);padding:28px 0;border-top:1px solid rgba(0,0,0,.12);border-bottom:1px solid rgba(0,0,0,.12)}
 .site-outro.show{display:block}
-.site-outro h3{margin:0 0 18px;font:700 clamp(26px,4vw,42px) "Cormorant Garamond",serif}
+.site-outro h2{margin:0 0 18px;font:700 clamp(26px,4vw,42px) "Cormorant Garamond",serif}
 .outro-links{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .outro-links a{color:#222;text-decoration:none;padding:10px 14px;background:#fff;border-radius:7px;font:600 11px "Outfit",sans-serif;transition:all .2s ease}
 .outro-links a:hover{background:#f3f4f6;transform:translateY(-1px)}
@@ -582,7 +583,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
   <!-- Copy left -->
   <div class="copy">
     <section class="copy-scene active">
-      <div class="kicker"><?php esc_html_e('MINIMAL DATABASE CLIENT', 'hoasen-theme'); ?></div>
+      <div class="kicker"><?php esc_html_e('MINIMAL SQL CLIENT', 'hoasen-theme'); ?></div>
       <h1><?php esc_html_e('Database work without the extra weight.', 'hoasen-theme'); ?></h1>
       <p><?php esc_html_e('HoaSen Table is built for developers who want to connect, query, inspect, and move on. A native-feeling experience: fast, smooth, quiet, no ceremony.', 'hoasen-theme'); ?></p>
         <div class="db-logos">
@@ -618,8 +619,8 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 
     <section class="copy-scene">
       <div class="kicker"><?php esc_html_e('RESULTS STAY CLOSE', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Run it. Read it. Stay in flow.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Results appear where you are working. Hover a foreign key when you need context; keep querying when you do not.', 'hoasen-theme'); ?></p>
+      <h1><?php esc_html_e('Inline execution. Zero context switching.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Query results appear in your active workspace. Peek at foreign key relations on hover without writing subqueries or toggling tabs.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Inline results', 'hoasen-theme'); ?></span>
         <span class="chip"><?php esc_html_e('No tab hopping', 'hoasen-theme'); ?></span>
@@ -628,12 +629,12 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 
     <section class="copy-scene">
       <div class="kicker"><?php esc_html_e('LARGE TABLES', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('Native speed, even on heavy tables.', 'hoasen-theme'); ?></h1>
-      <p><?php esc_html_e('Open large tables and scan them through a virtual grid that keeps the app feeling smooth and immediate.', 'hoasen-theme'); ?></p>
+      <h1><?php esc_html_e('Native speed, even on massive tables.', 'hoasen-theme'); ?></h1>
+      <p><?php esc_html_e('Open and scroll through millions of rows instantly. The workspace stays smooth, responsive, and never freezes when scanning heavy datasets.', 'hoasen-theme'); ?></p>
       <div class="chips">
-        <span class="chip hot"><?php esc_html_e('Virtual grid', 'hoasen-theme'); ?></span>
-        <span class="chip go"><?php esc_html_e('Native feel', 'hoasen-theme'); ?></span>
-        <span class="chip"><?php esc_html_e('Smooth scroll', 'hoasen-theme'); ?></span>
+        <span class="chip hot"><?php esc_html_e('Instant rendering', 'hoasen-theme'); ?></span>
+        <span class="chip go"><?php esc_html_e('Zero memory bloat', 'hoasen-theme'); ?></span>
+        <span class="chip"><?php esc_html_e('Smooth scrolling', 'hoasen-theme'); ?></span>
       </div>
     </section>
 
@@ -659,7 +660,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
 
     <section class="copy-scene">
       <div class="kicker"><?php esc_html_e('FOR DAILY DEVELOPER WORK', 'hoasen-theme'); ?></div>
-      <h1><?php esc_html_e('A sharper database client for focused teams.', 'hoasen-theme'); ?></h1>
+      <h1><?php esc_html_e('A sharper SQL client for focused teams.', 'hoasen-theme'); ?></h1>
       <p><?php esc_html_e('Read the guide, check the docs, follow the engineering notes, or talk to us about the workflows that slow your team down.', 'hoasen-theme'); ?></p>
       <div class="chips">
         <span class="chip hot"><?php esc_html_e('Docs', 'hoasen-theme'); ?></span>
@@ -738,7 +739,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
                   <div class="data-scrollbar" id="dataScrollbar"><div class="data-scroll-thumb" id="dataScrollThumb"></div></div>
                 </div>
                 <div class="resource-panel" id="resourcePanel">
-                  <h3>Keep the workflow small.</h3>
+                  <h2>Keep the workflow small.</h2>
                   <div class="resource-links">
                     <a href="<?php echo esc_url(home_url('/contact/')); ?>">Contact</a>
                     <a href="<?php echo esc_url(home_url('/guide/')); ?>">Minimal setup guide</a>
@@ -917,7 +918,7 @@ h1{font-size:clamp(33px,4.6vw,66px);line-height:.93;letter-spacing:-.03em;font-w
     </div><!-- .window -->
   </div><!-- .canvas -->
   <div class="site-outro" id="siteOutro">
-    <h3>Minimal database work, built for developer flow.</h3>
+    <h2><?php esc_html_e('Native speed, zero bloat. Built for developer focus.', 'hoasen-theme'); ?></h2>
     <div class="outro-links">
       <a href="#" class="btn-download">
         <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm14-9h-4V3H9v8H5l7 7 7-7z"/></svg>

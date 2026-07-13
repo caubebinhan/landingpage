@@ -18,6 +18,25 @@ $t = [
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
 <title><?php echo esc_html($t['title']); ?> — HoaSen Table</title>
 <meta name="description" content="<?php echo esc_attr($t['desc']); ?>"/>
+<script type="application/ld+json">
+<?php echo wp_json_encode([
+  '@context' => 'https://schema.org',
+  '@type' => 'TechArticle',
+  'headline' => $t['title'],
+  'description' => $t['desc'],
+  'inLanguage' => $lang,
+  'url' => home_url('/autocomplete/'),
+  'author' => [
+    '@type' => 'Organization',
+    'name' => 'HoaSen Table'
+  ],
+  'about' => [
+    'AST-driven autocomplete',
+    'SQL editor dialect parsing',
+    'smart autocomplete context representation'
+  ]
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
+</script>
 <?php wp_head(); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

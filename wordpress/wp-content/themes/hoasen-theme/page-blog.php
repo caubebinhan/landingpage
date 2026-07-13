@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Template Name: Blog
  */
@@ -28,17 +28,81 @@ $blog_query = new WP_Query($args);
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
 <title><?php echo esc_html($t['title']); ?></title>
 <meta name="description" content="<?php echo esc_attr($t['desc']); ?>"/>
+<script type="application/ld+json">
+<?php
+$posts_schema = [];
+if ( $blog_query->have_posts() ) {
+    while ( $blog_query->have_posts() ) {
+        $blog_query->the_post();
+        $posts_schema[] = [
+            '@type' => 'BlogPosting',
+            'headline' => get_the_title(),
+            'url' => get_permalink(),
+            'datePublished' => get_the_date(DATE_W3C),
+            'author' => [
+                '@type' => 'Person',
+                'name' => get_the_author()
+            ]
+        ];
+    }
+    wp_reset_postdata();
+} else {
+    $posts_schema = [
+        [
+            '@type' => 'BlogPosting',
+            'headline' => $is_vi ? 'Tối ưu Autocomplete với Grammar Parsing' : 'Optimizing SQL Autocomplete',
+            'url' => home_url('/blog/'),
+            'datePublished' => '2026-07-09T00:00:00+00:00',
+            'author' => [
+                '@type' => 'Organization',
+                'name' => 'Engineering'
+            ]
+        ],
+        [
+            '@type' => 'BlogPosting',
+            'headline' => $is_vi ? 'Virtual Grid: Render 1 triệu hàng 60 FPS' : 'Virtual Grid: 1M rows at 60 FPS',
+            'url' => home_url('/blog/'),
+            'datePublished' => '2026-07-02T00:00:00+00:00',
+            'author' => [
+                '@type' => 'Organization',
+                'name' => 'Performance'
+            ]
+        ],
+        [
+            '@type' => 'BlogPosting',
+            'headline' => $is_vi ? 'Tại sao Native đánh bại Electron' : 'Why Native beats Electron',
+            'url' => home_url('/blog/'),
+            'datePublished' => '2026-06-25T00:00:00+00:00',
+            'author' => [
+                '@type' => 'Organization',
+                'name' => 'Design'
+            ]
+        ]
+    ];
+}
+
+echo wp_json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Blog',
+    'name' => $is_vi ? 'HoaSen Nhật Ký' : 'HoaSen Journal',
+    'description' => $t['desc'],
+    'url' => home_url('/blog/'),
+    'inLanguage' => $lang,
+    'blogPost' => $posts_schema
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+?>
+</script>
 <?php wp_head(); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f0efed;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));
-  --text:#0f0f0f;--rs:rgba(var(--red-rgb),.07);
+  --bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));
+  --text:#1c1917;--rs:rgba(var(--red-rgb),.07);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),
              linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
@@ -51,7 +115,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   background-size:42px 42px;
   mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
 .brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
-.brand-name{font-family:"Cormorant Garamond",serif;font-size:21px;font-weight:700;color:var(--text);letter-spacing:-.025em}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
 .back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
 .back-btn:hover{color:var(--red)}
 
@@ -59,7 +123,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
 
 .blog-hdr {
   margin-bottom: 40px;
-  border-bottom: 1px solid rgba(0,0,0,.08);
+  border-bottom: 1.5px solid rgba(0,0,0,.08);
   padding-bottom: 32px;
 }
 .blog-hdr .kicker {
@@ -67,16 +131,17 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--red);
-  font-weight: 900;
+  font-weight: 700;
   margin-bottom: 12px;
-  font-family: "Outfit", sans-serif;
+  font-family: "Public Sans", sans-serif;
 }
 .blog-hdr h1 {
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(32px, 5vw, 54px);
+  font-family: "Spectral", serif;
+  font-size: clamp(34px, 5.2vw, 56px);
   line-height: 1.1;
-  font-weight: 700;
-  color: #0f0f0f;
+  font-weight: 600;
+  font-style: italic;
+  color: #1c1917;
   margin-bottom: 12px;
   letter-spacing: -0.02em;
 }
@@ -95,21 +160,20 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
 }
 .post-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, .06);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .02);
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .02);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .post-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, .08);
-  border-color: rgba(137, 24, 24, .18);
-  background: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(var(--red-rgb), .05);
+  border-color: rgba(var(--red-rgb), .3);
+  background: #ffffff;
 }
 .card-link-overlay {
   position: absolute;
@@ -163,24 +227,25 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 12px;
-  font-family: "Outfit", sans-serif;
+  font-family: "Public Sans", sans-serif;
 }
 .card-title {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: #111;
+  font-family: "Spectral", serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1c1917;
   line-height: 1.25;
   margin-bottom: 12px;
+  letter-spacing: -0.01em;
   transition: color 0.2s ease;
 }
 .post-card:hover .card-title {
   color: var(--red);
 }
 .card-excerpt {
-  font-size: 14.5px;
-  line-height: 1.6;
-  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #57534e;
   margin-bottom: 24px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -191,7 +256,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
 }
 .card-more {
   font-size: 10.5px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--red);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -200,7 +265,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   gap: 6px;
   margin-top: auto;
   transition: gap 0.25s ease;
-  font-family: "Outfit", sans-serif;
+  font-family: "Public Sans", sans-serif;
 }
 .post-card:hover .card-more {
   gap: 10px;
