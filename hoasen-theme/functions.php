@@ -118,7 +118,11 @@ function hoasen_ensure_blog_menu_item( $blog_page_id ) {
 add_filter( 'template_include', 'hoasen_blog_template', 99 );
 function hoasen_blog_template( $template ) {
     $path = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
-    $path = preg_replace( '#^(vi|ja)/#', '', $path );
+    $path = preg_replace( '#^(vi|ja)(/|$)#', '', $path );
+
+    if ( empty( $path ) ) {
+        return $template;
+    }
 
     if ( is_home() || is_page( 'blog' ) || $path === 'blog' ) {
         $blog_template = locate_template( 'page-blog.php' );

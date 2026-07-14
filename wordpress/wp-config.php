@@ -116,8 +116,9 @@ $table_prefix = getenv_docker('WORDPRESS_TABLE_PREFIX', 'wp_');
 define( 'WP_DEBUG', !!getenv_docker('WORDPRESS_DEBUG', '') );
 
 /* Add any custom values between this line and the "stop editing" line. */
-define( 'WP_HOME', 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8080') );
-define( 'WP_SITEURL', 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8080') );
+$http_host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+define( 'WP_HOME', 'http://' . $http_host );
+define( 'WP_SITEURL', 'http://' . $http_host );
 
 // If we're behind a proxy server and using HTTPS, we need to alert WordPress of that fact
 // see also https://wordpress.org/support/article/administration-over-ssl/#using-a-reverse-proxy
