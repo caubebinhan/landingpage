@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title and meta description are emitted by Yoast SEO via wp_head() below -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Blog","name":"HoaSen Journal","description":"Articles on engineering, performance, and architecture of HoaSen Table.","url":"https://hoasentable.com/blog/","inLanguage":"en","blogPost":[{"@type":"BlogPosting","headline":"The Halloween Problem: The Phantom in the Query Engine","url":"https://hoasentable.com/the-halloween-problem-the-phantom-in-the-query-engine-and-database-micro-architecture/","datePublished":"2026-07-22T01:31:08+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"The Percolator Model: How Google Spanner and TiDB Handle Distributed Transactions","url":"https://hoasentable.com/the-percolator-model-how-google-spanner-and-tidb-handle-distributed-transactions/","datePublished":"2026-07-22T01:31:06+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Two-Phase Locking (2PL) vs. Optimistic Concurrency Control (OCC): A Micro-Architectural Deep-Dive","url":"https://hoasentable.com/two-phase-locking-2pl-vs-optimistic-concurrency-control-occ-a-micro-architectural-and-algorithmic-deep-dive/","datePublished":"2026-07-22T01:31:05+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Locks, Latches, and Spinlocks: Concurrency Control in the Database Engine","url":"https://hoasentable.com/locks-latches-and-spinlocks-concurrency-control-in-the-database-engine/","datePublished":"2026-07-22T01:31:04+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Serializable Snapshot Isolation (SSI): Architectural Foundations and Micro-Level Optimizations for Lock-Free Serializability","url":"https://hoasentable.com/serializable-snapshot-isolation-ssi-architectural-foundations-and-micro-level-optimizations-for-lock-free-serializability/","datePublished":"2026-07-22T01:31:03+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Transaction Isolation Levels: Dissecting Write Skew, Read Skew, and Phantom Reads","url":"https://hoasentable.com/transaction-isolation-levels-mo-xe-write-skew-read-skew-va-phantom-reads-2/","datePublished":"2026-07-22T01:31:01+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Multi-Version Concurrency Control (MVCC): A Low-Level Architectural Analysis and the Multi-Threaded Memory Management Ecosystem","url":"https://hoasentable.com/multi-version-concurrency-control-mvcc-a-low-level-architectural-analysis-and-the-multi-threaded-memory-management-ecosystem/","datePublished":"2026-07-22T01:31:00+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"PostgreSQL’s TOAST Architecture: The Art of Memory Management and Oversized Data Storage Engineering","url":"https://hoasentable.com/postgresqls-toast-architecture-the-art-of-memory-management-and-oversized-data-storage-engineering/","datePublished":"2026-07-22T01:30:59+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Fractal Trees and TokuDB: A Data Structure Built for Write-Heavy Workloads","url":"https://hoasentable.com/fractal-trees-and-tokudb-a-breakthrough-data-structure-replacing-b-trees-for-write-heavy-workloads/","datePublished":"2026-07-22T01:30:58+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Column-Oriented Storage: Anatomizing Parquet, the Dremel Algorithm, and ClickHouse MergeTree’s Vectorized Engine","url":"https://hoasentable.com/column-oriented-storage-science-anatomizing-parquet-the-dremel-theorem-and-the-vectorized-power-of-clickhouse-mergetree/","datePublished":"2026-07-22T01:30:56+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Exploring Memory-Mapped Files (mmap): The Micro-Architectural Foundation and the Fatal Decision Behind MongoDB’s MMAPv1","url":"https://hoasentable.com/exploring-memory-mapped-files-mmap-the-micro-architectural-foundation-and-the-fatal-decision-behind-mongodbs-mmapv1/","datePublished":"2026-07-22T01:30:54+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Anatomy of InnoDB Architecture: Page Flushes, Checkpoints, and the Doublewrite Buffer at the Limits of Hardware","url":"https://hoasentable.com/anatomy-of-innodb-architecture-page-flushes-checkpoints-and-the-doublewrite-buffer-at-the-limits-of-hardware/","datePublished":"2026-07-22T01:30:53+00:00","author":{"@type":"Person","name":"admin"}}]}</script>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>HoaSen Table Journal - Engineering &amp; Performance</title>
+	<meta name="description" content="Deep technical articles on SQL autocomplete, smart joins, virtualized data grids, and HoaSen Table architecture.">
+	<link rel="canonical" href="https://hoasentable.com/blog/page/4/">
+	<link rel="prev" href="https://hoasentable.com/blog/page/3/">
+	<link rel="next" href="https://hoasentable.com/blog/page/5/">
+	<meta property="og:locale" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:locale:alternate" content="ja_JP">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="HoaSen Table Journal - Engineering &amp; Performance">
+	<meta property="og:description" content="Deep technical articles on SQL autocomplete, smart joins, virtualized data grids, and HoaSen Table architecture.">
+	<meta property="og:url" content="https://hoasentable.com/blog/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta name="twitter:card" content="summary_large_image">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":["WebPage","CollectionPage"],"@id":"https:\/\/hoasentable.com\/blog\/","url":"https:\/\/hoasentable.com\/blog\/page\/4\/","name":"HoaSen Table Journal - Engineering & Performance","isPartOf":{"@id":"https:\/\/hoasentable.com\/#website"},"datePublished":"2026-07-09T03:34:20+00:00","description":"Deep technical articles on SQL autocomplete, smart joins, virtualized data grids, and HoaSen Table architecture.","breadcrumb":{"@id":"https:\/\/hoasentable.com\/blog\/page\/4\/#breadcrumb"},"inLanguage":"en-US"},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/blog\/page\/4\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/"},{"@type":"ListItem","position":2,"name":"Blog"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/#website","url":"https:\/\/hoasentable.com\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));
+  --text:#1c1917;--rs:rgba(var(--red-rgb),.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),
+             linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);
+  width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;
+  background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');
+  background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+
+.blog-wrap{position:relative;z-index:5;max-width:1040px;margin:120px auto 80px;padding:0 24px}
+
+.blog-hdr {
+  margin-bottom: 40px;
+  border-bottom: 1.5px solid rgba(0,0,0,.08);
+  padding-bottom: 32px;
+}
+.blog-hdr .kicker {
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-family: "Public Sans", sans-serif;
+}
+.blog-hdr h1 {
+  font-family: "Spectral", serif;
+  font-size: clamp(34px, 5.2vw, 56px);
+  line-height: 1.1;
+  font-weight: 600;
+  font-style: italic;
+  color: #1c1917;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.blog-hdr p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+  max-width: 580px;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 32px;
+  width: 100%;
+}
+.post-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .02);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(var(--red-rgb), .05);
+  border-color: rgba(var(--red-rgb), .3);
+  background: #ffffff;
+}
+.card-link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #e9e6e0;
+}
+.card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.post-card:hover .card-img-wrap img {
+  transform: scale(1.05);
+}
+.card-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  background: radial-gradient(circle at 50% 50%, rgba(137, 24, 24, 0.06), transparent);
+}
+.card-thumb-placeholder svg {
+  width: 42px;
+  height: 42px;
+  opacity: 0.22;
+  transition: transform 0.3s ease;
+}
+.post-card:hover .card-thumb-placeholder svg {
+  transform: scale(1.1);
+}
+.card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.card-meta {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  font-family: "Public Sans", sans-serif;
+}
+.card-title {
+  font-family: "Spectral", serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1c1917;
+  line-height: 1.25;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+  transition: color 0.2s ease;
+}
+.post-card:hover .card-title {
+  color: var(--red);
+}
+.card-excerpt {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #57534e;
+  margin-bottom: 24px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+.card-more {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  transition: gap 0.25s ease;
+  font-family: "Public Sans", sans-serif;
+}
+.post-card:hover .card-more {
+  gap: 10px;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 50px;
+  font-family: "Public Sans", sans-serif;
+}
+.pagination a, .pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #57534e;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,.02);
+}
+.pagination a:hover {
+  border-color: rgba(var(--red-rgb),.3);
+  color: var(--red);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--red-rgb),.08);
+}
+.pagination .current {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+
+<a href="https://hoasentable.com/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/" class="back-btn">← Back to Home</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en current-lang lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/blog/" aria-current="true">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/blog-vi/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/blog-ja/">日本語</a></li>
+</ul></div>
+
+<div class="blog-wrap">
+  <header class="blog-hdr">
+    <div class="kicker">HoaSen Journal</div>
+    <h1>Engineering &amp; Performance</h1>
+    <p>Deep-dives into database engine design, query performance optimization, and front-end architecture from the HoaSen Table team.</p>
+  </header>
+
+  <div class="blog-grid">
+                          <article class="post-card">
+          <a href="https://hoasentable.com/the-halloween-problem-the-phantom-in-the-query-engine-and-database-micro-architecture/" class="card-link-overlay" aria-label="The Halloween Problem: The Phantom in the Query Engine"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/15-the-halloween-problem.svg" alt="The Halloween Problem: The Phantom in the Query Engine">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">The Halloween Problem: The Phantom in the Query Engine</h2>
+            <p class="card-excerpt">On Halloween in 1976, engineers on IBM’s System R project ran a perfectly ordinary UPDATE statement and watched...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/the-percolator-model-how-google-spanner-and-tidb-handle-distributed-transactions/" class="card-link-overlay" aria-label="The Percolator Model: How Google Spanner and TiDB Handle Distributed Transactions"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/14-percolator-model-spanner-tidb.svg" alt="The Percolator Model: How Google Spanner and TiDB Handle Distributed Transactions">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">The Percolator Model: How Google Spanner and TiDB Handle Distributed Transactions</h2>
+            <p class="card-excerpt">Introduction Google published the Percolator model in 2010, and it quietly reshaped how distributed databases handle transactions. The...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/two-phase-locking-2pl-vs-optimistic-concurrency-control-occ-a-micro-architectural-and-algorithmic-deep-dive/" class="card-link-overlay" aria-label="Two-Phase Locking (2PL) vs. Optimistic Concurrency Control (OCC): A Micro-Architectural Deep-Dive"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/13-2pl-vs-occ.svg" alt="Two-Phase Locking (2PL) vs. Optimistic Concurrency Control (OCC): A Micro-Architectural Deep-Dive">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Two-Phase Locking (2PL) vs. Optimistic Concurrency Control (OCC): A Micro-Architectural Deep-Dive</h2>
+            <p class="card-excerpt">Every database that lets multiple transactions run at once has to answer the same question: what happens when...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/locks-latches-and-spinlocks-concurrency-control-in-the-database-engine/" class="card-link-overlay" aria-label="Locks, Latches, and Spinlocks: Concurrency Control in the Database Engine"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/12-locks-latches-spinlocks.svg" alt="Locks, Latches, and Spinlocks: Concurrency Control in the Database Engine">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Locks, Latches, and Spinlocks: Concurrency Control in the Database Engine</h2>
+            <p class="card-excerpt">Why This Distinction Matters Ask most application developers what a “lock” is and they’ll give you a reasonable...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/serializable-snapshot-isolation-ssi-architectural-foundations-and-micro-level-optimizations-for-lock-free-serializability/" class="card-link-overlay" aria-label="Serializable Snapshot Isolation (SSI): Architectural Foundations and Micro-Level Optimizations for Lock-Free Serializability"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/11-serializable-snapshot-isolation-ssi.svg" alt="Serializable Snapshot Isolation (SSI): Architectural Foundations and Micro-Level Optimizations for Lock-Free Serializability">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Serializable Snapshot Isolation (SSI): Architectural Foundations and Micro-Level Optimizations for Lock-Free Serializability</h2>
+            <p class="card-excerpt">What This Article Covers Serializable Snapshot Isolation (SSI) is one of the more elegant answers to a problem...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/transaction-isolation-levels-mo-xe-write-skew-read-skew-va-phantom-reads-2/" class="card-link-overlay" aria-label="Transaction Isolation Levels: Dissecting Write Skew, Read Skew, and Phantom Reads"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/10-transaction-isolation-levels-anomalies.svg" alt="Transaction Isolation Levels: Dissecting Write Skew, Read Skew, and Phantom Reads">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Transaction Isolation Levels: Dissecting Write Skew, Read Skew, and Phantom Reads</h2>
+            <p class="card-excerpt">What This Article Covers Most engineers learn transaction isolation levels from the ANSI SQL-92 table — four levels,...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/multi-version-concurrency-control-mvcc-a-low-level-architectural-analysis-and-the-multi-threaded-memory-management-ecosystem/" class="card-link-overlay" aria-label="Multi-Version Concurrency Control (MVCC): A Low-Level Architectural Analysis and the Multi-Threaded Memory Management Ecosystem"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/09-mvcc-low-level.svg" alt="Multi-Version Concurrency Control (MVCC): A Low-Level Architectural Analysis and the Multi-Threaded Memory Management Ecosystem">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Multi-Version Concurrency Control (MVCC): A Low-Level Architectural Analysis and the Multi-Threaded Memory Management Ecosystem</h2>
+            <p class="card-excerpt">Overview MVCC — multi-version concurrency control — is the mechanism most modern databases use to let readers and...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/postgresqls-toast-architecture-the-art-of-memory-management-and-oversized-data-storage-engineering/" class="card-link-overlay" aria-label="PostgreSQL’s TOAST Architecture: The Art of Memory Management and Oversized Data Storage Engineering"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/08-toast-architecture-postgresql-oversized.svg" alt="PostgreSQL’s TOAST Architecture: The Art of Memory Management and Oversized Data Storage Engineering">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">PostgreSQL’s TOAST Architecture: The Art of Memory Management and Oversized Data Storage Engineering</h2>
+            <p class="card-excerpt">The Problem: Big Values, Small Pages Every fixed-block storage engine runs into the same wall eventually: how do...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/fractal-trees-and-tokudb-a-breakthrough-data-structure-replacing-b-trees-for-write-heavy-workloads/" class="card-link-overlay" aria-label="Fractal Trees and TokuDB: A Data Structure Built for Write-Heavy Workloads"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/07-fractal-trees-write-heavy-workload.svg" alt="Fractal Trees and TokuDB: A Data Structure Built for Write-Heavy Workloads">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Fractal Trees and TokuDB: A Data Structure Built for Write-Heavy Workloads</h2>
+            <p class="card-excerpt">Why B-Trees Struggle Under Heavy Write Load For decades the B-Tree, and its B+-Tree variant, has been the...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/column-oriented-storage-science-anatomizing-parquet-the-dremel-theorem-and-the-vectorized-power-of-clickhouse-mergetree/" class="card-link-overlay" aria-label="Column-Oriented Storage: Anatomizing Parquet, the Dremel Algorithm, and ClickHouse MergeTree’s Vectorized Engine"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/06-column-oriented-storage-parquet-clickhouse.svg" alt="Column-Oriented Storage: Anatomizing Parquet, the Dremel Algorithm, and ClickHouse MergeTree’s Vectorized Engine">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Column-Oriented Storage: Anatomizing Parquet, the Dremel Algorithm, and ClickHouse MergeTree’s Vectorized Engine</h2>
+            <p class="card-excerpt">Why Row Storage Breaks Down at Analytical Scale The rise of Big Data exposed a physical limit that...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/exploring-memory-mapped-files-mmap-the-micro-architectural-foundation-and-the-fatal-decision-behind-mongodbs-mmapv1/" class="card-link-overlay" aria-label="Exploring Memory-Mapped Files (mmap): The Micro-Architectural Foundation and the Fatal Decision Behind MongoDB’s MMAPv1"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/05-memory-mapped-files-mongodb-mmapv1.svg" alt="Exploring Memory-Mapped Files (mmap): The Micro-Architectural Foundation and the Fatal Decision Behind MongoDB’s MMAPv1">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Exploring Memory-Mapped Files (mmap): The Micro-Architectural Foundation and the Fatal Decision Behind MongoDB’s MMAPv1</h2>
+            <p class="card-excerpt">Executive Summary &amp; Problem Statement Throughout the history of database management systems (DBMS), the choice of how to...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/anatomy-of-innodb-architecture-page-flushes-checkpoints-and-the-doublewrite-buffer-at-the-limits-of-hardware/" class="card-link-overlay" aria-label="Anatomy of InnoDB Architecture: Page Flushes, Checkpoints, and the Doublewrite Buffer at the Limits of Hardware"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/04-innodb-page-flushes-checkpoints-doublewrite.svg" alt="Anatomy of InnoDB Architecture: Page Flushes, Checkpoints, and the Doublewrite Buffer at the Limits of Hardware">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Anatomy of InnoDB Architecture: Page Flushes, Checkpoints, and the Doublewrite Buffer at the Limits of Hardware</h2>
+            <p class="card-excerpt">Executive Summary &amp; Problem Statement In the architecture of relational database management systems (RDBMS) serving ultra-large-scale systems, guaranteeing...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+      
+      </div>
+
+      <div class="pagination">
+      <a class="prev page-numbers" href="https://hoasentable.com/blog/page/3/">« Prev</a>
+<a class="page-numbers" href="https://hoasentable.com/blog/page/1/">1</a>
+<a class="page-numbers" href="https://hoasentable.com/blog/page/2/">2</a>
+<a class="page-numbers" href="https://hoasentable.com/blog/page/3/">3</a>
+<span aria-current="page" class="page-numbers current">4</span>
+<a class="page-numbers" href="https://hoasentable.com/blog/page/5/">5</a>
+<a class="next page-numbers" href="https://hoasentable.com/blog/page/5/">Next »</a>    </div>
+  
+</div>
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">988</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# LLM SEO Optimizations
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://hoasentable.com/sitemap.xml
+Sitemap: https://hoasentable.com/llms.txt
+
+# START YOAST BLOCK
+# ---------------------------
+User-agent: *
+Disallow:
+
+Sitemap: https://hoasentable.com/sitemap_index.xml
+# ---------------------------
+# END YOAST BLOCK

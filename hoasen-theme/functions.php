@@ -1,8 +1,55 @@
 <?php
 
+require_once __DIR__ . '/inc/markdown.php';
+
 add_theme_support( 'title-tag' );
 add_theme_support( 'html5', array( 'style', 'script' ) );
 add_theme_support( 'post-thumbnails' );
+
+/**
+ * Polylang caches its per-language home URLs in the `pll_languages_list` transient.
+ * That cache is built from whatever host made the request that (re)built it — a wp-admin
+ * click, a CLI script, a cron job — and then keeps serving that same host to everyone
+ * until the cache is cleared. Moving the site to a new domain (dev -> staging -> prod)
+ * would otherwise leave every language switcher link silently pointing at the old host
+ * until someone remembers to flush the cache by hand. This self-heals it: if the cached
+ * value doesn't match the current request's actual home_url(), drop the cache so Polylang
+ * rebuilds it fresh, right here, on this request.
+ */
+add_action( 'init', function () {
+    if ( ! function_exists( 'pll_languages_list' ) && ! class_exists( 'PLL' ) ) {
+        return;
+    }
+    $cached = get_transient( 'pll_languages_list' );
+    if ( ! is_array( $cached ) || empty( $cached[0]['home_url'] ) ) {
+        return;
+    }
+    $cached_host  = wp_parse_url( $cached[0]['home_url'], PHP_URL_HOST );
+    $current_host = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+    if ( $cached_host && $current_host && $cached_host !== $current_host ) {
+        delete_transient( 'pll_languages_list' );
+    }
+}, 1 );
+
+// Allow the theme's own generated SVG cover images to work as valid, displayable
+// attachments/featured images (SVG isn't treated as a raster image by default).
+add_filter( 'upload_mimes', function ( $mimes ) {
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+} );
+add_filter( 'file_is_displayable_image', function ( $result, $path ) {
+    if ( preg_match( '/\.svg$/i', $path ) ) {
+        return true;
+    }
+    return $result;
+}, 10, 2 );
+add_filter( 'wp_check_filetype_and_ext', function ( $data, $file, $filename, $mimes ) {
+    if ( preg_match( '/\.svg$/i', $filename ) ) {
+        $data['ext']  = 'svg';
+        $data['type'] = 'image/svg+xml';
+    }
+    return $data;
+}, 10, 4 );
 
 register_nav_menus(
     array(
@@ -11,17 +58,11 @@ register_nav_menus(
 );
 
 function hoasen_blog_url() {
-    if ( function_exists( 'pll_current_language' ) && function_exists( 'pll_get_post' ) ) {
-        $blog_page = get_page_by_path( 'blog' );
-        if ( $blog_page ) {
-            $translated_id = pll_get_post( $blog_page->ID, pll_current_language() );
-            if ( $translated_id ) {
-                return wp_make_link_relative( get_permalink( $translated_id ) );
-            }
-        }
+    $page_for_posts = get_option('page_for_posts');
+    if ($page_for_posts) {
+        return get_permalink($page_for_posts);
     }
-
-    return '/blog/';
+    return home_url('/blog/');
 }
 
 add_action( 'after_switch_theme', 'hoasen_activate_theme_routes' );
@@ -52,9 +93,7 @@ function hoasen_ensure_blog_page() {
         $page_id = $blog_page->ID;
     }
 
-    if ( get_post_meta( $page_id, '_wp_page_template', true ) !== 'page-blog.php' ) {
-        update_post_meta( $page_id, '_wp_page_template', 'page-blog.php' );
-    }
+    // Removed custom template assignment since we now use home.php
 
     update_post_meta( $page_id, '_yoast_wpseo_title', 'HoaSen Table Journal - Engineering & Performance' );
     update_post_meta( $page_id, '_yoast_wpseo_metadesc', 'Deep technical articles on SQL autocomplete, smart joins, virtualized data grids, and HoaSen Table architecture.' );
@@ -115,24 +154,7 @@ function hoasen_ensure_blog_menu_item( $blog_page_id ) {
     set_theme_mod( 'nav_menu_locations', $locations );
 }
 
-add_filter( 'template_include', 'hoasen_blog_template', 99 );
-function hoasen_blog_template( $template ) {
-    $path = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
-    $path = preg_replace( '#^(vi|ja)(/|$)#', '', $path );
-
-    if ( empty( $path ) ) {
-        return $template;
-    }
-
-    if ( is_home() || is_page( 'blog' ) || $path === 'blog' ) {
-        $blog_template = locate_template( 'page-blog.php' );
-        if ( $blog_template ) {
-            return $blog_template;
-        }
-    }
-
-    return $template;
-}
+// Removed hoasen_blog_template since we now rely on WP standard routing (home.php)
 
 add_action( 'init', 'hoasen_llms_txt', 0 );
 function hoasen_llms_txt() {
@@ -291,6 +313,32 @@ $hoasen_translations_vi = array(
     'Complete Syntax' => 'Cú pháp hoàn chỉnh',
     'users (Root Table)' => 'users (Bảng gốc)',
     'orders (Relation)' => 'orders (Liên kết)',
+
+    // Blog listing (home.php)
+    'HoaSen Journal' => 'HoaSen Nhật Ký',
+    'Articles on engineering, performance, and architecture of HoaSen Table.' => 'Bài viết về kỹ thuật, hiệu năng và kiến trúc của HoaSen Table.',
+    '← Back to Home' => '← Về trang chủ',
+    'Engineering & Performance' => 'Kỹ Thuật & Hiệu Năng',
+    'Deep-dives into database engine design, query performance optimization, and front-end architecture from the HoaSen Table team.' => 'Các bài viết đi sâu vào kỹ thuật, hiệu năng và kiến trúc thiết kế hệ thống dữ liệu của đội ngũ HoaSen Table.',
+    'No articles have been published in this language yet.' => 'Chưa có bài viết nào được đăng bằng ngôn ngữ này.',
+    '« Prev' => '« Trước',
+    'Next »' => 'Sau »',
+
+    // Single post (single.php)
+    '← Back to Blog' => '← Về Blog',
+    'Related articles' => 'Bài liên quan',
+    'Read next' => 'Đọc tiếp',
+    'min read' => 'phút đọc',
+
+    // Autocomplete deep-dive page (page-autocomplete.php)
+    'Autocomplete Deep Dive' => 'Autocomplete Chi Tiết',
+    'Discover how AST-driven autocomplete works.' => 'Khám phá cách AST-driven autocomplete hoạt động.',
+    'Technology Deep Dive' => 'Khám phá công nghệ',
+    'Under the Hood of Autocomplete' => 'Bên dưới lớp vỏ Autocomplete',
+    'Not just fuzzy string matching. HoaSen Table integrates a real-time SQL parser to build an AST, ensuring every suggestion is syntactically perfect.' => 'Không chỉ là gợi ý chuỗi đơn thuần. HoaSen Table tích hợp một parser SQL thời gian thực để xây dựng AST, đảm bảo mỗi gợi ý đều chuẩn xác về mặt cú pháp ngữ pháp.',
+    'Editor' => 'Trình soạn thảo',
+    'Legal Completions' => 'Gợi ý hợp lệ',
+    'Live AST Tree' => 'Cây AST Trực tiếp',
 );
 
 $hoasen_translations_ja = array(
@@ -371,46 +419,76 @@ $hoasen_translations_ja = array(
     'Complete Syntax' => '完全な構文',
     'users (Root Table)' => 'users（ルートテーブル）',
     'orders (Relation)' => 'orders（関係）',
+
+    // Blog listing (home.php)
+    'HoaSen Journal' => 'HoaSenジャーナル',
+    'Articles on engineering, performance, and architecture of HoaSen Table.' => 'HoaSen Tableのエンジニアリング、パフォーマンス、アーキテクチャに関する記事。',
+    '← Back to Home' => '← ホームへ戻る',
+    'Engineering & Performance' => 'エンジニアリングとパフォーマンス',
+    'Deep-dives into database engine design, query performance optimization, and front-end architecture from the HoaSen Table team.' => 'HoaSen Tableチームによる、データベースエンジン設計、クエリパフォーマンス最適化、フロントエンドアーキテクチャの詳細解説。',
+    'No articles have been published in this language yet.' => 'この言語ではまだ記事が公開されていません。',
+    '« Prev' => '« 前へ',
+    'Next »' => '次へ »',
+
+    // Single post (single.php)
+    '← Back to Blog' => '← ブログへ戻る',
+    'Related articles' => '関連記事',
+    'Read next' => '次に読む',
+    'min read' => '分で読めます',
+
+    // Autocomplete deep-dive page (page-autocomplete.php)
+    'Autocomplete Deep Dive' => 'オートコンプリート詳細解説',
+    'Discover how AST-driven autocomplete works.' => 'AST駆動のオートコンプリートの仕組みを解説します。',
+    'Technology Deep Dive' => '技術詳細解説',
+    'Under the Hood of Autocomplete' => 'オートコンプリートの内部構造',
+    'Not just fuzzy string matching. HoaSen Table integrates a real-time SQL parser to build an AST, ensuring every suggestion is syntactically perfect.' => '単なるあいまい文字列一致ではありません。HoaSen Tableはリアルタイムのsqlパーサーを統合してASTを構築し、すべての提案が構文的に正確であることを保証します。',
+    'Editor' => 'エディタ',
+    'Legal Completions' => '有効な補完候補',
+    'Live AST Tree' => 'ライブASTツリー',
 );
 
 $hoasen_landing_vi = array(
+    'HoaSen Table — Free, Fast & Minimal SQL Client (Postgres, MySQL, SQLite)' => 'HoaSen Table — SQL Client Miễn Phí, Tối Giản Cho Developer',
+    'A free, native-speed, and minimal SQL client for Postgres, MySQL, and SQLite. Built with zero bloat and designed to maximize developer focus.' => 'SQL client miễn phí, tốc độ native, siêu nhẹ cho Postgres, MySQL và SQLite. Thiết kế tối giản giúp lập trình viên tập trung tối đa công việc.',
+    'BLOG' => 'BLOG',
+    'CONTACT' => 'LIÊN HỆ',
+    'Scroll to explore ↓' => 'Cuộn khám phá ↓',
+    'Installed' => 'Đã cài',
+    'Install' => 'Cài đặt',
+    'PLUGINS' => 'PLUGINS',
+    'Deep dive: Autocomplete →' => 'Chi tiết Autocomplete →',
+    '✓ loaded · 50 rows' => '✓ đã tải · 50 hàng',
+    'active' => 'hoạt động',
+    'Viewing row' => 'Đang xem hàng',
+    'of' => 'trong',
     'Minimal DB Workspace' => 'Workspace DB Tối Giản',
-    'MINIMAL SQL CLIENT' => 'SQL CLIENT TỐI GIẢN',
-    'Database work without the extra weight.' => 'Quản trị cơ sở dữ liệu không còn cồng kềnh.',
-    'HoaSen Table is built for developers who want to connect, query, inspect, and move on. A native-feeling experience: fast, smooth, quiet, no ceremony.' => 'HoaSen Table được thiết kế cho các nhà phát triển muốn kết nối, truy vấn, kiểm tra cấu trúc dữ liệu rồi tiếp tục công việc ngay. Trải nghiệm như một ứng dụng native: nhanh, mượt, nhẹ nhàng và tối giản.',
-    'SCHEMA & CONTEXT AWARE' => 'NHẬN DIỆN LƯỢC ĐỒ & NGỮ CẢNH',
-    'The editor understands your query before it completes it.' => 'Trình soạn thảo hiểu câu lệnh của bạn trước khi bạn hoàn thành nó.',
-    'HoaSen reads the live schema, follows the query context, and uses machine learning to adapt suggestions to the way you actually work.' => 'HoaSen tự động đọc lược đồ cơ sở dữ liệu hiện tại, theo dõi ngữ cảnh câu lệnh và áp dụng Machine Learning để tối ưu hóa gợi ý theo thói quen gõ code thực tế của bạn.',
-    'Schema-aware' => 'Nhận diện schema',
-    'Context-aware' => 'Hiểu ngữ cảnh',
-    'Learns your habits' => 'Tự học thói quen',
-    'RESULTS STAY CLOSE' => 'KẾT QUẢ HIỂN THỊ NỘI TUYẾN',
-    'Inline execution. Zero context switching.' => 'Thực thi inline. Không còn chuyển đổi tab.',
-    'Query results appear in your active workspace. Peek at foreign key relations on hover without writing subqueries or toggling tabs.' => 'Kết quả hiển thị ngay trong workspace làm việc hiện tại. Xem nhanh liên kết khóa ngoại (FK) khi di chuột qua mà không cần viết truy vấn phụ hay đổi tab.',
-    'Inline results' => 'Kết quả inline',
-    'No tab hopping' => 'Không nhảy tab',
-    'LARGE TABLES' => 'BẢNG DỮ LIỆU LỚN',
-    'Native speed, even on massive tables.' => 'Tốc độ native, ngay cả với dữ liệu khổng lồ.',
-    'Open and scroll through millions of rows instantly. The workspace stays smooth, responsive, and never freezes when scanning heavy datasets.' => 'Mở và cuộn xem hàng triệu dòng ngay lập tức. Giao diện luôn mượt mà, phản hồi tức thì và không bao giờ bị treo khi xử lý bảng dữ liệu nặng.',
-    'Instant rendering' => 'Render tức thì',
-    'Zero memory bloat' => 'Không ngốn RAM',
-    'Smooth scrolling' => 'Cuộn siêu mượt',
-    'FULLY CUSTOM PLUGINS' => 'TỰ DO TÙY BIẾN PLUGIN',
-    'Shape the tool around your workflow.' => 'Cấu hình công cụ theo đúng quy trình của bạn.',
-    'Plugins are fully custom and live inside the workspace, so teams can add exactly the tools they need without losing the active query.' => 'Các plugin được tùy biến hoàn toàn và tích hợp ngay trong workspace, giúp đội ngũ của bạn thêm đúng các tính năng cần thiết mà không làm gián đoạn truy vấn hiện tại.',
-    'Fully custom' => 'Tùy biến hoàn toàn',
-    'Team workflows' => 'Quy trình nhóm',
-    'CREATIVE WIDGETS' => 'WIDGET TIỆN ÍCH LINH HOẠT',
-    'Use widgets as a creative workspace layer.' => 'Sử dụng widget như một lớp tiện ích cho workspace.',
-    'Keep the UI minimal, then add, remove, or rearrange widgets to surface the context your workflow actually needs.' => 'Giữ giao diện tối giản, sau đó thêm, bớt hoặc sắp xếp lại các widget để hiển thị đúng thông tin ngữ cảnh mà bạn thực sự cần.',
-    'Creative control' => 'Kiểm soát linh hoạt',
-    'Still minimal' => 'Vẫn tối giản',
-    'FOR DAILY DEVELOPER WORK' => 'DÀNH CHO CÔNG VIỆC HÀNG NGÀY',
-    'A sharper SQL client for focused teams.' => 'Một SQL client sắc bén hơn cho các đội ngũ tập trung cao độ.',
-    'Read the guide, check the docs, follow the engineering notes, or talk to us about the workflows that slow your team down.' => 'Đọc hướng dẫn, xem tài liệu, theo dõi các bài viết kỹ thuật hoặc chia sẻ với chúng tôi về những quy trình đang làm chậm đội ngũ của bạn.',
-    'Docs' => 'Tài liệu',
-    'Engineering notes' => 'Bài viết kỹ thuật',
-    'Talk to us' => 'Trò chuyện',
+    'ENTERPRISE-GRADE · ZERO BLOAT' => 'ĐẲNG CẤP DOANH NGHIỆP · KHÔNG CỒNG KỀNH',
+    'The database workspace built to never slow you down.' => 'Không gian làm việc database được xây dựng để không bao giờ làm bạn chậm lại.',
+    'HoaSen Table pairs production-grade SQL tooling with obsessive craft. Connect, query, inspect, and move on — native-fast, distraction-free, no ceremony.' => 'HoaSen Table kết hợp công cụ SQL chuẩn production với sự tỉ mỉ tuyệt đối. Kết nối, truy vấn, kiểm tra và làm chủ dữ liệu của bạn ở tốc độ native, không dư thừa, tối đa hiệu suất.',
+    
+    'AI-POWERED · SCHEMA AWARE' => 'AI-POWERED · NHẬN DIỆN LƯỢC ĐỒ',
+    'Real intelligence that anticipates your next query.' => 'Trí tuệ thực sự dự đoán câu truy vấn tiếp theo của bạn.',
+    'HoaSen reads your live schema, tracks query context in real time, and applies machine learning that adapts to how you actually work — suggestions that feel like they read your mind.' => 'HoaSen tự động đọc lược đồ cơ sở dữ liệu hiện tại, theo dõi ngữ cảnh thời gian thực và áp dụng Machine Learning để tối ưu hóa gợi ý như đọc được suy nghĩ của bạn.',
+    
+    'RESULTS STAY CLOSE' => 'KẾT QUẢ NGAY TẠI CHỖ',
+    'Blazing-fast execution. Zero context switching.' => 'Thực thi siêu tốc. Không chuyển đổi ngữ cảnh.',
+    'Results render instantly inside your active workspace. Peek at foreign key relations on hover — no subqueries, no tab-hopping, pure uninterrupted flow.' => 'Kết quả hiển thị ngay trong workspace hiện tại. Xem nhanh liên kết khóa ngoại khi di chuột qua — không cần viết subquery, không nhảy tab, luồng công việc tuyệt đối.',
+    
+    'MASSIVE SCALE · EXTREME SPEED' => 'QUY MÔ KHỔNG LỒ · TỐC ĐỘ TỐI ĐA',
+    'A million rows at 60 FPS, without breaking a sweat.' => 'Một triệu dòng ở 60 FPS, mượt mà nhẹ nhàng.',
+    'Open and scroll through millions of rows instantly. Our virtualized grid renders a constant 23 DOM nodes — never more — so the workspace stays smooth and responsive under any load.' => 'Mở và cuộn qua hàng triệu dòng ngay lập tức. Virtual grid của chúng tôi chỉ render đúng 23 DOM nodes — không bao giờ hơn — giữ cho workspace luôn mượt mà và phản hồi tốt dưới bất kỳ tải trọng nào.',
+    
+    'PLUGIN ECOSYSTEM · LIMITLESS' => 'HỆ SINH THÁI PLUGIN · KHÔNG GIỚI HẠN',
+    'Build the perfect environment around your workflow.' => 'Xây dựng môi trường hoàn hảo xoay quanh quy trình của bạn.',
+    'Plugins are fully custom and live inside the workspace, so teams can ship the exact tools they need — no forked context, no lost query, no compromise.' => 'Các plugin được tùy biến hoàn toàn và nằm gọn trong workspace, giúp các đội nhóm thêm đúng công cụ họ cần — không phân tán ngữ cảnh, không mất truy vấn, không thỏa hiệp.',
+    
+    'CREATIVE CONTROL · STILL MINIMAL' => 'KIỂM SOÁT SÁNG TẠO · VẪN TỐI GIẢN',
+    'Turn widgets into your team\'s edge.' => 'Biến các widget thành lợi thế của đội bạn.',
+    'Start minimal, then add exactly the power you need. Rearrange widgets to surface the context your workflow demands — nothing more, nothing less.' => 'Bắt đầu một cách tối giản, sau đó thêm đúng sức mạnh bạn cần. Sắp xếp các widget để hiển thị ngữ cảnh quy trình làm việc đòi hỏi — không thừa, không thiếu.',
+    
+    'FOR TEAMS THAT MOVE FAST' => 'DÀNH CHO ĐỘI NGŨ THẦN TỐC',
+    'The sharpest SQL client for teams that move fast.' => 'SQL client sắc bén nhất dành cho các đội ngũ tốc độ cao.',
+    'Built by engineers, for engineers. Read the guide, dig into the docs, or tell us where your workflow slows — we\'re obsessed with making you faster.' => 'Được xây dựng bởi kỹ sư, dành cho kỹ sư. Đọc hướng dẫn, xem tài liệu, hoặc cho chúng tôi biết điểm nghẽn của bạn — chúng tôi luôn ám ảnh việc giúp bạn nhanh hơn.',
     'Context-ranked completions' => 'Gợi ý xếp hạng theo ngữ cảnh',
     'Schema + context tree' => 'Cây Schema + Ngữ cảnh',
     'Contact' => 'Liên hệ',
@@ -424,43 +502,47 @@ $hoasen_landing_vi = array(
 );
 
 $hoasen_landing_ja = array(
+    'HoaSen Table — Free, Fast & Minimal SQL Client (Postgres, MySQL, SQLite)' => 'HoaSen Table — 無料で高速、ミニマルなSQLクライアント（Postgres、MySQL、SQLite）',
+    'A free, native-speed, and minimal SQL client for Postgres, MySQL, and SQLite. Built with zero bloat and designed to maximize developer focus.' => '無料でネイティブな速度、そしてミニマルなPostgres、MySQL、SQLite用SQLクライアント。無駄を省き、開発者の集中力を最大化するように設計されています。',
+    'BLOG' => 'ブログ',
+    'CONTACT' => 'お問い合わせ',
+    'Scroll to explore ↓' => 'スクロールして探索 ↓',
+    'Installed' => 'インストール済み',
+    'Install' => 'インストール',
+    'PLUGINS' => 'プラグイン',
+    'Deep dive: Autocomplete →' => '詳細: オートコンプリート →',
+    '✓ loaded · 50 rows' => '✓ 読み込み完了 · 50行',
+    'active' => 'アクティブ',
+    'Viewing row' => '表示中の行',
+    'of' => 'の中の',
     'Minimal DB Workspace' => 'ミニマルなDBワークスペース',
-    'MINIMAL SQL CLIENT' => 'ミニマルなSQLクライアント',
-    'Database work without the extra weight.' => '余計な重さのないデータベース作業。',
-    'HoaSen Table is built for developers who want to connect, query, inspect, and move on. A native-feeling experience: fast, smooth, quiet, no ceremony.' => 'HoaSen Tableは、接続、クエリ、検査を行い、すぐに次の作業に移りたい開発者のために構築されています。ネイティブアプリのような体験：高速、スムーズ、静か、そしてシンプル。',
-    'SCHEMA & CONTEXT AWARE' => 'スキーマと言語コンテキストの認識',
-    'The editor understands your query before it completes it.' => 'エディタは完了する前にクエリを理解します。',
-    'HoaSen reads the live schema, follows the query context, and uses machine learning to adapt suggestions to the way you actually work.' => 'HoaSenは稼働中のスキーマを読み取り、クエリのコンテキストに従い、機械学習を使用して実際の作業方法に合わせて提案を適応させます。',
-    'Schema-aware' => 'スキーマ認識',
-    'Context-aware' => 'コンテキスト認識',
-    'Learns your habits' => '習慣を学習',
-    'RESULTS STAY CLOSE' => '結果を近くに表示',
-    'Inline execution. Zero context switching.' => 'インライン実行。コンテキスト切り替えなし。',
-    'Query results appear in your active workspace. Peek at foreign key relations on hover without writing subqueries or toggling tabs.' => 'クエリ結果はアクティブなワークスペースに直接表示されます。サブクエリを書いたりタブを切り替えたりせずに、ホバーするだけで外部キー関係をプレビューできます。',
-    'Inline results' => 'インライン結果',
-    'No tab hopping' => 'タブ移動なし',
-    'LARGE TABLES' => '巨大なテーブル',
-    'Native speed, even on massive tables.' => '巨大なデータでもネイティブの速度。',
-    'Open and scroll through millions of rows instantly. The workspace stays smooth, responsive, and never freezes when scanning heavy datasets.' => '何百万行ものデータを瞬時に開いてスクロールできます。重いデータセットをスキャンする際も、ワークスペースはスムーズで応答性が高く、決してフリーズしません。',
-    'Instant rendering' => '瞬時のレンダリング',
-    'Zero memory bloat' => 'メモリ肥大化ゼロ',
-    'Smooth scrolling' => 'スムーズなスクロール',
-    'FULLY CUSTOM PLUGINS' => '完全カスタムプラグイン',
-    'Shape the tool around your workflow.' => 'ワークフローに合わせてツールを形作ります。',
-    'Plugins are fully custom and live inside the workspace, so teams can add exactly the tools they need without losing the active query.' => 'プラグインは完全にカスタム可能でワークスペース内に配置されるため、アクティブなクエリを失うことなくチームが必要なツールを追加できます。',
-    'Fully custom' => '完全カスタム',
-    'Team workflows' => 'チームワークフロー',
-    'CREATIVE WIDGETS' => 'クリエイティブなウィジェット',
-    'Use widgets as a creative workspace layer.' => 'ウィジェットをクリエイティブなワークスペースレイヤーとして使用します。',
-    'Keep the UI minimal, then add, remove, or rearrange widgets to surface the context your workflow actually needs.' => 'UIを最小限に抑え、ウィジェットを追加、削除、または再配置して、ワークフローが実際に必要とするコンテキストを表示します。',
-    'Creative control' => 'クリエイティブなコントロール',
-    'Still minimal' => '依然としてミニマル',
-    'FOR DAILY DEVELOPER WORK' => '日々の開発者作業向け',
-    'A sharper SQL client for focused teams.' => 'フォーカスされたチーム向けの、よりシャープなSQLクライアント。',
-    'Read the guide, check the docs, follow the engineering notes, or talk to us about the workflows that slow your team down.' => 'ガイドを読み、ドキュメントを確認し、エンジニアリングノートに従うか、チームの作業を遅らせているワークフローについてご相談ください。',
-    'Docs' => 'ドキュメント',
-    'Engineering notes' => '技術ノート',
-    'Talk to us' => 'お問い合わせ',
+    'ENTERPRISE-GRADE · ZERO BLOAT' => 'エンタープライズ品質 · 無駄なし',
+    'The database workspace built to never slow you down.' => '決して速度を落とさないために構築されたデータベースワークスペース。',
+    'HoaSen Table pairs production-grade SQL tooling with obsessive craft. Connect, query, inspect, and move on — native-fast, distraction-free, no ceremony.' => 'HoaSen Tableは、本番レベルのSQLツールとこだわりのクラフトを組み合わせています。ネイティブな速度、気晴らしゼロ、手順ゼロで、接続、クエリ、検査、そして次に進みます。',
+    
+    'AI-POWERED · SCHEMA AWARE' => 'AI駆動 · スキーマ認識',
+    'Real intelligence that anticipates your next query.' => '次のクエリを予測する真のインテリジェンス。',
+    'HoaSen reads your live schema, tracks query context in real time, and applies machine learning that adapts to how you actually work — suggestions that feel like they read your mind.' => 'HoaSenは稼働中のスキーマを読み取り、クエリのコンテキストをリアルタイムで追跡し、実際の作業方法に適応する機械学習を適用します。心を読んでいるかのような提案を提供します。',
+    
+    'RESULTS STAY CLOSE' => '結果はすぐそばに',
+    'Blazing-fast execution. Zero context switching.' => '超高速実行。コンテキスト切り替えゼロ。',
+    'Results render instantly inside your active workspace. Peek at foreign key relations on hover — no subqueries, no tab-hopping, pure uninterrupted flow.' => '結果はアクティブなワークスペース内に即座にレンダリングされます。ホバー時に外部キー関係を覗き見します。サブクエリなし、タブ移動なし、純粋な中断のないフロー。',
+    
+    'MASSIVE SCALE · EXTREME SPEED' => '大規模 · 極限の速度',
+    'A million rows at 60 FPS, without breaking a sweat.' => '汗をかかずに100万行を60 FPSで。',
+    'Open and scroll through millions of rows instantly. Our virtualized grid renders a constant 23 DOM nodes — never more — so the workspace stays smooth and responsive under any load.' => '100万行を即座に開いてスクロールします。仮想化グリッドは常に23のDOMノードのみをレンダリングするため、どんな負荷の下でもワークスペースはスムーズで応答性が高くなります。',
+    
+    'PLUGIN ECOSYSTEM · LIMITLESS' => 'プラグインエコシステム · 無限',
+    'Build the perfect environment around your workflow.' => 'ワークフローに合わせて完璧な環境を構築します。',
+    'Plugins are fully custom and live inside the workspace, so teams can ship the exact tools they need — no forked context, no lost query, no compromise.' => 'プラグインは完全にカスタムでワークスペース内に存在するため、チームは必要なツールを正確に提供できます。コンテキストの分岐なし、クエリの損失なし、妥協なし。',
+    
+    'CREATIVE CONTROL · STILL MINIMAL' => 'クリエイティブなコントロール · 依然としてミニマル',
+    'Turn widgets into your team\'s edge.' => 'ウィジェットをチームの強みに変えます。',
+    'Start minimal, then add exactly the power you need. Rearrange widgets to surface the context your workflow demands — nothing more, nothing less.' => 'ミニマルから始めて、必要なだけの力を追加します。ウィジェットを再配置して、ワークフローが要求するコンテキストを表面化させます。多すぎず少なすぎず。',
+    
+    'FOR TEAMS THAT MOVE FAST' => '速く動くチームのために',
+    'The sharpest SQL client for teams that move fast.' => '速く動くチームのための最もシャープなSQLクライアント。',
+    'Built by engineers, for engineers. Read the guide, dig into the docs, or tell us where your workflow slows — we\'re obsessed with making you faster.' => 'エンジニアによるエンジニアのための設計。ガイドを読み、ドキュメントを掘り下げ、ワークフローが遅くなる場所を教えてください。私たちはあなたを速くすることに夢中になっています。',
     'Context-ranked completions' => 'コンテキスト順候補',
     'Schema + context tree' => 'スキーマ + コンテキストツリー',
     'Contact' => 'お問い合わせ',

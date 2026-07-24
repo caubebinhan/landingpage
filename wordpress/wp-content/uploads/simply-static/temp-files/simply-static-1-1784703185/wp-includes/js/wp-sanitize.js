@@ -1,0 +1,3 @@
+(function(){window.wp=window.wp||{};wp.sanitize={stripTags:function(text){if('string'!==typeof text){return'';}
+const domParser=new DOMParser();const htmlDocument=domParser.parseFromString(text,'text/html');htmlDocument.body.innerText=htmlDocument.body.innerText;return htmlDocument.body.innerHTML;},stripTagsAndEncodeText:function(text){let _text=wp.sanitize.stripTags(text),textarea=document.createElement('textarea');try{textarea.textContent=_text;_text=wp.sanitize.stripTags(textarea.value);}catch(er){}
+return _text;}};}());

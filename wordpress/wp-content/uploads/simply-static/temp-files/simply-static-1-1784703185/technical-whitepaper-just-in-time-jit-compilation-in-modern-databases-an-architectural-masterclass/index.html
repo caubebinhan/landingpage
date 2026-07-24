@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/bach-thu-ky-thuat-bien-dich-just-in-time-jit-trong-co-so-du-lieu-hien-dai-mot-lop-hoc-kien-truc-chuyen-sau/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-%E7%8F%BE%E4%BB%A3%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>JIT Compilation in Databases: LLVM, Speed &amp; Internals</title>
+	<meta name="description" content="How JIT compilation database engines like PostgreSQL and Spark Tungsten turn queries into machine code, with LLVM IR, register allocation, and the break-even math.">
+	<link rel="canonical" href="https://hoasentable.com/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass/">
+	<meta property="og:locale" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:locale:alternate" content="ja_JP">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="JIT Compilation in Databases: LLVM, Speed &amp; Internals">
+	<meta property="og:description" content="How JIT compilation database engines like PostgreSQL and Spark Tungsten turn queries into machine code, with LLVM IR, register allocation, and the break-even math.">
+	<meta property="og:url" content="https://hoasentable.com/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:31:40+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:29:06+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="Written by">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="Est. reading time">
+	<meta name="twitter:data2" content="10 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"Just-In-Time (JIT) Compilation in Modern Databases","datePublished":"2026-07-22T01:31:40+00:00","dateModified":"2026-07-22T06:29:06+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/"},"wordCount":1679,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/36-jit-compilation-modern-databases.svg","inLanguage":"en-US","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/","url":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/","name":"JIT Compilation in Databases: LLVM, Speed & Internals","isPartOf":{"@id":"https:\/\/hoasentable.com\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/36-jit-compilation-modern-databases.svg","datePublished":"2026-07-22T01:31:40+00:00","dateModified":"2026-07-22T06:29:06+00:00","author":{"@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"description":"How JIT compilation database engines like PostgreSQL and Spark Tungsten turn queries into machine code, with LLVM IR, register allocation, and the break-even math.","breadcrumb":{"@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/"]}]},{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/36-jit-compilation-modern-databases.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/36-jit-compilation-modern-databases.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/"},{"@type":"ListItem","position":2,"name":"Blog","item":"https:\/\/hoasentable.com\/blog\/"},{"@type":"ListItem","position":3,"name":"Just-In-Time (JIT) Compilation in Modern Databases"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/#website","url":"https:\/\/hoasentable.com\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » Just-In-Time (JIT) Compilation in Modern Databases Comments Feed" href="https://hoasentable.com/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=1035">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="Overview Relational database engines spent decades built around one assumption: disk I/O is the bottleneck, so it doesn’t matter much how the CPU spends its cycles between reads. That assumption stopped holding once working sets moved into RAM and processors turned into deeply pipelined, superscalar chips that can retire several instructions per cycle — if […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Just-In-Time (JIT) Compilation in Modern Databases","description":"Overview Relational database engines spent decades built around one assumption: disk I/O is the bottleneck, so it doesn’t matter much how the CPU spends its cycles between reads. That assumption stopped holding once working sets moved into RAM and processors turned into deeply pipelined, superscalar chips that can retire several instructions per cycle — if […]","inLanguage":"en_US","datePublished":"2026-07-22T01:31:40+00:00","dateModified":"2026-07-22T06:29:06+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/"},"mainEntityOfPage":"https://hoasentable.com/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/blog/" class="back-btn">← Back to Blog</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en current-lang lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/technical-whitepaper-just-in-time-jit-compilation-in-modern-databases-an-architectural-masterclass/" aria-current="true">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/bach-thu-ky-thuat-bien-dich-just-in-time-jit-trong-co-so-du-lieu-hien-dai-mot-lop-hoc-kien-truc-chuyen-sau/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-%E7%8F%BE%E4%BB%A3%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B/">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/36-jit-compilation-modern-databases.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>Just-In-Time (JIT) Compilation in Modern Databases</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 10 min read</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>Overview</h2>
+<p>Relational database engines spent decades built around one assumption: disk I/O is the bottleneck, so it doesn’t matter much how the CPU spends its cycles between reads. That assumption stopped holding once working sets moved into RAM and processors turned into deeply pipelined, superscalar chips that can retire several instructions per cycle — if you give them the chance. Interpreted execution, it turns out, rarely gives them that chance.</p>
+<p>This post looks at JIT compilation database techniques: how engines convert an interpreted query plan into purpose-built machine code at runtime instead of walking an operator tree row by row. We’ll cover the cost model behind the Volcano iterator design, how databases generate LLVM IR from a physical plan, why register allocation and instruction-cache behavior matter as much as algorithmic complexity, and the OS-level plumbing (W^X memory, TLB pressure) that JIT execution has to deal with. Systems like PostgreSQL (via LLVM) and Apache Spark’s Tungsten engine use exactly this approach to get order-of-magnitude speedups on analytical workloads, and the reasoning behind it is worth understanding in some depth.</p>
+<hr>
+<h2>Why Interpreted Execution Falls Behind Modern CPUs</h2>
+<p><strong>The question:</strong> why can’t a traditional database engine use the full capability of a modern CPU when running an analytical query?</p>
+<p>Most traditional engines use the <strong>Volcano iterator model</strong>: a query plan is a tree of operators, each exposing a <code>next()</code> method that pulls one tuple at a time from its children. It’s a clean design — easy to extend, easy to reason about — but it runs into trouble on modern superscalar hardware.</p>
+<p>The trouble is <strong>virtual function dispatch</strong>. Every tuple, every operator call, goes through an indirect branch. On a data warehouse query touching billions of rows, that adds up to a huge number of indirect branches, each one a candidate for a pipeline flush and an L1 instruction-cache miss. Instructions-per-cycle (IPC) drops accordingly.</p>
+<p>We can put a number on this. Let $C_{eval}(t_i)$ be the CPU cycles spent evaluating predicates on tuple $t_i$, and $C_{dispatch}$ the overhead of one virtual dispatch. Total execution time for a purely interpreted engine is:</p>
+<p>$$ T_{interp} = sum_{i=1}^{N} left( C_{dispatch} + C_{eval}(t_i) + C_{materialize}(t_i) right) $$</p>
+<p>As $N$ climbs into the billions, $C_{dispatch}$ starts to dominate the sum. The CPU spends more cycles figuring out <em>what</em> to execute next than it does actually evaluating the data in front of it.</p>
+<hr>
+<h2>The Fix: Code Generation and Push-Based Pipelines</h2>
+<p>To get around this, modern database engines compile the query plan into machine code at runtime — JIT compilation applied directly to query execution. Rather than interpreting a fixed set of operator implementations, the engine generates code tailored to the specific query.</p>
+<h3>From Pull to Push</h3>
+<p>The core idea behind query compilation is to fuse operators into a single tight loop instead of chaining them through virtual calls. Instead of pulling tuples up through an operator tree (the pull-based Volcano approach), compiled engines push data forward through the pipeline.</p>
+<p>Data comes off the storage layer and flows upward until it hits a materialization point — an aggregation hash table, a sort buffer, the final result set — whichever comes first. This matches how modern memory hierarchies actually behave: keep values in registers as long as possible, and only spill to cache or memory when there’s no other option.</p>
+<p>By generating a bespoke loop for each query’s specific shape, the compiler eliminates $C_{dispatch}$ almost entirely.</p>
+<pre class="mermaid">graph TD
+    A[SQL Query Statement] --&gt; B[Lexical &amp; Syntactic Analyzer]
+    B --&gt; C[Abstract Syntax Tree Transformation]
+    C --&gt; D[Logical Query Plan Generation]
+    D --&gt; E[Cost-Based Optimizer &amp; Cardinality Estimator]
+    E --&gt; F[Physical Query Plan Creation]
+    F --&gt; G[Code Generation Engine &amp; Pipeline Fuser]
+    G --&gt; H[LLVM Intermediate Representation]
+    H --&gt; I[LLVM Optimization Passes &amp; Register Allocation]
+    I --&gt; J[Target-Specific Machine Code Emission]
+    J --&gt; K[Execution Engine Invocation]</pre>
+<h3>Quantifying the Gain</h3>
+<p>Take predicate evaluation in a WHERE clause. In an interpreted plan, the expression tree — say $k$ nodes — has to be walked for every tuple, so $C_{eval}(t_i)$ scales as $O(k)$ pointer dereferences.</p>
+<p>A JIT compiler collapses that same tree into a straight sequence of scalar operations, dropping $C_{eval}(t_i)$ to $O(1)$ native instructions. The resulting speedup factor $Gamma$ looks like:</p>
+<p>$$ Gamma = frac{sum_{i=1}^{N} (C_{dispatch} + alpha cdot k)}{sum_{i=1}^{N} (beta) + T_{compile}} $$</p>
+<p>As $N to infty$, the compiled query’s asymptotic performance wins outright, limited only by memory bandwidth.</p>
+<h3>JIT vs. Vectorization</h3>
+<p>Vectorized execution — batching tuples into arrays — amortizes $C_{dispatch}$ across a batch size $V$, which helps but doesn’t eliminate the underlying cost. It also has to materialize intermediate columns between operators: write to cache, read back, repeat. JIT compilation skips that step by keeping tuple data in registers for the entire pipeline, which is why it tends to win on complex, compute-heavy queries where vectorization’s materialization overhead starts to show.</p>
+<hr>
+<h2>Generating LLVM IR</h2>
+<p>Most engines don’t write a machine-code backend from scratch — they target <strong>LLVM</strong>. The database’s code generator walks the physical plan and emits LLVM IR: a strongly typed, architecture-independent representation in SSA (Static Single Assignment) form.</p>
+<p>The generator has to handle SQL data types, nullability, and MVCC visibility checks directly in the IR it emits. Because SQL logic is three-valued (True, False, Unknown), the generated code carries explicit null checks. Where possible, the compiler hoists those checks out of inner loops using <strong>speculative execution and loop unswitching</strong> — if catalog metadata guarantees a column is non-null, there’s no reason to re-check it on every iteration.</p>
+<pre><code class="language-rust">// Rust-like pseudocode illustrating IR generation for a Hash Join Probe Pipeline
+fn generate_hash_join_probe_pipeline(
+    builder: &amp;mut IRBuilder, module: &amp;mut IRModule, plan: &amp;PhysicalJoinPlan
+) -&gt; Function {
+    let pipeline_func = builder.create_function(&quot;HashJoinProbePipeline&quot;);
+    let loop_block = builder.create_basic_block(&quot;loop&quot;, pipeline_func);
+    let probe_block = builder.create_basic_block(&quot;probe_hash_table&quot;, pipeline_func);
+    let emit_block = builder.create_basic_block(&quot;emit_joined_tuple&quot;, pipeline_func);
+    
+    // Setup and jump to loop
+    builder.build_br(loop_block);
+    
+    // LOOP BLOCK: Fetch and Hash
+    builder.set_insert_point(loop_block);
+    let probe_tuple = emit_storage_layer_fetch(builder);
+    let join_key = emit_expression_evaluation(builder, probe_tuple, plan.probe_key_expr);
+    let hash_value = emit_murmur_hash3(builder, join_key);
+    builder.build_br(probe_block);
+    
+    // PROBE BLOCK: Check Hash Table
+    builder.set_insert_point(probe_block);
+    let bucket_ptr = emit_hash_table_lookup(builder, hash_table_ptr, hash_value);
+    let is_match = emit_key_comparison(builder, bucket_ptr, join_key);
+    builder.build_cond_br(is_match, emit_block, loop_block);
+    
+    // EMIT BLOCK: Output match and continue
+    builder.set_insert_point(emit_block);
+    let combined_tuple = emit_tuple_concatenation(builder, probe_tuple, bucket_ptr);
+    emit_pipeline_continuation(builder, combined_tuple, plan.parent_operator);
+    builder.build_br(loop_block); 
+    
+    return pipeline_func;
+}</code></pre>
+<hr>
+<h2>OS-Level Memory Management and Security Constraints</h2>
+<p>Once LLVM lowers IR to machine code, the resulting bytes have to land in memory pages that the CPU can actually execute — and that’s where OS-level complications start.</p>
+<h3>W^X (Write XOR Execute)</h3>
+<p>Modern operating systems enforce W^X to block a whole class of buffer-overflow exploits: a page can be writable or executable, never both at once. So the database has to choreograph a small dance of system calls (<code>mprotect</code> on POSIX, <code>VirtualProtect</code> on Windows):</p>
+<table>
+<thead>
+<tr>
+<th>1. Allocate the page as Read/Write (`PROT_READ</th>
+<th>PROT_WRITE`).</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<ol>
+<li>Generate and link the machine code into it.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>3. Flip the page to Read/Execute (`PROT_READ</th>
+<th>PROT_EXEC`).</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<ol>
+<li>Flush the instruction cache (<code>__builtin___clear_cache</code>) so the CPU actually fetches the new bytes instead of stale cached instructions.</li>
+</ol>
+<h3>TLB Pressure and Huge Pages</h3>
+<p>Once JIT execution removes the dispatch bottleneck, memory address translation becomes the next thing to worry about. Scanning huge datasets through a compiled pipeline puts real pressure on the TLB. To manage this, databases typically route JIT-related memory through an arena allocator backed by <strong>huge pages</strong> (2MB or 1GB), so a single TLB entry covers a much larger span of memory and TLB misses become rare during execution.</p>
+<hr>
+<h2>Micro-Architectural Effects: Getting the CPU Out of Its Own Way</h2>
+<p>JIT compilation pays off most once LLVM’s architecture-aware optimization passes get involved.</p>
+<h3>Register Allocation (Graph Coloring)</h3>
+<p>Variables get mapped onto physical registers using graph coloring. Because operator fusion keeps intermediate values — tuple attributes, mostly — alive for only a short stretch of code, the interference graph stays sparse, and the allocator can keep most of the working data in registers, bypassing L1 reads and writes entirely.</p>
+<h3>Loop Unrolling and Software Pipelining</h3>
+<p>Unrolling turns an $N$-iteration loop into roughly $N/U$ iterations of a larger body. A bigger basic block gives the CPU’s out-of-order execution engine (the reorder buffer) more independent instructions to work with at once, which raises instruction-level parallelism (ILP). Software pipelining overlaps adjacent iterations to hide memory latency — while iteration $i$ is in the ALU, iteration $i+1$ is already pulling data from L1.</p>
+<h3>L1i Cache and Branch Prediction</h3>
+<p>Interpreters are rough on the instruction cache: tight inner loops full of switch statements and indirect calls thrash L1i. Compiled code, by contrast, is a contiguous block of sequential instructions the CPU can prefetch deterministically. On top of that, turning control-flow branches into data-flow operations (<code>cmov</code>) removes branch-misprediction penalties that would otherwise show up on every iteration.</p>
+<pre class="mermaid">graph LR
+    subgraph CPU Micro-Architecture Optimization
+    A[Unrolled LLVM IR Loop] --&gt; B[Register Allocation Graph Coloring]
+    B --&gt; C[Instruction Scheduling &amp; Software Pipelining]
+    C --&gt; D[SIMD Auto-Vectorization]
+    D --&gt; E[L1i Cache Line Alignment]
+    E --&gt; F[Machine Code Emission]
+    end
+    subgraph Execution Hardware
+    F --&gt; G[Reorder Buffer]
+    G --&gt; H[ALU / FPU Dispatch]
+    G --&gt; I[Vector Processing Unit]
+    end</pre>
+<hr>
+<h2>The Break-Even Point and Adaptive Execution</h2>
+<p>Compiling isn’t free — running LLVM’s optimization passes burns real CPU cycles. So when does it actually pay off?</p>
+<p>Let $T_{compile}$ be the compilation latency, and $c_{interp}$, $c_{jit}$ the per-tuple cost of the interpreted and compiled paths respectively. For $N$ tuples, JIT wins when:</p>
+<p>$$ T_{compile} + N cdot c_{jit} &lt; N cdot c_{interp} $$</p>
+<p>Solved for $N$:</p>
+<p>$$ N &gt; frac{T_{compile}}{c_{interp} – c_{jit}} $$</p>
+<p>For a short OLTP query touching a handful of rows, $N$ never clears that bar — compilation overhead alone would make things worse. For an OLAP scan over millions or billions of rows, $N$ clears it easily, and JIT delivers the order-of-magnitude gains it’s known for.</p>
+<h3>Adaptive Execution</h3>
+<p>To avoid paying $T_{compile}$ up front on every query, some systems use adaptive execution: the query starts running immediately on a lightweight vectorized interpreter while a background thread compiles the JIT version. Once compilation finishes, the engine hot-swaps the function pointers mid-execution and the query transitions to the compiled path without ever blocking on it.</p>
+<hr>
+<h2>Lessons from Building This</h2>
+<ol>
+<li><strong>Compilation overhead is real.</strong> JIT-compiling every query indiscriminately causes regressions on short queries. A cost-based heuristic, plus a plan cache that reuses compiled binaries for parameterized queries, avoids paying the compile cost repeatedly.</li>
+<li><strong>Push beats pull for JIT.</strong> Trying to JIT-compile a Volcano-style pull model barely moves the needle. The real gains come from restructuring around a push-based, pipeline-fused model that keeps data in registers.</li>
+<li><strong>The OS is part of the design.</strong> Frequent <code>mprotect</code> calls and fragmented allocations for JIT code introduce their own latency. Arena allocators and huge pages aren’t optional extras — they’re load-bearing.</li>
+<li><strong>Not everything belongs in generated code.</strong> Regex parsing, lock acquisition, buffer-pool spilling — these are better left as statically compiled C/C++ functions that the generated code calls through a plain C ABI, rather than reimplemented inline in IR.</li>
+</ol>
+<h2>Conclusion</h2>
+<p>JIT compilation database design marks a shift in how you think about the query engine: less like an application layer interpreting a plan, more like a specialized compiler generating code for the hardware it happens to be running on. By producing machine code tailored to each query at runtime, engines like PostgreSQL and Spark Tungsten close the gap between declarative SQL and the register-level realities of the CPU underneath — which is where most of the performance was hiding all along.</p>
+    </main>
+          <aside class="related-wrap" aria-label="Related articles">
+        <h2>Related articles</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-51-htap-databases-the-architecture-of-hybrid-transactional-analytical-processing/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #51: HTAP Databases – The Architecture of Hybrid Transactional/Analytical Processing</strong>
+              <span>Executive Summary This technical whitepaper provides an exhaustive, micro-architectural analysis of Hybrid Transactional/Analytical Processing (HTAP) database systems. Historically,...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-50-time-series-databases-tsdb-dissecting-the-gorilla-compression-algorithm-and-memory-chunking-architecture/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #50: Time-Series Databases (TSDB) – Dissecting the Gorilla Compression Algorithm and Memory Chunking Architecture</strong>
+              <span>Executive Summary This whitepaper provides a deep, comprehensive look at how the world’s leading time-series databases (TSDB) —...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-49-the-nature-of-graph-databases-and-the-marvel-of-index-free-adjacency/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #49: The Nature of Graph Databases and the Marvel of Index-Free Adjacency</strong>
+              <span>Executive Summary This technical whitepaper delves into the limits of Relational Database Management Systems (RDBMS) when handling highly-connected...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">1035</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>

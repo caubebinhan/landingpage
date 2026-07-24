@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c1917"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="rgba(255,255,255,0.14)"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#dots)"/>
+  <circle cx="680" cy="90" r="150" fill="rgba(255,255,255,0.06)"/>
+  <text x="60" y="180" font-family="Georgia, 'Times New Roman', serif" font-size="150" font-weight="700" fill="rgba(255,255,255,0.16)">50</text>
+  <text x="64" y="300" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="3" fill="rgba(255,255,255,0.85)">PART 7 &#183; Modern Architectures</text>
+  <text x="64" y="340" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="30" font-weight="600" fill="#ffffff">HoaSen Table Journal</text>
+  <line x1="64" y1="360" x2="164" y2="360" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+</svg>

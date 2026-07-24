@@ -23,6 +23,8 @@ services:
     volumes:
       - ./wordpress:/var/www/html
       - ./hoasen-theme:/var/www/html/wp-content/themes/hoasen-theme
+      - ./blogs:/var/www/html/blogs
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - default
       - miraiai_net

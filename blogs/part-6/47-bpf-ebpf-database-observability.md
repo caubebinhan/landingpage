@@ -1,105 +1,119 @@
-# 47: BPF và eBPF trong Database Observability: Kiến trúc cốt lõi và phương pháp phân tích hiệu năng mức hạt nhân
+---
+seo_title: "eBPF Database Observability: Giám Sát Database Ở Tầng Kernel"
+seo_description: "Phân tích cách dùng eBPF database observability để theo dõi PostgreSQL/MySQL ở mức kernel: eBPF Maps, uprobes, kprobes và tối ưu NUMA với overhead gần bằng 0."
+focus_keyword: "eBPF database observability"
+---
 
-## Kiến trúc vi mô của BPF và eBPF trong bối cảnh hệ điều hành
+# 47: BPF và eBPF Trong Database Observability: Siêu Âm Cơ Sở Dữ Liệu Ở Mức Hạt Nhân (Kernel)
 
-Extended Berkeley Packet Filter (eBPF) đại diện cho một bước tiến căn bản trong kiến trúc hệ điều hành hiện đại, cho phép thực thi các chương trình do người dùng định nghĩa bên trong không gian hạt nhân (kernel space) một cách an toàn và đạt hiệu suất gần tương đương với mã máy gốc. Quá trình phát triển từ kiến trúc BPF cổ điển (cBPF), vốn ban đầu được thiết kế dành riêng cho việc lọc gói tin mạng với kiến trúc máy ảo thanh ghi 32-bit dựa trên bộ vi xử lý Motorola 6502, sang eBPF là một sự lột xác hoàn toàn về mặt kiến trúc tập lệnh (Instruction Set Architecture - ISA). Kiến trúc eBPF hiện đại được thiết kế để ánh xạ trực tiếp và tối ưu (one-to-one mapping) với cấu trúc phần cứng của các bộ vi xử lý 64-bit đương đại như x86_64, ARM64 và RISC-V. Bộ xử lý eBPF sử dụng mô hình 11 thanh ghi 64-bit ảo ($R0$ đến $R10$), trong đó $R0$ lưu trữ giá trị trả về, $R1$ đến $R5$ chứa các đối số đầu vào của hàm, $R6$ đến $R9$ là các thanh ghi được bảo toàn qua các lời gọi hàm (callee-saved registers), và $R10$ là thanh ghi con trỏ khung xếp (frame pointer register) chỉ đọc. Quá trình biên dịch tức thời (Just-In-Time - JIT compilation) trong eBPF dịch các mã byte eBPF (eBPF bytecode) thành mã máy nguyên thủy của CPU đích với độ trễ tối thiểu, tránh được chi phí thông dịch (interpretation overhead). Hiệu suất thực thi của một chương trình eBPF sau khi được JIT biên dịch có thể được biểu diễn qua phương trình mô hình hóa thời gian thực thi: $$T_{exec} = N_{inst} \times CPI_{avg} \times \frac{1}{f_{clock}} + T_{mem} + T_{context\_switch}$$, trong đó $N_{inst}$ là số lượng chỉ thị eBPF sau khi chuyển đổi sang kiến trúc đích, $CPI_{avg}$ là số chu kỳ đồng hồ trung bình trên mỗi chỉ thị (thường tiệm cận 1.0 đối với các lệnh số học đơn giản nhờ cấu trúc đường ống siêu hướng lượng), $f_{clock}$ là tần số xung nhịp của CPU, và $T_{mem}$ là tổng thời gian trễ do truy cập bộ nhớ. Đặc biệt, $T_{context\_switch}$ được loại trừ hoàn toàn khi chương trình eBPF được kích hoạt bởi các sự kiện bên trong nhân, thay vì phải chuyển ngữ cảnh từ không gian người dùng (user space) sang không gian hạt nhân, một quá trình thường tiêu tốn từ hàng nghìn đến hàng chục nghìn chu kỳ đồng hồ do sự cố dọn dẹp bộ đệm chuyển đổi địa chỉ (Translation Lookaside Buffer - TLB flush) và chi phí chuyển đổi vòng đai đặc quyền (privilege ring transition).
+## Tóm Tắt & Vấn Đề Cốt Lõi (Core Problem Statement)
 
-Một trong những cơ chế kiểm soát bảo mật và an toàn dữ liệu nghiêm ngặt nhất của hệ sinh thái eBPF là thành phần Verifier (Bộ xác minh). Trước khi bất kỳ đoạn mã eBPF nào được chèn vào không gian hạt nhân thông qua lời gọi hệ thống `bpf()`, nó phải vượt qua một chuỗi các phép phân tích tĩnh học đồ thị luồng điều khiển (Control Flow Graph - CFG) cực kỳ khắt khe. Verifier mô phỏng trạng thái thực thi của mọi đường dẫn lệnh có thể xảy ra nhằm đảm bảo không tồn tại các vòng lặp vô hạn (mặc dù các vòng lặp có giới hạn (bounded loops) đã được hỗ trợ trong các phiên bản kernel mới nhất), không có truy cập bộ nhớ ngoài ranh giới (Out-of-Bounds memory access), và các con trỏ được khởi tạo và kiểm tra tính hợp lệ trước khi giải tham chiếu (dereference). Quá trình phân tích này có độ phức tạp thuật toán tiệm cận $O(N \times E)$, với $N$ là số lượng trạng thái độc lập được khám phá và $E$ là số lượng nhánh rẽ của đồ thị CFG. Để lưu trữ trạng thái chia sẻ giữa không gian hạt nhân và không gian người dùng một cách hiệu quả, kiến trúc eBPF sử dụng hệ thống Bản đồ (eBPF Maps), hoạt động như các cấu trúc dữ liệu lưu trữ dưới dạng cặp khóa-giá trị (Key-Value stores) chuyên dụng. Các Maps này được phân bổ từ vùng nhớ vật lý không phân trang (non-pageable memory) nhằm loại trừ độ trễ phân trang (page fault latency) trong các đường dẫn thực thi trọng yếu của hệ điều hành. Thuật toán cấu trúc dữ liệu băm bên trong eBPF (Hash Map) sử dụng phép băm RCU-protected (Read-Copy-Update), đảm bảo tốc độ đọc đồng thời không khóa (lock-free concurrent reads) cực kỳ cao. Xác suất xảy ra xung đột khóa trong quá trình băm (hash collision probability) được điều chỉnh bởi hệ số tải (load factor) $\alpha = \frac{n}{m}$, trong đó $n$ là số lượng phần tử hiện tại và $m$ là số lượng khe băm (hash buckets). Hiệu suất truy cập kỳ vọng vào một eBPF Hash Map có thể được tính bằng $$E[T_{access}] = T_{hash} + (1 + \frac{\alpha}{2}) \times T_{cache\_miss}$$, với $T_{cache\_miss}$ phản ánh hình phạt thời gian do không trúng bộ đệm L1/L2 của CPU, thường rơi vào khoảng 50-100 nano giây trên các kiến trúc DRAM hiện đại.
+Bất kỳ ai từng trực đêm vì một query đột nhiên chậm gấp mười lần bình thường đều hiểu cảm giác này: database không tự nói cho bạn biết nó đang làm gì bên trong. Đó là lý do eBPF database observability đang được nhắc đến nhiều — nó cho phép nhìn vào bên trong mà gần như không phải trả giá về hiệu năng.
 
-```mermaid
-graph TD
-    A[User Space Database Process] -->|Syscall/Network/Disk I/O| B[Kernel Boundary]
-    B --> C{Event Triggers: kprobes, uprobes, tracepoints}
-    C --> D[eBPF Verifier & JIT Compiler]
-    D --> E[eBPF Virtual Machine Execution]
-    E -->|Read/Write| F[(eBPF Maps: Hash, Array, Ring Buffer)]
-    F -->|Asynchronous Polling| G[User Space Observability Agent]
-    E --> H[Kernel Subsystems: TCP/IP Stack, VFS, Scheduler]
-    subgraph Kernel Space
-        C
-        D
-        E
-        F
-        H
-    end
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style E fill:#bbf,stroke:#333,stroke-width:2px
-```
+**Vấn đề cốt lõi:** database truyền thống vận hành như một **hộp đen**.
+Muốn biết một câu SQL chậm vì đâu, kỹ sư thường phải bật Slow Query Log, gắn thêm agent profiling chạy song song trong tiến trình (in-band), hoặc dùng những công cụ hệ điều hành đã cũ như `strace`, `tcpdump`. Cả ba cách đều có cái giá của nó:
+- Bật log hoặc chạy in-band agent có thể ngốn 30-50% hiệu năng — hệ thống sập trước khi bạn tìm ra vấn đề.
+- `strace` chạy trên nền `ptrace`, buộc kernel dừng hẳn tiến trình database ở mỗi system call, khiến độ trễ tăng lên hàng trăm lần.
+- `tcpdump` bắt gói tin tạo ra lượng dữ liệu khổng lồ và tốn nhiều CPU chỉ để copy dữ liệu từ kernel space sang user space.
 
-```c
-// Pseudocode: Cơ sở của một chương trình eBPF truy xuất gói tin
-#include <linux/bpf.h>
-#include <linux/if_ether.h>
-#include <linux/ip.h>
-#include <linux/tcp.h>
-#include <bpf/bpf_helpers.h>
+**eBPF (Extended Berkeley Packet Filter)** giải quyết bài toán này theo một cách khác hẳn. Nó cho phép chạy các đoạn mã cực nhẹ ngay trong kernel space, quan sát từng gói tin qua NIC, từng lời gọi hàm bên trong PostgreSQL, từng khối dữ liệu ghi xuống SSD, với overhead thường dưới 1%.
 
-struct {
-    __uint(type, BPF_MAP_TYPE_HASH);
-    __uint(max_entries, 100000);
-    __type(key, struct ipv4_flow_key);
-    __type(value, struct db_query_metrics);
-} query_latency_map SEC(".maps");
+Bài viết này sẽ đi vào kiến trúc máy ảo eBPF, cách gắn uprobes/kprobes để quan sát mã nguồn database đang chạy mà không cần restart, và những bài học thực chiến khi vận hành hạ tầng eBPF ở quy mô data center.
 
-SEC("socket_filter/db_traffic")
-int capture_db_queries(struct __sk_buff *skb) {
-    void *data_end = (void *)(long)skb->data_end;
-    void *data = (void *)(long)skb->data;
-    
-    struct ethhdr *eth = data;
-    if ((void *)(eth + 1) > data_end) return 0;
-    if (eth->h_proto != bpf_htons(ETH_P_IP)) return 0;
-    
-    struct iphdr *iph = (struct iphdr *)(eth + 1);
-    if ((void *)(iph + 1) > data_end) return 0;
-    if (iph->protocol != IPPROTO_TCP) return 0;
-    
-    struct tcphdr *tcph = (struct tcphdr *)(iph + 1);
-    if ((void *)(tcph + 1) > data_end) return 0;
-    
-    // Thuật toán trích xuất payload và phân tích độ trễ tại đây...
-    // Đo lường bằng bpf_ktime_get_ns() và lưu trữ vào query_latency_map
-    
-    return 0;
-}
-```
+---
 
-## Phân tích và quan sát cơ sở dữ liệu ở chế độ hạt nhân
+## Kiến Trúc Vi Mô Máy Ảo eBPF (eBPF Virtual Machine)
 
-Việc ứng dụng BPF và eBPF vào lĩnh vực quan sát cơ sở dữ liệu (Database Observability) đã tạo ra một mô hình dịch chuyển kiến trúc (architectural paradigm shift), cho phép theo dõi mọi hoạt động nội tại của hệ quản trị cơ sở dữ liệu (RDBMS hoặc NoSQL) mà không yêu cầu sửa đổi mã nguồn ứng dụng, hay cài đặt các module bổ trợ gây suy giảm hiệu năng. Phương pháp tiếp cận này đặc biệt hữu ích trong các hệ thống xử lý giao dịch trực tuyến (OLTP) phân tán có thông lượng cao, nơi mọi hoạt động thu thập telemetry theo phương thức truyền thống (in-band profiling) đều gây tác động tiêu cực đến hiệu suất. eBPF cung cấp khả năng gắn các điểm theo dõi động (dynamic tracing) vào bất kỳ địa chỉ hàm nào trên cả không gian người dùng và không gian hạt nhân thông qua kprobes (Kernel Probes), uprobes (User Probes), USDT (User-Level Statically Defined Tracing), và các bộ lọc mạng (network socket filters). Để giám sát cơ sở dữ liệu từ quan điểm mạng, một chương trình eBPF thường được chèn vào tầng điều khiển giao tiếp giao thức kiểm soát truyền vận (TCP/IP stack). Bằng cách khai thác `tcp_sendmsg` và `tcp_recvmsg` bằng kprobes, hay gắn trực tiếp vào thiết bị mạng qua XDP (eXpress Data Path) hoặc TC (Traffic Control), hệ thống thu thập thông tin có thể chặn bắt (intercept) và cấu trúc lại các chuỗi byte (byte streams) của giao thức giao tiếp cơ sở dữ liệu (chẳng hạn như Giao thức Băng thông (Wire Protocol) của PostgreSQL hay MySQL). Tuy nhiên, việc tái thiết lập (reassembly) các gói tin TCP bị phân mảnh (TCP fragmentation) bên trong hạt nhân bằng eBPF C bị giới hạn là một thách thức kỹ thuật lớn do rào cản bộ nhớ và độ phức tạp của thuật toán quản lý cửa sổ trượt (sliding window). Giải pháp kiến trúc tối ưu nhất thường là chỉ thu thập các thẻ metadata của gói (packet headers) kết hợp với một vài byte tải trọng đầu tiên (initial payload bytes) bằng eBPF, sau đó chuyển đẩy phần dữ liệu thô này qua bộ đệm vòng (eBPF Ring Buffer) về không gian người dùng để tiến hành phân tích sâu hơn. Ring Buffer là cấu trúc dữ liệu chia sẻ vùng nhớ (memory-mapped shared structure) hoạt động cực kỳ hiệu quả, cho phép nhiều luồng eBPF ghi dữ liệu đồng thời với kiến trúc không khóa đa người sản xuất - đơn người tiêu thụ (Multi-Producer Single-Consumer - MPSC lock-free architecture). Băng thông truyền tải dữ liệu của eBPF Ring Buffer có thể được cực đại hóa, tuân thủ mô hình lý thuyết hàng đợi: $$\lambda_{throughput} = \frac{S_{buffer}}{E[S_{event}] \times \mu_{process}}$$, với $S_{buffer}$ là kích thước bộ đệm vòng theo byte, $E[S_{event}]$ là kích thước trung bình của mỗi khối dữ liệu telemetry cơ sở dữ liệu, và $\mu_{process}$ là tỷ lệ tiêu thụ sự kiện của tác nhân người dùng (user space agent). Nếu tỷ lệ sản xuất sự kiện $\lambda_{produce}$ vượt quá tỷ lệ tiêu thụ $\mu_{process}$, hiện tượng rớt sự kiện (event drop) sẽ xảy ra, dẫn đến sai lệch dữ liệu quan sát.
+Xuất phát điểm của eBPF chỉ là bộ lọc gói tin mạng (cBPF, dùng trong tcpdump thời kỳ đầu), nhưng ngày nay nó đã trở thành một máy ảo đa năng nằm ngay trong nhân Linux.
 
-Khả năng nội soi sâu vào quá trình thực thi của công cụ cơ sở dữ liệu (Database Engine) trở nên mạnh mẽ phi thường khi sử dụng uprobes (User Probes) hoặc USDT. Với uprobes, hệ thống giám sát eBPF chèn các ngắt phần cứng (hardware interrupts) dạng `int3` (đối với kiến trúc x86) vào mã máy thực thi (executable text code) của tiến trình cơ sở dữ liệu tại các điểm bắt đầu và kết thúc của hàm, chẳng hạn như hàm phân tích cú pháp truy vấn (query parser) hoặc hàm thực thi bộ đệm quét bảng (table scan executor). Khi CPU chạm tới lệnh `int3` này, một ngoại lệ (exception) được sinh ra, khiến hệ điều hành chuyển đổi bối cảnh thực thi (context switch) vào một hàm xử lý ngoại lệ hạt nhân, từ đó kích hoạt mã eBPF tương ứng để đo đạc thời gian bắt đầu và kết thúc hàm bằng cách truy xuất đồng hồ đếm ngược với độ phân giải nano giây thông qua hàm trợ giúp (helper function) `bpf_ktime_get_ns()`. Sự sai số đo lường độ trễ ($\Delta T_{error}$) phải được tính toán nghiêm ngặt vì mỗi lời gọi uprobe chịu một mức phạt hiệu năng (overhead penalty) đáng kể do quá trình gián đoạn đường ống (pipeline disruption) và vô hiệu hóa bộ đệm lệnh (Instruction Cache Invalidation). Gọi $T_{int3}$ là chi phí phần cứng của lệnh ngắt, $T_{trap}$ là chi phí của hệ điều hành trong việc phân phối bộ xử lý lỗi (fault handler dispatch), và $T_{ebpf}$ là thời gian thực thi mã đo lường eBPF, thì tổng phí của một sự kiện chặn bắt hàm ứng dụng là $$C_{uprobe} = T_{int3} + T_{trap} + T_{ebpf}$$. Trong các bài kiểm tra thực tế trên vi kiến trúc AMD Zen 4 hoặc Intel Sapphire Rapids, $C_{uprobe}$ trung bình tiêu thụ khoảng $1.5$ đến $3.0$ micro giây trên mỗi lệnh ngắt. Vì vậy, việc áp dụng uprobes trên các hàm thực thi hàng triệu lần mỗi giây (như quá trình tìm kiếm mục nhập chỉ mục trên cây B-Tree) sẽ gây bão ngắt (interrupt storm), làm sụp đổ thông lượng của hệ thống quản trị cơ sở dữ liệu (DBMS throughput degradation). Ngược lại, việc gắn kprobes vào các hệ thống tệp tin ảo (Virtual File System - VFS) hoặc hệ thống phân trang gốc (Block I/O Layer) mang lại thông tin chuyên sâu về cơ chế quản lý lưu trữ (storage engine mechanics) của cơ sở dữ liệu. Bằng cách quan sát hàm `vfs_read()` và `vfs_write()`, kết hợp với mô hình nhận dạng mô hình truy cập (access pattern recognition), eBPF có thể định lượng tỷ lệ bắn trượt vùng nhớ đệm trang (Page Cache Miss Ratio) đối với tệp dữ liệu cụ thể, cung cấp dữ liệu định lượng cho việc hiệu chỉnh thuật toán thu hồi bộ nhớ (LRU cache eviction policy) của máy chủ cơ sở dữ liệu.
+### Kiến Trúc Tập Lệnh (ISA) Ánh Xạ Trực Tiếp Phần Cứng
+Tập lệnh eBPF hiện đại được thiết kế ánh xạ gần như trực tiếp với phần cứng CPU 64-bit (x86_64, ARM64).
+Bộ xử lý eBPF dùng mô hình 11 thanh ghi ảo 64-bit, từ $R0$ đến $R10$:
+- $R0$: giá trị trả về của hàm.
+- $R1$-$R5$: đối số truyền vào khi gọi hàm.
+- $R6$-$R9$: thanh ghi callee-saved, được bảo toàn qua các lời gọi hàm.
+- $R10$: frame pointer chỉ đọc, dùng truy cập stack.
 
-```mermaid
-sequenceDiagram
-    participant DB as User Space DB Process (PostgreSQL)
-    participant HW as Hardware (x86_64 CPU)
-    participant K as Kernel Exception Handler
-    participant BPF as eBPF Runtime
-    participant Map as eBPF Ring Buffer
-    participant Agent as Observability Daemon
+Bộ biên dịch JIT (Just-In-Time) chuyển bytecode eBPF thành mã máy gốc của CPU. Vì kiến trúc thanh ghi eBPF gần như trùng khớp với x86_64, quá trình JIT diễn ra cực nhanh và mã sinh ra chạy nhanh tương đương mã C biên dịch trực tiếp.
 
-    DB->>HW: Executes patched instruction (int3) at query_start()
-    HW->>K: Generates Trap (Exception #3)
-    K->>BPF: Invokes attached uprobe handler
-    BPF->>BPF: bpf_ktime_get_ns() & Read Registers
-    BPF->>Map: bpf_ringbuf_submit(event_data)
-    BPF->>K: Return to trap handler
-    K->>HW: Restore Context & Execute original instruction
-    HW->>DB: Resume normal execution
-    Agent->>Map: Asynchronously poll via epoll()
-    Map-->>Agent: Read sequence of trace events
-```
+### Verifier: Người Gác Cổng Của Kernel
+Kernel là vùng đất không được phép sai sót. Một lỗi chia cho 0, một con trỏ NULL, hay một vòng lặp vô hạn trong mã eBPF đều có thể gây kernel panic — sập cả hệ điều hành.
+Vì thế mọi đoạn mã eBPF phải qua cửa **Verifier** trước khi được nạp.
+Verifier phân tích tĩnh đồ thị luồng điều khiển (control flow graph) để đảm bảo:
+1. Không có vòng lặp vô hạn — mã phải chứng minh được sẽ kết thúc.
+2. Không truy cập bộ nhớ ngoài phạm vi mảng.
+3. Không đụng đến các vùng nhớ kernel bị cấm truy cập.
+4. Stack không vượt quá 512 byte.
 
-## Ứng dụng thực tiễn và giới hạn phần cứng
+Độ phức tạp thuật toán của bước kiểm tra này tiệm cận $\mathcal{O}(N \times E)$, với $N$ là số trạng thái và $E$ là số cạnh trong đồ thị luồng. Chỉ khi Verifier xác nhận "an toàn", mã mới được chuyển sang JIT.
 
-Quá trình triển khai kỹ thuật eBPF ở quy mô hạ tầng lớn không chỉ là bài toán về phần mềm mà còn chạm tới những ranh giới tận cùng của vật lý bán dẫn và vi kiến trúc bộ vi xử lý. Các cấu trúc dữ liệu bản đồ eBPF (eBPF Maps), do được phân bổ tĩnh trong bộ nhớ chính (Main Memory) và liên tục được truy xuất bởi lõi CPU, chịu ảnh hưởng mạnh mẽ bởi cấu trúc Truy cập Bộ nhớ Không đồng nhất (Non-Uniform Memory Access - NUMA). Trong một máy chủ cơ sở dữ liệu đa khe cắm (multi-socket server), nếu chương trình eBPF thực thi trên một lõi CPU thuộc NUMA node 0 nhưng lại thực hiện lệnh cập nhật bản đồ eBPF được khởi tạo bằng bộ nhớ thuộc NUMA node 1, một quá trình truy cập bộ nhớ từ xa (remote memory access) sẽ diễn ra qua các liên kết vi xử lý liên nối tiếp (chẳng hạn như Intel UPI hoặc AMD Infinity Fabric). Độ trễ này tăng tuyến tính khi áp lực truyền tải lên bus cao, làm thay đổi nghiêm trọng hồ sơ hiệu năng (performance profile). Để giải quyết triệt để rào cản vật lý này, kiến trúc eBPF cung cấp cấu trúc Bản đồ cục bộ cho từng CPU (Per-CPU Maps). Sử dụng bản đồ Per-CPU Hash Array, mỗi bộ xử lý logic sẽ làm việc với một bản sao địa phương (local copy) của dữ liệu, biến đổi giao dịch ghi bộ nhớ thành các phép toán hoàn toàn không có khóa (lockless and contention-free memory writes), tận dụng tối đa băng thông bộ đệm L1/L2 của từng lõi phần cứng độc lập. Công thức cho tốc độ truyền tải bộ nhớ được tối ưu hóa theo thiết kế này đạt giới hạn trên của băng thông DRAM: $$BW_{max} = f_{mem} \times W_{bus} \times C_{channels}$$, nơi lượng tiêu thụ băng thông của eBPF gần như không thể cản trở băng thông của tiến trình cơ sở dữ liệu khi hệ thống được quy hoạch chặt chẽ. Đặc biệt, thao tác hợp nhất dữ liệu từ Per-CPU Maps xuống người dùng sẽ được thực hiện không đồng bộ và theo chu kỳ, giải phóng hoàn toàn tiến trình không gian hạt nhân khỏi trách nhiệm đồng bộ hóa (synchronization responsibilities).
+---
 
-Hơn thế nữa, giới hạn nghiêm ngặt về phức tạp tính toán (computational complexity limitations) áp đặt bởi BPF Verifier yêu cầu kỹ năng thuật toán tinh vi khi phân tích luồng dữ liệu cơ sở dữ liệu (Database Data Stream Parsing). Mã eBPF không cho phép phân bổ bộ nhớ động thông qua `malloc()` hoặc mở rộng dung lượng ngăn xếp (stack space) vượt quá 512 bytes. Để theo dõi toàn bộ trạng thái vòng đời của một truy vấn dài (Long-running Query) kèm theo một lượng lớn ngữ cảnh (context values), việc thiết kế thuật toán phải dựa vào cấu trúc Máy trạng thái hữu hạn (Finite State Machine - FSM) được trải phẳng (flattened) và lưu trữ từng bước chuyển đổi trạng thái vào hệ thống Bản đồ eBPF, sử dụng khóa kết hợp (compound key) như kết hợp giữa Mã định danh luồng (`Thread ID`) và Định danh kết nối TCP (`TCP 4-tuple`). Sự đánh đổi (trade-off) giữa khả năng quan sát (Observability) và năng lượng phần cứng chi tiêu đòi hỏi một mô hình quản lý dung lượng giới hạn (bounded capacity management) - nếu Bản đồ trạng thái đầy (map overflow), thuật toán eBPF phải thực hiện cơ chế rớt dữ liệu (eviction hoặc tail-drop) một cách nhẹ nhàng nhất có thể. Động thái vô hiệu hóa bộ đệm CPU (CPU Cache invalidation) cũng là một rủi ro hiện hữu. Khi số lượng chương trình eBPF tăng lên và số lượng các lệnh JIT phát sinh làm phình to bộ đệm lệnh cấp 1 (L1 Instruction Cache), thuật toán thay thế bộ đệm LRU của phần cứng sẽ loại bỏ mã của hệ quản trị cơ sở dữ liệu để chứa các lệnh BPF. Tác động của hiện tượng tràn bộ đệm lệnh (Instruction Cache thrashing) này được biểu thị qua số liệu đếm chu kỳ bị đình trệ (Stall Cycles) trong đơn vị giám sát hiệu suất phần cứng (Hardware Performance Monitoring Unit - PMU), tuân theo nguyên tắc xác suất Poisson cho phân phối trượt. Do đó, kỹ sư hệ thống cần cấu hình eBPF Agent một cách tinh gọn (lean binary compilation), hợp nhất các chương trình BPF theo cách mà luồng thực thi (execution path) luôn nằm trọn trong ranh giới $32$ KB của vùng L1i cache, giữ cho mã cơ sở dữ liệu cốt lõi (như PostgreSQL query planner hay MySQL InnoDB log buffer flush) hoạt động liên tục với số lượng cache miss nhỏ nhất. Cuối cùng, khía cạnh bảo mật (security perimeter) xung quanh eBPF cũng cần được thắt chặt ở mức tối đa bằng kỹ thuật Kernel Lockdown và cơ chế chữ ký mã hệ thống (Code Signing), ngăn chặn mọi cuộc tấn công tiêm mã độc cấp thấp (low-level code injection), bảo vệ tính nguyên vẹn toàn vẹn dữ liệu cho mọi hệ thống cơ sở dữ liệu vận hành ở trạng thái tối mật (mission-critical).
+## eBPF Maps: Chia Sẻ Dữ Liệu Tốc Độ Cao (Zero-Copy)
 
-## Tối ưu hóa SEO & Tổng kết
+Một chương trình eBPF chạy trong kernel đo được độ trễ của query — nhưng làm sao đưa con số đó lên user space (Prometheus, Datadog Agent...) mà không phải trả giá copy dữ liệu? Câu trả lời nằm ở **eBPF Maps**.
 
-* **Từ khóa chính**: Database Observability, eBPF, BPF, Kiến trúc hạt nhân, Phân tích hiệu năng, Kprobes, Uprobes, Tối ưu hóa Database, Hệ thống phân tán, Just-In-Time Compiler.
-* **Tóm tắt (Meta Description)**: Khám phá kiến trúc vi mô và kỹ thuật triển khai eBPF/BPF cho Database Observability. Tài liệu kỹ thuật chuyên sâu về kprobes, uprobes, bộ đệm vòng (ring buffer), và giới hạn phần cứng trong giám sát RDBMS/NoSQL với hiệu suất tối đa, độ trễ bằng không.
-* **Đối tượng hướng đến**: Staff Engineer, Kiến trúc sư hệ thống, Kỹ sư lập trình Kernel, Quản trị viên Cơ sở dữ liệu (DBA) cao cấp, SRE (Site Reliability Engineer).
-* **Ứng dụng công nghệ**: Phân tích TCP/IP, cấu trúc dữ liệu eBPF Maps không khóa, xử lý tín hiệu JIT, tối ưu hóa băng thông NUMA và kiến trúc CPU bộ đệm trong môi trường xử lý tải cao.
+Đây là các cấu trúc key-value được cấp phát tĩnh trong vùng RAM không phân trang của kernel. Cả chương trình eBPF và ứng dụng user space đều đọc/ghi trực tiếp qua file descriptor, loại bỏ hoàn toàn system call sao chép dữ liệu.
+
+### eBPF Hash Map (RCU-Protected)
+Dùng để giữ trạng thái. Chẳng hạn, khi gói request đi vào, eBPF ghi `Time_Start` vào hash map với key là `TCP_Tuple (IP, Port)`; khi gói response đi ra, nó đọc lại `Time_Start`, tính latency rồi lưu kết quả.
+Cơ chế hash bên trong dùng **Read-Copy-Update (RCU)**, cho phép đọc đồng thời hoàn toàn lock-free, đạt tốc độ hàng chục triệu IOPS mà không làm nghẽn CPU.
+
+### eBPF Ring Buffer
+Để đẩy dòng sự kiện (event streaming) từ kernel lên user space — ví dụ danh sách các query chậm — eBPF dùng ring buffer.
+Đây là hàng đợi vòng MPSC (multi-producer single-consumer) không khóa: các lõi CPU sinh ra sự kiện ghi thẳng vào ring buffer, còn agent ở user space dùng `epoll` để liên tục thu hoạch. Nhờ vậy kernel không bao giờ bị chặn dù user space có bị quá tải.
+
+---
+
+## Các Phương Pháp Đặt Trạm Giám Sát (Probing)
+
+Muốn biết database đang làm gì, eBPF cần các "hook" gắn vào những điểm then chốt của hệ điều hành.
+
+### Network Hook (TC / XDP / Socket Filter)
+Nếu không muốn hoặc không thể can thiệp vào chính tiến trình database, bạn vẫn giám sát được ở tầng mạng.
+eBPF gắn được vào Traffic Control (TC) hoặc eXpress Data Path (XDP) — ngay tại driver của card mạng. Bằng cách parse gói TCP theo wire protocol của PostgreSQL/MySQL, chương trình eBPF đo được thời gian truy vấn, số lượng truy vấn, tỷ lệ retransmission, mà bản thân database hoàn toàn không hay biết. Overhead ở cách này rất thấp, nhưng khó phân tích các truy vấn bị phân mảnh trên nhiều gói TCP.
+
+### User Probes (uprobes & uretprobes)
+Đây là công cụ mạnh nhất trong bộ công cụ. Uprobes cho phép eBPF gắn thẳng vào các hàm C/C++ bên trong mã nguồn database ở user space.
+Ví dụ trong PostgreSQL, ta gắn uprobe vào đầu hàm `exec_simple_query()` và uretprobe vào điểm return của nó.
+
+**Cơ chế ngắt phần cứng (`int3`):**
+Khi eBPF gắn uprobe vào `exec_simple_query()`, nó thay thế opcode đầu tiên của hàm bằng lệnh `int3` (breakpoint trap).
+Khi CPU chạy tới đó, `int3` ném ra hardware exception. Hệ điều hành giành quyền điều khiển, nhảy vào kernel, gọi handler của eBPF. Sau khi ghi log xong, CPU khôi phục opcode gốc và database chạy tiếp bình thường.
+
+**Điểm cần lưu ý khi dùng uprobes:**
+Mỗi lần đi qua uprobe (tạo exception cộng context switch) tốn khoảng **1.5-3.0 micro-giây** trên CPU hiện đại.
+- Gắn vào `exec_simple_query` (chạy khoảng 10.000 lần/giây) chỉ tốn 30ms CPU mỗi giây, tương đương 3% overhead — chấp nhận được.
+- Gắn vào `btr_search_leaf` (duyệt lá B-Tree, chạy tới 1 triệu lần/giây) thì khác hẳn: CPU tốn tới 3 giây xử lý cho mỗi giây thực tế, database gần như đứng hình.
+Luôn đo tần suất gọi hàm (invocation frequency) trước khi quyết định gắn uprobe ở đâu.
+
+### Kernel Probes (kprobes)
+Dùng để quan sát tương tác của database với ổ đĩa và RAM.
+Gắn kprobe vào `vfs_read()` và `vfs_write()`, kết hợp thêm logic nhận dạng ngữ cảnh, eBPF theo dõi được tỷ lệ page cache miss. Từ đó kỹ sư nhìn thấy được một câu `SELECT` của MySQL thực chất đã phải đọc xuống ổ NVMe bao nhiêu lần, và mất bao nhiêu nano-giây ở tầng block layer.
+
+---
+
+## Tối Ưu Hóa Vi Kiến Trúc Hệ Thống (NUMA & Cache)
+
+Khi triển khai eBPF observability trên cụm server 128 core xử lý hàng tỷ giao dịch mỗi ngày, thiết kế eBPF Maps buộc phải tôn trọng những giới hạn vật lý của vi xử lý — nếu không, chính công cụ giám sát lại trở thành nguồn gây nghẽn.
+
+### Bài Toán NUMA và Per-CPU Maps
+Trong kiến trúc NUMA (Non-Uniform Memory Access), một CPU truy cập RAM thuộc node khác chịu độ trễ cao hơn hẳn truy cập cục bộ. Nếu chương trình eBPF chạy trên core 0 và core 64 cùng ghi vào một hash map toàn cục duy nhất, chúng sẽ tranh chấp bộ nhớ và làm bão hòa bus liên kết (UPI/Infinity Fabric).
+
+**Giải pháp** là **Per-CPU Maps**: hệ điều hành cấp cho mỗi lõi CPU vật lý một bản sao riêng của map. Chương trình eBPF chạy trên lõi nào chỉ ghi vào phần RAM cục bộ của lõi đó. Kết quả là các thao tác ghi trở nên lockless và không tranh chấp, throughput tiệm cận giới hạn băng thông L1 cache.
+
+### Bảo Vệ Instruction Cache (I-Cache Thrashing)
+L1 instruction cache (L1i) của CPU khá nhỏ — thường chỉ 32KB — và phần lớn không gian đó cần dành cho query planner, execution engine của database.
+Nếu chương trình eBPF biên dịch ra quá nhiều mã máy, mỗi lần gọi qua kprobe/uprobe nó sẽ tràn vào L1i, đẩy mã của database ra ngoài. Khi database chạy tiếp, nó gặp cache miss, phải nạp lại lệnh từ L2/L3 — hiệu năng giảm rõ rệt vì số stall cycles tăng lên.
+
+Kỹ sư viết BPF nên giữ mã thật gọn gàng: hợp nhất các phép kiểm tra, cẩn trọng khi unroll loop, và cố giữ toàn bộ chương trình dưới 4KB để nó tồn tại yên ổn cùng database trong L1i cache.
+
+---
+
+## Bài Học Rút Ra & Best Practices Cho Kỹ Sư Hệ Thống
+
+1. **Bắt đầu từ kprobes và network, thận trọng với uprobes:** đừng bao giờ thử nghiệm uprobe lần đầu trên production. Dùng staging cùng `bcc` hoặc `bpftrace` để đo số lần gọi hàm mỗi giây bằng `count()` trước khi bật thu thập latency.
+2. **Giữ cấu trúc dữ liệu phẳng (flattening FSM):** eBPF không có heap, không `malloc`. Nếu cần theo dõi một transaction SQL đi qua nhiều bước, xây máy trạng thái hữu hạn ở user space — eBPF chỉ đẩy từng sự kiện lên qua ring buffer, đừng nhồi logic ghép nối phức tạp vào kernel.
+3. **Quản lý dung lượng map (bounded capacity):** mọi eBPF map đều có `max_entries`. Nếu hash table đầy, các giao dịch mới sẽ không được ghi nhận. Agent user-space cần đủ nhanh để dọn dẹp các key cũ, nhường chỗ cho dữ liệu mới.
+4. **Quyền hạn và bảo mật:** eBPF có thể đọc toàn bộ RAM của kernel, kể cả password hay secret key đang lưu chuyển trong bộ nhớ. Trên production chỉ nên cấp quyền cho user thuộc `CAP_BPF` hoặc `CAP_SYS_ADMIN`, và dùng code signing để chặn chương trình eBPF không rõ nguồn gốc.
+5. **Tận dụng hệ sinh thái sẵn có:** đừng tự viết BPF agent từ đầu bằng C. `Cilium`, `Tetragon`, `Pixie`, hoặc Golang với thư viện `cilium/ebpf` là những lựa chọn thực tế hơn nhiều. Đẩy dữ liệu ra Prometheus histogram để khai thác biểu đồ phân vị P99, P99.9 trên Grafana.

@@ -1,0 +1,1186 @@
+# Translation of Plugins - Simply Static &#8211; The Static Site Generator - Stable (latest release) in Japanese
+# This file is distributed under the same license as the Plugins - Simply Static &#8211; The Static Site Generator - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-07-13 08:06:01+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: ja_JP\n"
+"Project-Id-Version: Plugins - Simply Static &#8211; The Static Site Generator - Stable (latest release)\n"
+
+#: src/integrations/class-ss-beaver-builder-integration.php:31
+msgid "Includes Beaver Builder cache files when exporting static sites."
+msgstr "静的サイトをエクスポートする際に、Beaver Builder のキャッシュファイルを含めます。"
+
+#: src/integrations/class-ss-beaver-builder-integration.php:30
+msgid "Beaver Builder"
+msgstr "Beaver Builder"
+
+#: src/admin/inc/class-ss-admin-rest.php:1618
+msgid "Deploy manifest not found."
+msgstr "デプロイマニフェストが見つかりません。"
+
+#: src/admin/inc/class-ss-admin-rest.php:1606
+msgid "No deploy manifest available."
+msgstr "デプロイマニフェストが利用できません。"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:285
+msgid "WordPress operations with Site Health, reports, uptime, performance checks, and hosting."
+msgstr "サイトヘルス、レポート、稼働時間、パフォーマンスチェック、ホスティングを含む WordPress 運用。"
+
+#: src/tasks/class-ss-discover-urls-task.php:93
+msgid "Discovering URLs with %1$s Crawler (%2$d of %3$d)"
+msgstr "%1$s クローラーで URL を検出しています (%2$d/%3$d)"
+
+#: src/integrations/class-ss-elementor-integration.php:441
+msgid "Elementor Google Font"
+msgstr "Elementor の Google フォント"
+
+#. translators: 1: files processed so far, 2: total files
+#: src/tasks/class-ss-create-zip-archive.php:475
+msgid "Creating ZIP archive (%1$d of %2$d files)..."
+msgstr "ZIP アーカイブを作成中 (%1$d/%2$d個のファイル)..."
+
+#: src/admin/inc/class-ss-admin-rest.php:1874
+msgid "Plugin installation failed."
+msgstr "プラグインのインストールに失敗しました。"
+
+#: src/integrations/pro/class-ss-markdown-integration.php:10
+msgid "Generates Markdown versions of your pages for optimal AI agent accessibility, adds proper meta tags, and ensures your static site follows AI-readability best practices."
+msgstr "AI エージェントがアクセスしやすいようにページのマークダウンバージョンを生成し、適切なメタタグを追加し、静的サイトが AI の可読性に関するベストプラクティスに準拠していることを保証します。"
+
+#: src/integrations/pro/class-ss-markdown-integration.php:9
+msgid "Markdown (Core)"
+msgstr "マークダウン (Core)"
+
+#: src/integrations/pro/class-ss-command-center-integration.php:10
+msgid "Adds a compact admin-bar widget for quick access. Access Generate, Settings, Diagnostics and Form Submissions directly from the toolbar."
+msgstr "管理バーにコンパクトなウィジェットを追加し、素早くアクセスできるようにします。ツールバーから「生成」「設定」「診断」「フォーム送信」に直接アクセスできます。"
+
+#: src/integrations/pro/class-ss-command-center-integration.php:9
+msgid "Command Center (Core)"
+msgstr "コマンドセンター (Core)"
+
+#: src/admin/inc/class-ss-admin-settings.php:200
+msgid "Simply Static Pro<i class=\"dashicons dashicons-external\" style=\"font-size:12px;vertical-align:-2px;height:10px;\"></i>"
+msgstr "Simply Static Pro<i class=\"dashicons dashicons-external\" style=\"font-size:12px;vertical-align:-2px;height:10px;\"></i>"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:312
+msgid "Unknown"
+msgstr "Unknown"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:309
+msgid "DigitalOcean"
+msgstr "DigitalOcean"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:308
+msgid "Amazon S3"
+msgstr "Amazon S3"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:307
+msgid "Simply CDN"
+msgstr "Simply CDN"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:304
+msgid "CDN"
+msgstr "CDN"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:281
+msgid "GitHub & CDN deployment, forms, search, and more."
+msgstr "GitHub と CDN のデプロイ、フォーム、検索など。"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:280
+#: src/admin/inc/class-ss-admin-settings.php:199
+#: src/integrations/class-ss-adminbar-integration.php:109
+msgid "Simply Static Pro"
+msgstr "Simply Static Pro"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:264
+msgid "View Export"
+msgstr "エクスポートを表示"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:257
+msgid "Delivery"
+msgstr "配送"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:253
+msgid "Date"
+msgstr "日付"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:249
+msgid "Duration"
+msgstr "期間"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:245
+msgid "Pages"
+msgstr "ページ"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:240
+msgid "In Progress"
+msgstr "進行中"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:238
+msgid "Completed"
+msgstr "完了済み"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:200
+msgid "Run Your First Export"
+msgstr "最初のエクスポートを実行する"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:198
+msgid "No export has been run yet."
+msgstr "まだエクスポートは実行されていません。"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:59
+msgid "Simply Static — Latest Export"
+msgstr "Simply Static — 最新のエクスポート"
+
+#: src/admin/inc/class-ss-admin-rest.php:570
+msgid "Export lock cleared."
+msgstr "エクスポートロック解除。"
+
+#: src/class-ss-diagnostic.php:584
+msgid "If exports fail, please review: %s"
+msgstr "エクスポートに失敗した場合は、%s を確認してください。"
+
+#: src/class-ss-diagnostic.php:583
+msgid "Site URL looks fine for container access."
+msgstr "サイト URL はコンテナアクセスに適しているようです。"
+
+#: src/class-ss-diagnostic.php:576
+msgid "Site URL looks reachable."
+msgstr "サイトの URL はアクセス可能なようです。"
+
+#. translators: 1: current site url, 2: server port, 3: docs url
+#: src/class-ss-diagnostic.php:566
+msgid "Site URL %1$s uses a different port than the web server (%2$d). This is often unreachable from within the container. See Docker guide: %3$s"
+msgstr "サイトの URL %1$s は、Web サーバー (%2$d) とは異なるポートを使用しています。これはコンテナ内からは到達できないことがよくあります。Docker ガイドを参照してください: %3$s"
+
+#. translators: 1: current site url, 2: example of host.docker.internal with
+#. port, 3: docs url
+#: src/class-ss-diagnostic.php:554
+msgid "Your WordPress Address appears to be %1$s which is usually not reachable from inside the container. Consider using %2$s (and map host.docker.internal), or the container service name, or adjust your Site URL. See instructions: %3$s"
+msgstr "WordPress アドレスは %1$s のようですが、通常はコンテナ内から到達できません。%2$s (および host.docker.internal をマップ) またはコンテナサービス名を使用するか、サイト URL を調整することを検討してください。手順はこちら: %3$s"
+
+#: src/class-ss-diagnostic.php:531
+msgid "Docker misconfiguration detected"
+msgstr "Docker の設定ミスが検出されました"
+
+#: src/class-ss-diagnostic.php:530
+msgid "Docker not detected"
+msgstr "Docker が検出されませんでした"
+
+#: src/class-ss-diagnostic.php:58
+msgid "Docker"
+msgstr "Docker"
+
+#: src/integrations/elementor/class-ss-search-widget.php:47
+msgid "Static Search"
+msgstr "静的検索"
+
+#. translators: 1: zip file path, 2: status message
+#: src/tasks/class-ss-create-zip-archive.php:444
+msgid "Failed to finalize ZIP archive: %1$s (%2$s)"
+msgstr "ZIP アーカイブのファイナライズに失敗しました: %1$s (%2$s)"
+
+#. translators: 1: zip file path
+#: src/tasks/class-ss-create-zip-archive.php:158
+msgid "Cannot overwrite ZIP file: %s (permission denied)"
+msgstr "ZIP ファイルを上書きできません: %s (権限が拒否されました)"
+
+#. translators: 1: directory path
+#: src/tasks/class-ss-create-zip-archive.php:146
+msgid "The ZIP destination directory is not writable: %s"
+msgstr "ZIP の宛先ディレクトリは書き込み可能ではありません: %s"
+
+#: src/integrations/pro/class-ss-uam-integration.php:14
+msgid "Control access to Simply Static pages, menus, and features by assigning a minimum role."
+msgstr "最小限の役割を割り当てることで、Simply Static のページ、メニュー、および機能へのアクセスを制御します。"
+
+#: src/integrations/pro/class-ss-uam-integration.php:13
+msgid "User Access Management (Core)"
+msgstr "ユーザーアクセス管理 (コア)"
+
+#: src/integrations/pro/class-ss-the-events-calendar-integration.php:14
+msgid "Support for events, archives, and assets from The Events Calendar. Requires Simply Static Pro."
+msgstr "イベントカレンダーのイベント、アーカイブ、アセットをサポートします。Simply Static Pro が必要です。"
+
+#: src/integrations/pro/class-ss-the-events-calendar-integration.php:13
+msgid "The Events Calendar"
+msgstr "イベントカレンダー"
+
+#: src/integrations/pro/class-ss-nsg-seo-generator-integration.php:14
+msgid "Efficiently crawl, queue and export pSEO websites with this integration."
+msgstr "この統合により、pSEO サイトを効率的にクロール、キューイング、エクスポートできます。"
+
+#: src/integrations/pro/class-ss-multisite-integration.php:13
+msgid "Multisite (Core)"
+msgstr "マルチサイト (コア)"
+
+#: src/integrations/pro/class-ss-multilingual-integration.php:14
+msgid "Integrates WPML, Polylang and TranslatePress to work with exported sites."
+msgstr "WPML、Polylang、TranslatePress を統合して、エクスポートされたサイトで作業できるようにします。"
+
+#: src/integrations/pro/class-ss-multilingual-integration.php:13
+msgid "Multilingual"
+msgstr "多言語"
+
+#: src/class-ss-multisite.php:83 src/class-ss-multisite.php:160
+msgid "Export is already running on another site. Upgrade to Pro to queue site exports."
+msgstr "エクスポートはすでに別のサイトで実行されています。サイトのエクスポートをキューに入れるには、Pro にアップグレードしてください。"
+
+#: src/admin/inc/class-ss-admin-settings.php:1593
+msgid "Learn more about Pro"
+msgstr "Pro についてさらに詳しく"
+
+#: src/admin/inc/class-ss-admin-settings.php:1591
+msgid "A multisite export lock is currently set. Resetting the lock and using queued exports are available in Simply Static Pro."
+msgstr "現在、マルチサイトエクスポートロックが設定されています。ロックのリセットとキューされたエクスポートの使用は、Simply Static Pro で可能です。"
+
+#. translators: 1: zip file path
+#: src/tasks/class-ss-create-zip-archive.php:393
+msgid "Unable to open ZIP archive for writing: %s"
+msgstr "書き込み用に ZIP アーカイブを開けません: %s"
+
+#: src/tasks/class-ss-setup-task.php:300
+msgid "Additional File (regex)"
+msgstr "追加ファイル (正規表現)"
+
+#: src/tasks/class-ss-setup-task.php:121
+msgid "Additional URL (regex)"
+msgstr "追加 URL (正規表現)"
+
+#: src/integrations/class-ss-adminbar-integration.php:65
+#: src/integrations/class-ss-adminbar-integration.php:198
+msgid "Waiting"
+msgstr "待機中"
+
+#: src/integrations/class-ss-adminbar-integration.php:58
+#: src/integrations/class-ss-adminbar-integration.php:199
+msgid "Status: "
+msgstr "ステータス: "
+
+#: src/admin/inc/class-ss-admin-settings.php:1423
+msgid "View Static Site"
+msgstr "静的サイトを表示"
+
+#: src/integrations/pro/class-ss-multisite-integration.php:14
+msgid "Allows queued multisite exports and management through network dashboard."
+msgstr "ネットワークダッシュボードを通じて、キューに入れられたマルチサイトのエクスポートと管理を可能にします。"
+
+#: src/crawler/class-ss-beaver-builder-crawler.php:29
+msgid "Detects Beaver Builder cache files in uploads/bb-plugin/cache."
+msgstr "uploads/bb-plugin/cache 内の Beaver Builder キャッシュファイルを検出します。"
+
+#: src/crawler/class-ss-beaver-builder-crawler.php:28
+#: src/crawler/class-ss-beaver-builder-crawler.php:153
+msgid "Beaver Builder Cache"
+msgstr "Beaver Builder キャッシュ"
+
+#: src/admin/inc/class-ss-admin-rest.php:495
+#: src/integrations/class-ss-adminbar-integration.php:62
+#: src/integrations/class-ss-adminbar-integration.php:196
+msgid "Running"
+msgstr "実行中"
+
+#: src/admin/inc/class-ss-admin-rest.php:535
+msgid "CRON triggered successfully for site %d."
+msgstr "サイト %d の CRON が正常にトリガーされました。"
+
+#: src/admin/inc/class-ss-admin-rest.php:521
+msgid "Invalid blog ID provided."
+msgstr "無効なブログ ID が提供されました。"
+
+#: src/admin/inc/class-ss-admin-rest.php:514
+msgid "This endpoint is only available for multisite installations."
+msgstr "このエンドポイントは、マルチサイトインストールでのみ使用できます。"
+
+#: src/integrations/pro/class-ss-nsg-seo-generator-integration.php:13
+msgid "SEO Generator"
+msgstr "SEO ジェネレーター"
+
+#: src/integrations/class-ss-divi-integration.php:36
+msgid "Optimizes DIVI for using it on static sites including a custom crawler to include cache files"
+msgstr "キャッシュファイルを含めるカスタムクローラーを含む静的サイトでの使用のために DIVI を最適化します"
+
+#: src/integrations/class-ss-divi-integration.php:35
+msgid "Divi"
+msgstr "Divi"
+
+#: src/crawler/class-ss-divi-crawler.php:28
+msgid "Detects Divi theme cache and asset files."
+msgstr "Divi テーマのキャッシュとアセットファイルを検出します。"
+
+#: src/crawler/class-ss-divi-crawler.php:27
+msgid "Divi Assets"
+msgstr "Divi Assets"
+
+#: src/integrations/class-ss-aio-seo-integration.php:151
+#: src/integrations/class-ss-seopress-integration.php:110
+msgid "Individual Sitemap URL"
+msgstr "個別のサイトマップ URL"
+
+#: src/crawler/class-ss-elementor-crawler.php:28
+msgid "Detects Elementor assets and jQuery files."
+msgstr "Elementor アセットと jQuery ファイルを検出します。"
+
+#: src/crawler/class-ss-elementor-crawler.php:27
+msgid "Elementor Assets"
+msgstr "Elementor アセット"
+
+#: src/crawler/class-ss-wp-includes-crawler.php:28
+msgid "Detects essential files in wp-includes directory."
+msgstr "wp-includes ディレクトリ内の重要なファイルを検出します。"
+
+#: src/crawler/class-ss-wp-includes-crawler.php:27
+msgid "Includes Directory"
+msgstr "ディレクトリを含む"
+
+#: src/tasks/class-ss-discover-urls-task.php:153
+msgid "Added %d URL via Crawler"
+msgid_plural "Added %d URLs via Crawler"
+msgstr[0] "クローラー経由で %d個の URL を追加しました"
+
+#: src/tasks/class-ss-discover-urls-task.php:112
+msgid "Added %d URL via %s Crawler"
+msgid_plural "Added %d URLs via %s Crawler"
+msgstr[0] "%s クローラー経由で %d個の URL を追加しました"
+
+#: src/tasks/class-ss-discover-urls-task.php:54
+msgid "Discovering URLs"
+msgstr "URL の検出"
+
+#: src/crawler/class-ss-vendor-files-crawler.php:28
+msgid "Detects URLs for vendor files (third-party libraries, frameworks, etc.)."
+msgstr "ベンダーファイル (サードパーティライブラリ、フレームワークなど) の URL を検出します。"
+
+#: src/crawler/class-ss-vendor-files-crawler.php:27
+msgid "Vendor Files"
+msgstr "ベンダーファイル"
+
+#: src/crawler/class-ss-uploads-crawler.php:28
+msgid "Detects URLs for media files in the uploads directory."
+msgstr "アップロードディレクトリ内のメディア ファイルの URL を検出します。"
+
+#: src/crawler/class-ss-theme-assets-crawler.php:28
+msgid "Detects URLs for assets (CSS, JS, images) used by the active theme."
+msgstr "アクティブなテーマで使用されるアセット (CSS、JS、画像) の URL を検出します。"
+
+#: src/crawler/class-ss-theme-assets-crawler.php:27
+msgid "Theme Assets"
+msgstr "テーマアセット"
+
+#: src/crawler/class-ss-taxonomy-crawler.php:28
+msgid "Detects URLs for all public taxonomies (categories, tags, etc.)."
+msgstr "すべての公開タクソノミー (カテゴリ、タグなど) の URL を検出します。"
+
+#: src/crawler/class-ss-taxonomy-crawler.php:27
+msgid "Taxonomy URLs"
+msgstr "タクソノミーの URL"
+
+#: src/crawler/class-ss-sitemap-crawler.php:29
+msgid "Detects URLs from XML sitemaps."
+msgstr "XML サイトマップから URL を検出します。"
+
+#: src/crawler/class-ss-sitemap-crawler.php:28
+msgid "Sitemap URLs"
+msgstr "サイトマップ URL"
+
+#: src/crawler/class-ss-rss-feeds-crawler.php:29
+msgid "Detects WordPress RSS feed URLs."
+msgstr "WordPress RSS フィード URL を検出します。"
+
+#: src/crawler/class-ss-rss-feeds-crawler.php:28
+msgid "RSS Feeds"
+msgstr "RSS フィード"
+
+#: src/crawler/class-ss-rest-api-crawler.php:29
+msgid "Detects WordPress REST API endpoints."
+msgstr "WordPress REST API のエンドポイントを検出します。"
+
+#: src/crawler/class-ss-rest-api-crawler.php:28
+msgid "REST API"
+msgstr "REST API"
+
+#: src/crawler/class-ss-post-type-crawler.php:28
+msgid "Detects URLs for all public post types (posts, pages, etc.)."
+msgstr "すべての公開投稿タイプ (投稿、ページなど) の URL を検出します。"
+
+#: src/crawler/class-ss-post-type-crawler.php:27
+msgid "Post Type URLs"
+msgstr "投稿タイプの URL"
+
+#: src/crawler/class-ss-plugin-assets-crawler.php:28
+msgid "Detects URLs for assets (CSS, JS, images) used by active plugins."
+msgstr "アクティブなプラグインによって使用されるアセット (CSS、JS、画像) の URL を検出します。"
+
+#: src/crawler/class-ss-plugin-assets-crawler.php:27
+msgid "Plugin Assets"
+msgstr "プラグインアセット"
+
+#: src/crawler/class-ss-pagination-crawler.php:28
+msgid "Detects pagination URLs for archives, posts, and other paginated content."
+msgstr "アーカイブ、投稿、およびその他のページ付けされたコンテンツのページネーション URL を検出します。"
+
+#: src/crawler/class-ss-pagination-crawler.php:27
+msgid "Pagination URLs"
+msgstr "ページ送りの URL"
+
+#: src/crawler/class-ss-home-crawler.php:28
+msgid "Detects the homepage URL."
+msgstr "ホームページの URL を検出します。"
+
+#: src/crawler/class-ss-home-crawler.php:27
+msgid "Homepage URL"
+msgstr "ホームページの URL"
+
+#: src/crawler/class-ss-crawler.php:130
+#: src/crawler/class-ss-divi-crawler.php:213
+#: src/crawler/class-ss-elementor-crawler.php:130
+#: src/crawler/class-ss-plugin-assets-crawler.php:212
+#: src/crawler/class-ss-theme-assets-crawler.php:197
+#: src/crawler/class-ss-uploads-crawler.php:259
+msgid "Added by %s Crawler"
+msgstr "%s クローラーによって追加されました"
+
+#: src/crawler/class-ss-config-files-crawler.php:28
+msgid "Detects JSON configuration files in the Simply Static Pro configs directory."
+msgstr "Simply Static Pro configs ディレクトリ内の JSON 設定ファイルを検出します。"
+
+#: src/crawler/class-ss-config-files-crawler.php:27
+msgid "Config Files"
+msgstr "設定ファイル"
+
+#: src/crawler/class-ss-author-crawler.php:28
+msgid "Detects author archive URLs."
+msgstr "投稿者のアーカイブ URL を検出します。"
+
+#: src/crawler/class-ss-archive-crawler.php:35
+msgid "Detects yearly, monthly, and daily archive URLs."
+msgstr "年次、月次、および日次アーカイブ URL を検出します。"
+
+#: src/crawler/class-ss-archive-crawler.php:34
+msgid "Archive URLs"
+msgstr "アーカイブ URL"
+
+#: src/admin/inc/class-ss-admin-rest.php:1673
+msgid "An export is already running. Please wait for it to complete or cancel it before starting a new one."
+msgstr "エクスポートはすでに実行中です。完了するまで待つか、キャンセルしてから新しいエクスポートを開始してください。"
+
+#: src/integrations/elementor/class-ss-search-widget.php:133
+msgid "Input Width"
+msgstr "入力の幅"
+
+#: src/integrations/elementor/class-ss-search-widget.php:125
+msgid "Style"
+msgstr "スタイル"
+
+#: src/integrations/elementor/class-ss-search-widget.php:116
+msgid "Enter placeholder text"
+msgstr "プレースホルダーテキストを入力"
+
+#: src/integrations/elementor/class-ss-search-widget.php:115
+#: src/integrations/elementor/class-ss-search-widget.php:171
+#: src/integrations/elementor/class-ss-search-widget.php:244
+msgid "Search..."
+msgstr "検索 …"
+
+#: src/integrations/elementor/class-ss-search-widget.php:113
+msgid "Placeholder Text"
+msgstr "プレースホルダーテキスト"
+
+#: src/integrations/elementor/class-ss-search-widget.php:105
+msgid "Content"
+msgstr "内容"
+
+#: src/integrations/class-ss-delay-integration.php:64
+msgid "You can export again in about %s second(s)"
+msgstr "約%s秒後に再度エクスポートできます"
+
+#: src/integrations/class-ss-delay-integration.php:12
+msgid "Adds a delay to the static site generation."
+msgstr "静的サイトの生成に遅延を追加します。"
+
+#: src/integrations/class-ss-delay-integration.php:11
+msgid "Delay"
+msgstr "遅延"
+
+#: src/admin/inc/class-ss-admin-settings.php:213
+msgid "Static Studio<i class=\"dashicons dashicons-external\" style=\"font-size:12px;vertical-align:-2px;height:10px;\"></i>"
+msgstr "Static Studio<i class=\"dashicons dashicons-external\" style=\"font-size:12px;vertical-align:-2px;height:10px;\"></i>"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:284
+#: src/admin/inc/class-ss-admin-settings.php:212
+#: src/admin/inc/class-ss-admin-settings.php:252
+#: src/integrations/class-ss-adminbar-integration.php:120
+msgid "Static Studio"
+msgstr "Static Studio"
+
+#: src/integrations/pro/class-ss-search-and-filter-integration.php:14
+msgid "Integrates the popular Search and Filter plugin to be used on static sites."
+msgstr "静的サイトで使用される人気の検索および絞り込みプラグインを統合します。"
+
+#: src/integrations/pro/class-ss-search-and-filter-integration.php:13
+msgid "Search and Filter"
+msgstr "検索と絞り込み"
+
+#: src/background/class-ss-background-process.php:1458
+msgid "Every Minute"
+msgstr "毎分"
+
+#: simply-static.php:34
+msgid "Simply Static requires WordPress 6.2 or higher."
+msgstr "Simply Static には WordPress 6.2以降が必要です。"
+
+#: src/crawler/class-ss-author-crawler.php:27
+msgid "Author URLs"
+msgstr "投稿者 URL"
+
+#: src/crawler/class-ss-uploads-crawler.php:27
+msgid "Uploads Directory"
+msgstr "アップロードディレクトリ"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:306
+msgid "Tiiny Host"
+msgstr "小さなホスト"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:305
+msgid "BunnyCDN"
+msgstr "BunnyCDN"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:303
+msgid "GitHub"
+msgstr "GitHub"
+
+#: src/integrations/pro/class-ss-environments-integration.php:9
+msgid "Environments (Core)"
+msgstr "環境 (コア)"
+
+#: src/integrations/class-ss-adminbar-integration.php:17
+msgid "Admin Bar (Core)"
+msgstr "管理バー (コア)"
+
+#: src/class-ss-diagnostic.php:625
+msgid "Basic Auth is enabled, and username and password are set in Simply Static -> Settings -> Debug -> Basic Auth"
+msgstr "Basic Auth が有効化されており、ユーザー名とパスワードは Simply Static -> 設定 -> デバッグ -> Basic Auth で設定されています"
+
+#: src/class-ss-diagnostic.php:623
+msgid "Basic Auth is enabled, but no username or password is set in Simply Static -> Settings -> Debug -> Basic Auth"
+msgstr "Basic Auth は有効になっていますが、Simply Static -> 設定 -> デバッグ -> Basic Auth でユーザー名やパスワードが設定されていません"
+
+#: src/class-ss-diagnostic.php:590
+msgid "Basic Auth is not enabled."
+msgstr "Basic Auth が有効化されていません。"
+
+#: src/class-ss-diagnostic.php:212
+msgid "Discourage search engines from indexing this site is enabled"
+msgstr "検索エンジンによるこのサイトのインデックス作成を阻止する機能が有効化されています"
+
+#: src/class-ss-diagnostic.php:211
+msgid "Discourage search engines from indexing this site is disabled"
+msgstr "検索エンジンによるこのサイトのインデックス作成を阻止する機能は無効化されています"
+
+#: src/class-ss-diagnostic.php:62
+msgid "Indexable"
+msgstr "インデックス可能"
+
+#: src/class-ss-diagnostic.php:54
+msgid "PHP Version"
+msgstr "PHP バージョン"
+
+#: src/integrations/pro/class-ss-environments-integration.php:10
+msgid "Define multiple environments of Simply Static so you can easily change between saved configurations."
+msgstr "Simply Static の複数の環境を定義して、保存した構成を簡単に変更できるようにします。"
+
+#: src/integrations/pro/class-ss-redirection-integration.php:14
+msgid "Integrates redirections from the \"Redirection\" Plugin automatically on each export."
+msgstr "各エクスポートで「リダイレクト」プラグインからのリダイレクトを自動的に統合します。"
+
+#: src/integrations/pro/class-ss-redirection-integration.php:13
+msgid "Redirection"
+msgstr "リダイレクト"
+
+#: src/integrations/pro/class-ss-complianz-integration.php:14
+msgid "Integrates Complianz Cookie banner to work on the static site."
+msgstr "静的サイトで動作するように Complianz Cookie バナーを統合します。"
+
+#: src/integrations/pro/class-ss-complianz-integration.php:13
+msgid "Complianz | GDPR/CCPA Cookie Consent"
+msgstr "コンプライアンス | GDPR/CCPA Cookie 同意"
+
+#: src/integrations/class-ss-yoast-integration.php:90
+msgid "Yoast Redirection URL"
+msgstr "Yoast リダイレクト URL"
+
+#: src/integrations/class-ss-rank-math-integration.php:240
+msgid "RankMath Redirection URL"
+msgstr "RankMath リダイレクト URL"
+
+#: src/integrations/class-ss-rank-math-integration.php:17
+#: src/integrations/class-ss-yoast-integration.php:16
+msgid "Automatically includes your XML sitemaps, handles URL replacements in schema.org markup, and creates redirects on your static site for you."
+msgstr "XML サイトマップを自動的に組み込み、schema.org マークアップ内の URL 置換を処理し、静的サイトにリダイレクトを作成します。"
+
+#: src/integrations/pro/class-ss-shortpixel-integration.php:12
+msgid "Optimizes Images before exporting them for static sites."
+msgstr "静的サイト用にエクスポートする前に画像を最適化します。"
+
+#: src/integrations/pro/class-ss-shortpixel-integration.php:11
+msgid "Shortpixel"
+msgstr "Shortpixel"
+
+#: src/integrations/pro/class-ss-github-integration.php:11
+msgid "Used when deploying the exported sites to Github"
+msgstr "エクスポートされたサイトを Github にデプロイするときに使用されます"
+
+#: src/integrations/pro/class-ss-github-integration.php:10
+msgid "Github"
+msgstr "Github"
+
+#: src/integrations/class-ss-yoast-integration.php:15
+msgid "Yoast"
+msgstr "Yoast"
+
+#: src/integrations/class-ss-adminbar-integration.php:18
+msgid "Adds an admin bar integration for Simply Static to see the current status of static exports."
+msgstr "Simply Static の管理バー統合を追加して、静的エクスポートの現在のステータスを確認します。"
+
+#: src/integrations/class-ss-seopress-integration.php:15
+msgid "SEOPress"
+msgstr "SEOPress"
+
+#: src/integrations/class-ss-rank-math-integration.php:16
+msgid "Rank Math"
+msgstr "Rank Math"
+
+#: src/integrations/class-ss-elementor-integration.php:22
+msgid "Exports assets required for Elementor and Elementor Pro widgets and prepares data used by them."
+msgstr "Elementor および Elementor Pro ウィジェットに必要なアセットをエクスポートし、それらで使用されるデータを準備します。"
+
+#: src/integrations/class-ss-elementor-integration.php:21
+msgid "Elementor"
+msgstr "Elementor"
+
+#: src/integrations/class-ss-cookie-yes-integration.php:19
+msgid "Fixes scripts given by CookieYes to work on exported pages."
+msgstr "CookieYes によって提供されたスクリプトが、エクスポートされたページで動作するように修正。"
+
+#: src/integrations/class-ss-cookie-yes-integration.php:18
+msgid "CookieYes | GDPR Cookie Consent"
+msgstr "CookieYes | GDPR Cookie 同意"
+
+#: src/integrations/class-ss-aio-seo-integration.php:16
+#: src/integrations/class-ss-seopress-integration.php:16
+msgid "Adds XML sitemaps to generated static files."
+msgstr "生成された静的ファイルに XML サイトマップを追加します。"
+
+#: src/integrations/class-ss-aio-seo-integration.php:15
+msgid "All in One SEO"
+msgstr "All in One SEO"
+
+#: src/class-ss-plugin.php:841
+msgid "Docs"
+msgstr "ドキュメンテーション"
+
+#: src/admin/inc/class-ss-admin-rest.php:495
+#: src/integrations/class-ss-adminbar-integration.php:59
+#: src/integrations/class-ss-adminbar-integration.php:197
+msgid "Idle"
+msgstr "待機中"
+
+#: src/tasks/traits/trait-ss-can-process-pages.php:288
+msgid "Uploaded %d of %d files"
+msgstr "%d/%dファイルをアップロードしました"
+
+#: src/tasks/class-ss-transfer-files-locally-task.php:87
+#: src/tasks/class-ss-transfer-files-locally-task.php:137
+#: src/tasks/traits/trait-ss-can-process-pages.php:116
+msgid "Transferred %d of %d files"
+msgstr "%dファイル中%d個を転送しました"
+
+#: src/tasks/class-ss-transfer-files-locally-task.php:134
+msgid "No new/updated pages to transfer"
+msgstr "転送する新規 / 更新ページはありません"
+
+#: src/tasks/class-ss-setup-task.php:36
+msgid "Cannot create archive directory %s"
+msgstr "アーカイブディレクトリ %s を作成できません"
+
+#: src/tasks/class-ss-generate-404-task.php:65
+msgid "404 Page generated"
+msgstr "404ページが生成されました"
+
+#: src/tasks/class-ss-generate-404-task.php:48
+msgid "Generating 404 Page."
+msgstr "404ページの生成。"
+
+#: src/integrations/class-ss-elementor-integration.php:491
+msgid "Elementor Pro Lottie"
+msgstr "Elementor Pro Lottie"
+
+#: src/integrations/class-ss-elementor-integration.php:406
+msgid "Elementor Asset"
+msgstr "Elementor アセット"
+
+#: src/integrations/class-ss-aio-seo-integration.php:88
+#: src/integrations/class-ss-rank-math-integration.php:268
+#: src/integrations/class-ss-rank-math-integration.php:385
+#: src/integrations/class-ss-seopress-integration.php:62
+#: src/integrations/class-ss-yoast-integration.php:117
+#: src/integrations/class-ss-yoast-integration.php:234
+msgid "Sitemap URL"
+msgstr "サイトマップの URL"
+
+#. translators: 1. separator, 2. blogname
+#: src/handlers/class-ss-rank-math-sitemap-handler.php:155
+msgid "Locations Sitemap %1$s %2$s"
+msgstr "ロケーションサイトマップ %1$s %2$s"
+
+#. translators: 1. separator, 2. blogname
+#: src/handlers/class-ss-rank-math-sitemap-handler.php:152
+msgid "XML Sitemap %1$s %2$s"
+msgstr "XML サイトマップ %1$s %2$s"
+
+#: src/class-ss-plugin.php:320
+msgid "Missing Basic Auth credentials - you need to configure the Basic Auth credentials in Simply Static -> Settings -> Misc -> Basic Auth to continue the export."
+msgstr "Basic Auth 認証情報がありません - エクスポートを続行するには、Simply Static -> Settings -> Misc -> Basic Auth で Basic Auth 認証情報を設定する必要があります。"
+
+#: src/class-ss-plugin-compatibility.php:257
+msgid "Simply Static Compatible"
+msgstr "Simply Static 互換性"
+
+#: src/class-ss-plugin-compatibility.php:233
+msgid "(opens in a new tab)"
+msgstr "(新しいタブで開きます)"
+
+#: src/class-ss-plugin-compatibility.php:232
+msgid "Visit site"
+msgstr "サイトに訪れる"
+
+#. translators: %s: Plugin name
+#: src/class-ss-plugin-compatibility.php:230
+msgid "Site link of %s"
+msgstr "%s のサイトリンク"
+
+#: src/class-ss-diagnostic.php:509
+msgid "cURL version < %s"
+msgstr "cURL バージョン < %s"
+
+#: src/class-ss-diagnostic.php:508
+msgid "cURL is available"
+msgstr "cURL は利用可能"
+
+#: src/class-ss-diagnostic.php:494
+msgid "php-xml is not available"
+msgstr "php-xml は利用不可"
+
+#: src/class-ss-diagnostic.php:493
+msgid "php-xml is available"
+msgstr "php-xml は利用可能"
+
+#: src/class-ss-diagnostic.php:486
+msgid "PHP version < %s"
+msgstr "PHP のバージョン < %s"
+
+#: src/class-ss-diagnostic.php:485
+msgid "PHP version is >= %s"
+msgstr "PHP のバージョン >= %s"
+
+#: src/class-ss-diagnostic.php:478
+msgid "MySQL user has no DROP privilege"
+msgstr "MySQL ユーザーにドロップ権限がありません"
+
+#: src/class-ss-diagnostic.php:477
+msgid "MySQL user has DROP privilege"
+msgstr "MySQL ユーザーにドロップ権限があります"
+
+#: src/class-ss-diagnostic.php:470
+msgid "MySQL user has no ALTER privilege"
+msgstr "MySQL ユーザーに ALTER 権限がありません"
+
+#: src/class-ss-diagnostic.php:469
+msgid "MySQL user has ALTER privilege"
+msgstr "MySQL ユーザーに ALTER 権限があります"
+
+#: src/class-ss-diagnostic.php:462
+msgid "MySQL user has no CREATE privilege"
+msgstr "MySQL ユーザーに CREATE 権限がありません"
+
+#: src/class-ss-diagnostic.php:461
+msgid "MySQL user has CREATE privilege"
+msgstr "MySQL ユーザーに CREATE 権限があります"
+
+#: src/class-ss-diagnostic.php:454
+msgid "MySQL user has no SELECT privilege"
+msgstr "MySQL ユーザーに SELECT 権限がありません"
+
+#: src/class-ss-diagnostic.php:453
+msgid "MySQL user has SELECT privilege"
+msgstr "MySQL ユーザーに SELECT 権限があります"
+
+#: src/class-ss-diagnostic.php:446
+msgid "MySQL user has no INSERT privilege"
+msgstr "MySQL ユーザーに INSERT 権限がありません"
+
+#: src/class-ss-diagnostic.php:445
+msgid "MySQL user has INSERT privilege"
+msgstr "MySQL ユーザーに INSERT 権限があります"
+
+#: src/class-ss-diagnostic.php:438
+msgid "MySQL user has no DELETE privilege"
+msgstr "MySQL ユーザーに DELETE 権限がありません"
+
+#: src/class-ss-diagnostic.php:437
+msgid "MySQL user has DELETE privilege"
+msgstr "MySQL ユーザーに DELETE 権限があります"
+
+#: src/class-ss-diagnostic.php:430
+msgid "Web server can not write to Local Directory: %s"
+msgstr "Web サーバーはローカルディレクトリに書き込めません: %s"
+
+#: src/class-ss-diagnostic.php:429
+msgid "Web server can write to Local Directory: %s"
+msgstr "Web サーバーはローカルディレクトリに書き込めます: %s"
+
+#: src/class-ss-diagnostic.php:420
+msgid "Web server can't write to Temp Files Directory: %s"
+msgstr "Web サーバーは Temp Files ディレクトリに書き込めません: %s"
+
+#: src/class-ss-diagnostic.php:419
+msgid "Web server can write to Temp Files Directory: %s"
+msgstr "Web サーバーは Temp Files ディレクトリに書き込めます: %s"
+
+#: src/class-ss-diagnostic.php:410
+msgid "Web server can't read from Temp Files Directory: %s"
+msgstr "Web サーバーは Temp Files ディレクトリから読み取れません: %s"
+
+#: src/class-ss-diagnostic.php:409
+msgid "Web server can read from Temp Files Directory: %s"
+msgstr "Web サーバーは Temp Files ディレクトリから読み取ることができます: %s"
+
+#: src/class-ss-diagnostic.php:400
+msgid "%s is not compatible with Simply Static."
+msgstr "%s は Simply Static と互換性がありません。"
+
+#: src/class-ss-diagnostic.php:248 src/class-ss-diagnostic.php:254
+#: src/class-ss-diagnostic.php:260 src/class-ss-diagnostic.php:266
+#: src/class-ss-diagnostic.php:272 src/class-ss-diagnostic.php:278
+#: src/class-ss-diagnostic.php:284 src/class-ss-diagnostic.php:290
+#: src/class-ss-diagnostic.php:296 src/class-ss-diagnostic.php:302
+#: src/class-ss-diagnostic.php:308 src/class-ss-diagnostic.php:314
+msgid "Please disable caching (%s) before running a static export."
+msgstr "静的エクスポートを実行する前に、キャッシュ (%s) を無効化してください。"
+
+#: src/class-ss-diagnostic.php:238
+msgid "Please disable caching before running a static export"
+msgstr "静的エクスポートを実行する前に、キャッシュを無効化してください"
+
+#: src/class-ss-diagnostic.php:237
+msgid "Caching is disabled, great!"
+msgstr "キャッシュは無効化されています。素晴らしいです !"
+
+#: src/class-ss-diagnostic.php:228
+msgid "WordPress cron is not available and not running"
+msgstr "WordPress cron が利用できず、実行されていません"
+
+#: src/class-ss-diagnostic.php:227
+msgid "WordPress cron is available and running"
+msgstr "WordPress cron が利用可能で、実行されています"
+
+#: src/class-ss-diagnostic.php:204
+msgid "WordPress permalink structure is not set"
+msgstr "WordPress のパーマリンク構造が設定されていません"
+
+#: src/class-ss-diagnostic.php:203
+msgid "WordPress permalink structure is set"
+msgstr "WordPress のパーマリンク構造が設定されています"
+
+#: src/class-ss-diagnostic.php:195
+msgid "Additional File/Dir %s is valid"
+msgstr "追加ファイル / ディレクトリ %s は有効です"
+
+#: src/class-ss-diagnostic.php:177
+msgid "Is not a valid URL."
+msgstr "有効な URL ではありません。"
+
+#: src/class-ss-diagnostic.php:176
+msgid "Is a valid URL."
+msgstr "有効な URL です。"
+
+#: src/class-ss-diagnostic.php:166
+msgid "Destination URL %s is not valid"
+msgstr "宛先 URL %s は有効ではありません"
+
+#: src/class-ss-diagnostic.php:165
+msgid "Destination URL %s is valid"
+msgstr "宛先 URL %s は有効です"
+
+#: src/class-ss-diagnostic.php:130
+msgid "%d incompatible plugins are active"
+msgstr "%d個の互換性のないプラグインが有効化されています"
+
+#: src/class-ss-diagnostic.php:129
+msgid "No incompatible plugins are active on your website!"
+msgstr "サイト上で互換性のないプラグインは有効化されていません !"
+
+#: src/class-ss-diagnostic.php:86
+msgid "Local Dir"
+msgstr "ローカルディレクトリ"
+
+#: src/class-ss-diagnostic.php:77
+msgid "DROP"
+msgstr "ドロップ"
+
+#: src/class-ss-diagnostic.php:76
+msgid "ALTER"
+msgstr "ALTER"
+
+#: src/class-ss-diagnostic.php:75
+msgid "CREATE"
+msgstr "CREATE"
+
+#: src/class-ss-diagnostic.php:74
+msgid "SELECT"
+msgstr "SELECT"
+
+#: src/class-ss-diagnostic.php:73
+msgid "INSERT"
+msgstr "INSERT"
+
+#: src/class-ss-diagnostic.php:72
+msgid "DELETE"
+msgstr "DELETE"
+
+#: src/class-ss-diagnostic.php:69
+msgid "Temp dir writeable"
+msgstr "Temp ディレクトリ書き込み可能"
+
+#: src/class-ss-diagnostic.php:68
+msgid "Temp dir readable"
+msgstr "Temp ディレクトリ読み取り可能"
+
+#: src/class-ss-diagnostic.php:64
+msgid "WP-CRON"
+msgstr "WP-CRON"
+
+#: src/class-ss-diagnostic.php:63
+msgid "Caching"
+msgstr "キャッシュ"
+
+#: src/class-ss-diagnostic.php:61
+msgid "Permalinks"
+msgstr "パーマリンク"
+
+#: src/class-ss-diagnostic.php:57
+msgid "cURL"
+msgstr "cURL"
+
+#: src/class-ss-diagnostic.php:56
+msgid "php-xml"
+msgstr "php-xml"
+
+#: src/class-ss-diagnostic.php:646
+msgid "Not a valid url."
+msgstr "有効な URL ではありません。"
+
+#: simply-static.php:28
+msgid "Simply Static requires PHP 7.4 or higher."
+msgstr "Simply Static には PHP 7.4以上が必要です。"
+
+#. Author of the plugin
+#: simply-static.php
+msgid "Patrick Posner"
+msgstr "Patrick Posner"
+
+#. Description of the plugin
+#: simply-static.php
+msgid "A static site generator to create fast and secure static versions of your WordPress website."
+msgstr "WordPress サイトの高速で安全な静的バージョンを作成するための静的サイトジェネレーターです。"
+
+#. Author URI of the plugin
+#: simply-static.php
+msgid "https://patrickposner.com"
+msgstr "https://patrickposner.com"
+
+#. Plugin URI of the plugin
+#: simply-static.php
+msgid "https://simplystatic.com"
+msgstr "https://simplystatic.com"
+
+#: src/class-ss-diagnostic.php:55
+msgid "Basic Auth"
+msgstr "ベーシック認証"
+
+#: src/class-ss-diagnostic.php:658
+msgid "Received a %s response."
+msgstr "%sの応答を受信しました。"
+
+#: src/class-ss-diagnostic.php:655
+msgid "Received a %s response. This might indicate a problem."
+msgstr "%sの応答を受信しました。これは問題を示している可能性があります。"
+
+#: src/tasks/class-ss-setup-task.php:253
+msgid "Additional Dir"
+msgstr "追加ディレクトリ"
+
+#: src/tasks/class-ss-setup-task.php:234
+msgid "Additional File"
+msgstr "追加ファイル"
+
+#: src/class-ss-plugin.php:602
+msgid "Found on %s"
+msgstr "%s に見つかりました"
+
+#: src/tasks/class-ss-setup-task.php:97
+msgid "Additional URL"
+msgstr "追加 URL"
+
+#: src/tasks/class-ss-fetch-urls-task.php:317
+#: src/tasks/class-ss-fetch-urls-task.php:421
+#: src/tasks/class-ss-fetch-urls-task.php:501
+msgid "Do not save"
+msgstr "保存しない"
+
+#: src/tasks/class-ss-fetch-urls-task.php:291
+#: src/tasks/class-ss-fetch-urls-task.php:417
+#: src/tasks/class-ss-fetch-urls-task.php:460
+msgid "Do not follow"
+msgstr "フォローしない"
+
+#: src/tasks/class-ss-fetch-urls-task.php:72
+#: src/tasks/class-ss-fetch-urls-task.php:203
+msgid "Do not save or follow"
+msgstr "保存したりフォローしたりしないでください"
+
+#: src/tasks/class-ss-cancel-task.php:22
+msgid "Cancelling job"
+msgstr "ジョブをキャンセルする"
+
+#: src/background/class-ss-background-process.php:1460
+msgid "Every %d Minutes"
+msgstr "%d分毎"
+
+#: src/class-ss-url-fetcher.php:92
+msgid "Attempted to fetch a remote URL"
+msgstr "リモート URL を取得しようとしました"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:302
+msgid "Local Directory"
+msgstr "ローカルディレクトリ"
+
+#: src/admin/inc/class-ss-admin-dashboard-widget.php:301
+msgid "ZIP Archive"
+msgstr "ZIP アーカイブ"
+
+#: src/class-ss-diagnostic.php:82
+msgid "Destination URL"
+msgstr "送信先 URL"
+
+#: src/tasks/class-ss-setup-task.php:76
+msgid "Origin URL"
+msgstr "元の URL"
+
+#: views/redirect.php:49
+msgid "You are being redirected to %s"
+msgstr "%s にリダイレクト中"
+
+#: views/redirect.php:36
+msgid "Redirecting..."
+msgstr "リダイレクト中..."
+
+#: src/admin/inc/class-ss-admin-rest.php:495
+msgid "Paused"
+msgstr "一時停止"
+
+#: src/admin/inc/class-ss-admin-settings.php:184
+#: src/admin/inc/class-ss-admin-settings.php:185
+#: src/integrations/class-ss-adminbar-integration.php:86
+msgid "Diagnostics"
+msgstr "診断"
+
+#: src/class-ss-diagnostic.php:187
+msgid "Not readable"
+msgstr "読込不能"
+
+#: src/class-ss-diagnostic.php:184
+msgid "Not a valid path"
+msgstr "有効なパスではありません"
+
+#: src/class-ss-archive-creation-job.php:770
+msgid "Error: %s"
+msgstr "エラー: %s"
+
+#: src/class-ss-archive-creation-job.php:730 src/class-ss-url-fetcher.php:92
+#: src/class-ss-url-fetcher.php:205
+msgid "An error occurred: %s"
+msgstr "エラーが発生しました: %s"
+
+#: src/class-ss-archive-creation-job.php:711
+msgid "An exception occurred: %s"
+msgstr "例外が発生しました: %s"
+
+#: src/class-ss-archive-creation-job.php:466
+msgid "Done! Finished in %s"
+msgstr "完了 ! %sで完成しました"
+
+#: src/tasks/class-ss-wrapup-task.php:40
+msgid "Wrapping up"
+msgstr "ラッピング"
+
+#: src/tasks/class-ss-transfer-files-locally-task.php:80
+msgid "Destination URL:"
+msgstr "リンク先 URL: "
+
+#: src/tasks/class-ss-fetch-urls-task.php:251
+#: src/tasks/class-ss-fetch-urls-task.php:758
+msgid "Fetched %d of %d pages/files"
+msgstr "%d件 (%d件中) のページとファイルを取得しました"
+
+#: src/tasks/class-ss-setup-task.php:23
+msgid "Setting up"
+msgstr "セットアップ"
+
+#: src/tasks/class-ss-create-zip-archive.php:65
+msgid "Click here to download"
+msgstr "ダウンロードするにはこちらをクリック"
+
+#: src/tasks/class-ss-create-zip-archive.php:61
+msgid "ZIP archive created: "
+msgstr "ZIP アーカイブを作成しました:"
+
+#: src/admin/inc/class-ss-admin-settings.php:169
+#: src/admin/inc/class-ss-admin-settings.php:170 src/class-ss-plugin.php:840
+#: src/integrations/class-ss-adminbar-integration.php:98
+msgid "Settings"
+msgstr "設定"
+
+#: src/admin/inc/class-ss-admin-settings.php:156
+#: src/admin/inc/class-ss-admin-settings.php:157
+msgid "Generate"
+msgstr "生成"
+
+#. Plugin Name of the plugin
+#: simply-static.php src/admin/inc/class-ss-admin-settings.php:140
+#: src/admin/inc/class-ss-admin-settings.php:252
+#: src/admin/inc/class-ss-admin-settings.php:1490
+#: src/integrations/class-ss-adminbar-integration.php:47
+#: src/integrations/class-ss-adminbar-integration.php:51
+#: src/integrations/class-ss-elementor-integration.php:456
+msgid "Simply Static"
+msgstr "Simply Static"
+
+#: src/class-ss-view.php:146
+msgid "Can't find view layout: %s"
+msgstr "表示レイアウトが見つかりません: %s"
+
+#: src/class-ss-view.php:140
+msgid "Can't find view template: %s"
+msgstr "ビューテンプレートが見つかりません: %s"
+
+#: src/tasks/class-ss-create-zip-archive.php:187
+#: src/tasks/class-ss-create-zip-archive.php:211
+msgid "Unable to create ZIP archive"
+msgstr "ZIP ファイルが作成できません"

@@ -1,0 +1,80 @@
+
+.ssp-search form input {
+    width: 100%;
+}
+
+.ssp-search .search-form {
+    width: auto;
+}
+
+.ssp-search .form-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ssp-search .search-input-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative; /* anchor for absolute autocomplete dropdown */
+}
+
+.ssp-search .search-input {
+    width: 100%;
+}
+
+.ssp-search .search-submit {
+    white-space: nowrap;
+}
+
+/* Autocomplete dropdown overlays below the input without affecting layout */
+.ssp-search .search-input-container .search-auto-complete {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--wp--preset--color--base);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: none;
+    max-height: 50vh;
+    overflow: auto;
+    display: none;
+}
+
+.ssp-search .search-input-container .search-auto-complete.show {
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .ssp-search .form-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+}
+
+
+.search-auto-complete ul {
+    padding: 0 15px;
+    font-size: 1rem;
+}
+
+.search-auto-complete ul a {
+    text-decoration: none;
+}
+
+.search-auto-complete ul a:hover {
+    text-decoration: underline;
+}
+
+.search-auto-complete li {
+    list-style: none;
+    margin-bottom: 5px;
+}
+
+.ssp-results {
+    /* Previously hidden by default; this prevented Algolia/Fuse results from being visible.
+       Results containers are injected dynamically, so they should be visible when present. */
+    display: block;
+}

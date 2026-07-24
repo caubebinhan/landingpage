@@ -1,12 +1,10 @@
 <?php
 $lang = function_exists( 'pll_current_language' ) ? pll_current_language() : 'en';
-$is_vi = strpos( $lang, 'vi' ) === 0;
-$is_ja = strpos( $lang, 'ja' ) === 0;
 $t = array(
-    'back_blog' => $is_vi ? '← Về Blog' : ( $is_ja ? '← ブログへ戻る' : '← Back to Blog' ),
-    'related'   => $is_vi ? 'Bài liên quan' : ( $is_ja ? '関連記事' : 'Related articles' ),
-    'read_next' => $is_vi ? 'Đọc tiếp' : ( $is_ja ? '次に読む' : 'Read next' ),
-    'minute'    => $is_vi ? 'phút đọc' : ( $is_ja ? '分で読めます' : 'min read' ),
+    'back_blog' => __( '← Back to Blog', 'hoasen-theme' ),
+    'related'   => __( 'Related articles', 'hoasen-theme' ),
+    'read_next' => __( 'Read next', 'hoasen-theme' ),
+    'minute'    => __( 'min read', 'hoasen-theme' ),
 );
 ?>
 <!DOCTYPE html>
@@ -15,7 +13,7 @@ $t = array(
 <link rel="icon" type="image/svg+xml" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/logo_svg.svg' ); ?>"/>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<title><?php the_title(); ?> — HoaSen Table Journal</title>
+<!-- title is emitted by Yoast SEO via wp_head() below -->
 <?php wp_head(); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +30,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 .back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
 .back-btn:hover{color:var(--red)}
 .single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
 .post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
 .post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
 .post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
@@ -49,6 +50,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 .post-body li{margin-bottom:8px}
 .post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
 .post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
 .related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
 .related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
 .related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
@@ -58,6 +65,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 .related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
 .related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
 @media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
 </style>
 </head>
 <body>
@@ -68,6 +81,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
   <div class="brand-name">HoaSen Table</div>
 </a>
 <a href="<?php echo esc_url( function_exists( 'hoasen_blog_url' ) ? hoasen_blog_url() : home_url( '/blog/' ) ); ?>" class="back-btn"><?php echo esc_html( $t['back_blog'] ); ?></a>
+<?php if ( function_exists( 'pll_the_languages' ) ) : ?>
+<div class="lang-sw"><ul><?php pll_the_languages( array( 'show_flags' => 0, 'show_names' => 1, 'hide_current' => 0 ) ); ?></ul></div>
+<?php endif; ?>
 <div class="single-wrap">
   <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
     <?php
@@ -101,6 +117,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
         ) );
     }
     ?>
+    <?php if ( has_post_thumbnail() ) : ?>
+      <div class="post-cover"><?php the_post_thumbnail( 'large' ); ?></div>
+    <?php endif; ?>
     <header class="post-header">
       <div class="post-kicker"><?php echo esc_html( $categories ? $categories[0]->name : 'Engineering Notes' ); ?></div>
       <h1><?php the_title(); ?></h1>
@@ -140,5 +159,23 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
   <?php endwhile; endif; ?>
 </div>
 <?php wp_footer(); ?>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
 </body>
 </html>

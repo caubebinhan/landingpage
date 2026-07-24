@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/memory-fragmentation-in-long-running-database-processes-micro-architectural-implications-and-algorithmic-mitigations/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E9%95%B7%E6%99%82%E9%96%93%E7%A8%BC%E5%83%8D%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%83%97%E3%83%AD%E3%82%BB%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%83%A1%E3%83%A2%E3%83%AA/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán - HoaSen</title>
+	<link rel="canonical" href="https://hoasentable.com/vi/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan/">
+	<meta property="og:locale" content="vi_VN">
+	<meta property="og:locale:alternate" content="en_US">
+	<meta property="og:locale:alternate" content="ja_JP">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán - HoaSen">
+	<meta property="og:description" content="Tóm Tắt &amp; Vấn Đề Cốt Lõi (Core Problem Statement) Trong lĩnh vực điện toán hiệu năng cao và kỹ thuật dữ liệu, hiện tượng phân mảnh bộ nhớ (memory fragmentation) trong các tiến trình cơ sở dữ liệu chạy dài hạn là một nút thắt cổ chai hiệu năng âm thầm nhưng nguy hiểm. […]">
+	<meta property="og:url" content="https://hoasentable.com/vi/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:31:50+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:29:08+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="Được viết bởi">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="Ước tính thời gian đọc">
+	<meta name="twitter:data2" content="27 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/vi\/home-vi\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán","datePublished":"2026-07-22T01:31:50+00:00","dateModified":"2026-07-22T06:29:08+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/"},"wordCount":5035,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/44-memory-fragmentation-long-running-db.svg","inLanguage":"vi","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/","url":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/","name":"Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán - HoaSen","isPartOf":{"@id":"https:\/\/hoasentable.com\/vi\/home-vi\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/44-memory-fragmentation-long-running-db.svg","datePublished":"2026-07-22T01:31:50+00:00","dateModified":"2026-07-22T06:29:08+00:00","author":{"@id":"https:\/\/hoasentable.com\/vi\/home-vi\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"breadcrumb":{"@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#breadcrumb"},"inLanguage":"vi","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/"]}]},{"@type":"ImageObject","inLanguage":"vi","@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/44-memory-fragmentation-long-running-db.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/44-memory-fragmentation-long-running-db.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/vi\/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/vi\/home-vi\/"},{"@type":"ListItem","position":2,"name":"Blog","item":"https:\/\/hoasentable.com\/vi\/blog-vi\/"},{"@type":"ListItem","position":3,"name":"Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/vi\/home-vi\/#website","url":"https:\/\/hoasentable.com\/vi\/home-vi\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/vi\/home-vi\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"vi"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/vi\/home-vi\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"vi","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/vi\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán Comments Feed" href="https://hoasentable.com/vi/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=1058">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="Tóm Tắt &amp; Vấn Đề Cốt Lõi (Core Problem Statement) Trong lĩnh vực điện toán hiệu năng cao và kỹ thuật dữ liệu, hiện tượng phân mảnh bộ nhớ (memory fragmentation) trong các tiến trình cơ sở dữ liệu chạy dài hạn là một nút thắt cổ chai hiệu năng âm thầm nhưng nguy hiểm. […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán","description":"Tóm Tắt &amp; Vấn Đề Cốt Lõi (Core Problem Statement) Trong lĩnh vực điện toán hiệu năng cao và kỹ thuật dữ liệu, hiện tượng phân mảnh bộ nhớ (memory fragmentation) trong các tiến trình cơ sở dữ liệu chạy dài hạn là một nút thắt cổ chai hiệu năng âm thầm nhưng nguy hiểm. […]","inLanguage":"vi","datePublished":"2026-07-22T01:31:50+00:00","dateModified":"2026-07-22T06:29:08+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/vi/home-vi/"},"mainEntityOfPage":"https://hoasentable.com/vi/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/vi/home-vi/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/vi/blog-vi/" class="back-btn">← Về Blog</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/memory-fragmentation-in-long-running-database-processes-micro-architectural-implications-and-algorithmic-mitigations/">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi current-lang"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/phan-manh-bo-nho-trong-cac-tien-trinh-co-so-du-lieu-chay-dai-han-he-qua-vi-kien-truc-va-cac-giai-phap-thuat-toan/" aria-current="true">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E9%95%B7%E6%99%82%E9%96%93%E7%A8%BC%E5%83%8D%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%83%97%E3%83%AD%E3%82%BB%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%83%A1%E3%83%A2%E3%83%AA/">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/44-memory-fragmentation-long-running-db.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>Phân Mảnh Bộ Nhớ Trong Các Tiến Trình Cơ Sở Dữ Liệu Chạy Dài Hạn: Hệ Quả Vi Kiến Trúc và Các Giải Pháp Thuật Toán</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 25 phút đọc</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>Tóm Tắt &amp; Vấn Đề Cốt Lõi (Core Problem Statement)</h2>
+<p>Trong lĩnh vực điện toán hiệu năng cao và kỹ thuật dữ liệu, hiện tượng phân mảnh bộ nhớ (memory fragmentation) trong các tiến trình cơ sở dữ liệu chạy dài hạn là một nút thắt cổ chai hiệu năng âm thầm nhưng nguy hiểm. Nó biểu hiện dưới dạng sự suy giảm dần dần của thông lượng (throughput) và độ trễ (latency) qua các chu kỳ vận hành kéo dài, thường dẫn đến những cú tăng vọt độ trễ đột ngột hoặc thậm chí sập hệ thống do hết bộ nhớ (Out-Of-Memory – OOM crash).</p>
+<p><strong>Vấn đề cốt lõi:</strong> Các hệ quản trị cơ sở dữ liệu (DBMS) được thiết kế cho xử lý giao dịch đồng thời cao (OLTP) và các khối lượng công việc phân tích (OLAP) thực hiện các thao tác cấp phát và giải phóng bộ nhớ với tần suất chưa từng có — thường lên tới hàng triệu lần mỗi giây. Qua các khoảng thời gian uptime liên tục kéo dài hàng tuần hoặc hàng tháng, bộ cấp phát bộ nhớ (memory allocator) nền tảng của hệ điều hành, khi tương tác với hệ thống con bộ nhớ ảo (virtual memory subsystem), chắc chắn sẽ gặp phải tình trạng hỗn loạn cấu trúc (structural entropy) nghiêm trọng bên trong vùng heap.</p>
+<p>Sự hỗn loạn này phá vỡ tính liên tục (contiguous) của không gian địa chỉ bộ nhớ. Khi bộ nhớ bị phân mảnh nặng, các cấu trúc dữ liệu vốn liên tục về mặt logic (như các node của cây B+ Tree hoặc các mảng dạng cột – columnar arrays) lại bị phân tán về mặt vật lý trên các trang bộ nhớ khác nhau. Sự phân tán không gian này hoàn toàn phá vỡ các giả định về tính cục bộ không gian (spatial locality) vốn là nền tảng của thiết kế cache CPU hiện đại, khiến tỷ lệ trượt (miss) của Translation Lookaside Buffer (TLB) tăng vọt và buộc Đơn vị Quản lý Bộ nhớ (Memory Management Unit – MMU) phải thực hiện các thao tác duyệt bảng phân trang nhiều cấp (page table walks) tốn kém. Rốt cuộc, một CPU lẽ ra phải đang thực thi truy vấn lại phải tiêu tốn thời gian để chờ đợi RAM.</p>
+<p>Bài báo cáo kỹ thuật chuyên sâu này sẽ khảo sát nghiêm ngặt các hệ quả vi kiến trúc của tình trạng phân mảnh cao, sự bất cập của các bộ cấp phát chuẩn thư viện C (<code>glibc</code>), và các giải pháp thuật toán được thiết kế chuyên biệt cao độ trong các hệ thống cơ sở dữ liệu hiện đại — bao gồm Slab Allocator, Buffer Pool, Arena theo vùng (Region-based Arenas), và các tương tác tường minh với nhân hệ điều hành như Huge Pages.</p>
+<hr>
+<h2>Nền Tảng Lý Thuyết Của Phân Mảnh Bộ Nhớ</h2>
+<p>Sự phân mảnh trong một tiến trình chạy dài hạn được phân loại rộng rãi thành hai bệnh lý riêng biệt: phân mảnh nội bộ (internal) và phân mảnh ngoại vi (external).</p>
+<h3>Phân Mảnh Nội Bộ (Internal) vs. Phân Mảnh Ngoại Vi (External)</h3>
+<ol>
+<li><strong>Phân Mảnh Nội Bộ (Internal Fragmentation)</strong> phát sinh khi bộ cấp phát bộ nhớ cấp phát các khối bộ nhớ lớn hơn hẳn kích thước được yêu cầu, thường là để thỏa mãn các ràng buộc căn chỉnh (alignment) phần cứng vật lý (ví dụ: ranh giới 8-byte hoặc 16-byte) hoặc các quy tắc lượng tử hóa kích thước khối (block-size quantization) do các “bin” nội bộ của bộ cấp phát quy định. Khoảng không gian không sử dụng nhưng vẫn được cấp phát này đại diện cho phần dung lượng lãng phí, làm giảm hiệu quả sử dụng thực tế của bộ nhớ vật lý sẵn có.</li>
+<li><strong>Phân Mảnh Ngoại Vi (External Fragmentation)</strong> biểu hiện dưới dạng sự sinh sôi của nhiều đoạn bộ nhớ trống nhỏ, không liên tục, xen kẽ giữa các khối đã được cấp phát. Mặc dù tổng số các đoạn trống này có thể đủ để thỏa mãn một yêu cầu cấp phát lớn, nhưng bản chất rời rạc của chúng lại khiến yêu cầu đó không thể được đáp ứng. Bộ cấp phát buộc phải yêu cầu thêm bộ nhớ từ hệ điều hành thông qua <code>mmap</code> hoặc <code>sbrk</code>, làm phình to Resident Set Size (RSS) của tiến trình ngay cả khi về mặt kỹ thuật nó vẫn còn đủ số byte “trống”.</li>
+</ol>
+<h3>Toán Học Của Sự Phân Mảnh</h3>
+<p>Để định lượng nghiêm ngặt mức độ phân mảnh bộ nhớ, ta định nghĩa tỷ số phân mảnh $Phi$. Gọi $M_{total}$ là tổng bộ nhớ được yêu cầu từ hệ điều hành, và $M_{used}$ là tổng bộ nhớ được tiến trình cơ sở dữ liệu sử dụng thực tế để lưu trữ các cấu trúc dữ liệu đang sống (live data structures). Tỷ số phân mảnh được biểu diễn như sau:</p>
+<p>$$Phi = 1 – frac{M_{used}}{M_{total}}$$</p>
+<p>Khi $Phi$ tăng đơn điệu theo thời gian $t$, hệ thống tiến dần đến một ngưỡng tới hạn, tại đó xác suất thất bại cấp phát $P_{fail}(s)$ đối với một yêu cầu có kích thước $s$ trở nên không thể bỏ qua, ngay cả khi $M_{total} – M_{used} gg s$.</p>
+<p>Xác suất này có thể được mô hình hóa bằng một phân phối Poisson biến thể, xét đến phân phối hình học của kích thước các khối trống $F={f_1, f_2, dots, f_n}$. Cụ thể:</p>
+<p>$$P_{fail}(s) = prod_{i=1}^{n} (1 – H(f_i – s))$$</p>
+<p>trong đó $H(x)$ là hàm bậc thang Heaviside (Heaviside step function). Khi $P_{fail}(s)$ đạt tới giá trị 1, bộ cấp phát buộc phải kích hoạt các cơ chế nén dồn (compaction) tốn kém, hoặc nếu bộ nhớ đã cạn kiệt hoàn toàn, kích hoạt luôn cả trình OOM killer của Linux.</p>
+<hr>
+<h2>Hệ Quả Vi Kiến Trúc: Hệ Thống Phân Cấp TLB và Cache</h2>
+<p>Các hệ quả phần cứng của tình trạng phân mảnh cao là vô cùng sâu sắc. Các bộ vi xử lý hiện đại phụ thuộc rất nhiều vào <strong>Translation Lookaside Buffer (TLB)</strong> để lưu cache các bản dịch địa chỉ ảo sang địa chỉ vật lý.</p>
+<h3>Hiện Tượng TLB Thrashing và Duyệt Bảng Phân Trang</h3>
+<p>Khi một tiến trình cơ sở dữ liệu bộc lộ tình trạng phân mảnh ngoại vi nghiêm trọng, các mảng dữ liệu vốn liên tục về mặt logic thường xuyên bị ánh xạ vào các trang bộ nhớ rời rạc, không liên tục về mặt vật lý. Sự phân tán không gian này phá hủy tính cục bộ không gian. Kết quả là, tỷ lệ trượt TLB (TLB miss) tăng vọt một cách kịch tính.</p>
+<p>Gọi $T_{hit}$ là độ trễ của một lần TLB hit và $T_{miss}$ là độ trễ của một lần TLB miss (đòi hỏi phải thực hiện thao tác duyệt bảng phân trang tốn kém, xuyên qua 4 hoặc 5 cấp cây radix). Thời Gian Truy Cập Bộ Nhớ Hiệu Dụng (Effective Memory Access Time – EMAT) được định nghĩa như sau:</p>
+<p>$$EMAT = P_{hit} cdot T_{hit} + (1 – P_{hit}) cdot T_{miss}$$</p>
+<p>Khi mức độ phân mảnh tăng lên, tỷ lệ TLB hit $P_{hit}$ suy giảm nhanh chóng. MMU phải duyệt bảng phân trang thường xuyên hơn, làm đình trệ pipeline của CPU và làm phình to EMAT lên nhiều bậc độ lớn (từ khoảng ~1ns cho một lần TLB L1 hit lên tới ~100ns cho một lần duyệt trang phải lấy dữ liệu từ bộ nhớ chính).</p>
+<h3>Sự Suy Thoái Của Cache L1, L2 và L3</h3>
+<p>Hơn nữa, sự suy thoái này còn lan rộng đến toàn bộ hệ thống phân cấp cache của CPU (L1, L2, L3/LLC). Trong một vùng heap bị phân mảnh nặng nề, các phần tử dữ liệu lẽ ra nên nằm gọn gàng cùng nhau trong cùng một cache line 64-byte lại bị phân tán trên nhiều cache line khác nhau. Điều này làm giảm dung lượng cache hiệu dụng và làm trầm trọng thêm tình trạng thrashing cache.</p>
+<p>Bộ tiền tải phần cứng (hardware prefetcher) của bộ vi xử lý, vốn dựa vào các mẫu truy cập bộ nhớ tuần tự hoặc theo bước nhảy (strided) có thể dự đoán được, sẽ trở nên hoàn toàn vô dụng khi phải duyệt qua các cấu trúc liên kết bị phân mảnh hoặc các mảng được ánh xạ vào các trang vật lý rời rạc.</p>
+<pre class="mermaid">graph TD
+    A[Yêu cầu bộ nhớ từ ứng dụng] --&gt; B{Bộ cấp phát bộ nhớ glibc/jemalloc}
+    B --&gt;|Đường nhanh| C[Bộ nhớ đệm cục bộ theo luồng (TCACHE)]
+    B --&gt;|Đường chậm| D[Danh sách trống trung tâm / Arena]
+    D --&gt; E{Đủ không gian liên tục?}
+    E --&gt;|Có| F[Cấp phát khối]
+    E --&gt;|Không| G[Lệnh gọi hệ thống mmap/sbrk]
+    G --&gt; H[Trình Quản Lý Bộ Nhớ Ảo của Kernel]
+    H --&gt; I[Thu hồi khung trang (Page Frame Reclaiming)]
+    I --&gt; J[Cấp phát bộ nhớ vật lý]
+    J --&gt; K[Cập nhật bảng phân trang]
+    K --&gt; F
+    F --&gt; L[Trả con trỏ về cho tiến trình Database]</pre>
+<hr>
+<h2>Cuộc Chiến Giữa Các Bộ Cấp Phát: <code>glibc</code> vs. <code>jemalloc</code> vs. <code>tcmalloc</code></h2>
+<p>Bộ cấp phát chuẩn mặc định của thư viện C (<code>glibc malloc</code>) là một bộ cấp phát đa dụng dựa trên ptmalloc. Mặc dù phù hợp cho các ứng dụng desktop, nó nổi tiếng là kém hiệu quả trong việc ngăn ngừa phân mảnh đối với các máy chủ cơ sở dữ liệu đa luồng, chạy dài hạn. <code>glibc</code> sử dụng các khóa toàn cục (global locks) và các arena dùng chung, gây ra tình trạng tranh chấp luồng (thread contention) và phân mảnh nghiêm trọng.</p>
+<p>Để đối phó với điều này, các cơ sở dữ liệu hiệu năng cao (như Redis, PostgreSQL, và CockroachDB) liên kết một cách tường minh với các bộ cấp phát chuyên biệt như <strong><code>jemalloc</code></strong> (phát triển bởi FreeBSD/Facebook) hoặc <strong><code>tcmalloc</code></strong> (Google).</p>
+<h3>Kiến Trúc <code>jemalloc</code></h3>
+<p><code>jemalloc</code> được thiết kế đặc biệt để giảm thiểu phân mảnh và tranh chấp trong các môi trường có tần suất cấp phát cao. Nó áp dụng các kỹ thuật tinh vi sau:</p>
+<ol>
+<li><strong>Các Lớp Kích Thước (Size Classes):</strong> <code>jemalloc</code> sử dụng cách phân loại bộ nhớ nghiêm ngặt thành các lớp kích thước rời rạc (ví dụ: 8 byte, 16 byte, 32 byte… cho đến kích thước trang lớn). Điều này giới hạn về mặt toán học mức phân mảnh nội bộ tối đa ở khoảng ~20%.</li>
+<li><strong>Bộ Nhớ Đệm Cục Bộ Theo Luồng (tcache):</strong> Mỗi luồng có bộ nhớ đệm phi khóa (lock-free) riêng chứa các khối bộ nhớ. Các yêu cầu cấp phát dưới một kích thước nhất định được đáp ứng ngay lập tức từ tcache mà không cần chiếm bất kỳ khóa nào, đảm bảo đường nhanh $O(1)$ và không có hiện tượng false sharing giữa các lõi CPU.</li>
+<li><strong>Dọn Dẹp Chủ Động (Active Purging):</strong> <code>jemalloc</code> triển khai một cơ chế dọn dẹp bộ nhớ nền, chủ động hợp nhất (coalesce) các khối trống bị phân mảnh và trả chúng về cho hệ điều hành, giữ cho dấu chân RSS luôn tương quan chặt chẽ với mức sử dụng thực tế của ứng dụng.</li>
+</ol>
+<hr>
+<h2>Các Giải Pháp Thuật Toán: Kiến Trúc Bộ Nhớ Tùy Biến Của Cơ Sở Dữ Liệu</h2>
+<p>Ngay cả với các bộ cấp phát tiên tiến ở không gian người dùng như <code>jemalloc</code>, sự tách biệt cơ bản giữa góc nhìn bộ nhớ logic của ứng dụng và việc quản lý bộ nhớ vật lý của hệ điều hành vẫn đòi hỏi sự giám sát kiến trúc liên tục. Các cơ sở dữ liệu hiệu năng cao thường bỏ qua hoàn toàn các bộ cấp phát tiêu chuẩn ở những đường dẫn quan trọng, thay vào đó lựa chọn các kiến trúc quản lý bộ nhớ được thiết kế riêng.</p>
+<h3>Slab Allocator</h3>
+<p>Một chiến lược quan trọng hàng đầu là việc triển khai các slab allocator tự trị. Trong một lược đồ cấp phát kiểu slab, bộ nhớ được cấp phát trước từ hệ điều hành thành các khối lớn, liên tục, được gọi là slab.</p>
+<p>Mỗi slab sau đó được phân chia thành các ô (slot) có kích thước đồng nhất, dành riêng nghiêm ngặt cho các cấu trúc dữ liệu nội bộ cụ thể (ví dụ: các đối tượng ngữ cảnh giao dịch, các bộ mô tả khóa). Bằng cách áp đặt sự phân tách nghiêm ngặt theo loại và kích thước đối tượng, slab allocator loại bỏ hoàn toàn phân mảnh ngoại vi trong pool về mặt cấu trúc, vì mọi thao tác cấp phát đều thao túng các slot có cùng kích thước.</p>
+<p>Khi một slot được giải phóng, nó được nối vào một danh sách liên kết đơn phi khóa (lock-free singly linked list). Mức phân mảnh nội bộ trên mỗi slab bị giới hạn nghiêm ngặt bởi $S_{slab} mod S_{obj}$, một giá trị hoàn toàn không đáng kể khi $S_{slab} gg S_{obj}$.</p>
+<h3>Buffer Pool (Các Trang Kích Thước Cố Định)</h3>
+<p>Đối với các trang dữ liệu chính, các cơ sở dữ liệu đều sử dụng phổ biến một <strong>Buffer Pool</strong> với kích thước cố định. Bộ nhớ dành cho Buffer Pool được cấp phát dưới dạng một vùng bộ nhớ ảo duy nhất, khổng lồ và liên tục ngay từ lúc khởi tạo.</p>
+<p>Vùng này được chia về mặt logic thành các khung (frame) giống hệt nhau (ví dụ: 8KB trong PostgreSQL, 16KB trong InnoDB). Bằng cách tuân thủ nghiêm ngặt một kích thước khung đồng nhất, Buffer Pool né tránh hoàn toàn cả phân mảnh nội bộ lẫn phân mảnh ngoại vi liên quan đến việc cache dữ liệu.</p>
+<p>Khi một trang mới cần được tải từ đĩa và pool đã đầy, các thuật toán như LRU hay CLOCK-Pro sẽ loại bỏ (evict) một trang cũ và tái sử dụng chính xác cùng một khung bộ nhớ liên tục đó cho trang mới. Vùng cache này hoàn toàn miễn nhiễm với sự phân mảnh trong suốt một khoảng thời gian vô hạn.</p>
+<h3>Arena Allocator (Quản Lý Bộ Nhớ Theo Vùng)</h3>
+<p>Trong quá trình thực thi truy vấn (ví dụ: <code>SELECT</code> kết hợp <code>JOIN</code> và <code>ORDER BY</code>), cơ sở dữ liệu thực hiện các thao tác cấp phát động, kích thước biến đổi cho các bảng băm (hash table) và bộ đệm sắp xếp (sorting buffer). Để ngăn các cấp phát nhất thời này làm rạn nứt vùng heap toàn cục, các engine sử dụng <strong>Arena Allocator</strong> (ví dụ: <code>MemoryContext</code> của PostgreSQL).</p>
+<p>Một Arena Allocator cấp phát trước một khối lớn, liên tục ngay khi truy vấn bắt đầu. Các yêu cầu bộ nhớ tiếp theo chỉ đơn giản là tăng một con trỏ bên trong arena, thể hiện một thao tác cấp phát $O(1)$ thực thụ với chi phí phụ trợ (metadata overhead) bằng 0 trên mỗi đối tượng.</p>
+<p>Đặc điểm then chốt nằm ở việc giải phóng: các đối tượng riêng lẻ bên trong arena <em>không bao giờ bị giải phóng một cách tường minh</em>. Thay vào đó, toàn bộ arena được thu hồi trong một thao tác duy nhất, tức thời khi việc thực thi truy vấn kết thúc. Thiết kế kiến trúc này đảm bảo về mặt căn bản rằng bộ nhớ truy vấn nhất thời không thể góp phần gây ra phân mảnh ngoại vi lâu dài.</p>
+<pre><code class="language-cpp">template &lt;typename T, size_t BlockSize = 4096&gt;
+class FragmentFreeArena {
+private:
+    struct Block {
+        char data[BlockSize];
+        size_t current_offset;
+        Block* next;
+        Block() : current_offset(0), next(nullptr) {}
+    };
+    Block* head_block;
+    Block* current_block;
+
+public:
+    FragmentFreeArena() {
+        head_block = new Block();
+        current_block = head_block;
+    }
+    
+    ~FragmentFreeArena() {
+        Block* curr = head_block;
+        while (curr != nullptr) {
+            Block* next = curr-&gt;next;
+            delete curr;
+            curr = next;
+        }
+    }
+
+    void* allocate(size_t size, size_t alignment = alignof(std::max_align_t)) {
+        size_t current_ptr = reinterpret_cast&lt;size_t&gt;(current_block-&gt;data) + current_block-&gt;current_offset;
+        size_t offset = (alignment - (current_ptr % alignment)) % alignment;
+        
+        if (current_block-&gt;current_offset + offset + size &lt;= BlockSize) {
+            void* ptr = current_block-&gt;data + current_block-&gt;current_offset + offset;
+            current_block-&gt;current_offset += offset + size;
+            return ptr;
+        } else {
+            Block* new_block = new Block();
+            current_block-&gt;next = new_block;
+            current_block = new_block;
+            return allocate(size, alignment); 
+        }
+    }
+    
+    // Giải phóng toàn bộ vùng nhớ tức thời với độ phức tạp O(1)
+    void reset() {
+        Block* curr = head_block-&gt;next;
+        while (curr != nullptr) {
+            Block* next = curr-&gt;next;
+            delete curr;
+            curr = next;
+        }
+        head_block-&gt;next = nullptr;
+        head_block-&gt;current_offset = 0;
+        current_block = head_block;
+    }
+};</code></pre>
+<hr>
+<h2>Tương Tác Với Hệ Điều Hành: Huge Pages và <code>madvise</code></h2>
+<p>Việc quản lý phân mảnh bộ nhớ không thể được phân tích một cách tách biệt khỏi nhân hệ điều hành.</p>
+<h3>Transparent Huge Pages (THP) vs. Huge Pages Tường Minh</h3>
+<p>Các kiến trúc x86-64 tiêu chuẩn sử dụng kích thước trang 4KB. Đối với một cơ sở dữ liệu tiêu thụ 128GB RAM, điều này đòi hỏi tới 33,5 triệu mục trong bảng phân trang. Bằng cách cấu hình hệ điều hành để sử dụng <strong>Huge Pages</strong> (2MB hoặc 1GB), số lượng mục này được giảm mạnh, làm tăng theo cấp số nhân phạm vi bao phủ (coverage) của TLB.</p>
+<p>Tuy nhiên, việc theo đuổi tính liên tục của bộ nhớ một cách quyết liệt thông qua <strong>Transparent Huge Pages (THP)</strong> của Linux lại tạo ra những hành vi bệnh lý nghiêm trọng. THP tự động gộp các trang 4KB thành các Huge Page 2MB thông qua một luồng kernel (<code>khugepaged</code>).</p>
+<p>Khi kernel cố gắng cấp phát một Huge Page nhưng bộ nhớ vật lý đã bị phân mảnh, nó sẽ kích hoạt <strong>nén dồn trực tiếp (direct compaction)</strong>. Nén dồn trực tiếp là một thao tác đồng bộ, chặn (blocking), làm dừng hẳn tiến trình cơ sở dữ liệu trong khi kernel cưỡng bức di chuyển các trang vật lý. Cú tạm dừng đột ngột này — kéo dài hàng trăm mili-giây — gây ra những cú tăng vọt độ trễ tàn khốc.</p>
+<p>Các thực hành tốt nhất khuyến nghị <strong>vô hiệu hóa hoàn toàn THP</strong> (<code>echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled</code>) và thay vào đó dựa vào Huge Page được cấp phát tĩnh, tường minh (<code>hugepages=N</code> trong GRUB). Điều này đảm bảo độ trễ tất định (deterministic) bằng cách đáp ứng trước các yêu cầu về bộ nhớ liên tục.</p>
+<h3>Lệnh Gọi Hệ Thống <code>madvise</code></h3>
+<p>Khi một cơ sở dữ liệu giải phóng bộ nhớ, bộ cấp phát ở không gian người dùng đánh dấu nó là trống, nhưng hệ điều hành vẫn duy trì ánh xạ trang vật lý. Để tránh làm RSS phình to một cách giả tạo, các bộ cấp phát như <code>jemalloc</code> định kỳ phát lệnh <code>madvise(MADV_DONTNEED)</code> hoặc <code>MADV_FREE</code> trên các vùng bộ nhớ trống.</p>
+<p>Lệnh gọi này chỉ thị tường minh cho kernel dỡ bỏ các mục trong bảng phân trang cho dải địa chỉ ảo được chỉ định và thu hồi các trang vật lý bên dưới. Nếu sau đó cơ sở dữ liệu truy cập lại địa chỉ ảo đó, kernel sẽ liền mạch cấp phát một trang vật lý mới, được điền đầy số 0. Cơ chế này đảm bảo cơ sở dữ liệu trả lại các tài nguyên không sử dụng cho hệ điều hành, duy trì sự ổn định của toàn hệ thống.</p>
+<hr>
+<h2>Bài Học Rút Ra &amp; Best Practices</h2>
+<ol>
+<li><strong>Không bao giờ dùng <code>glibc</code> mặc định cho Database:</strong> Nếu bạn đang xây dựng một ứng dụng chuyên sâu về dữ liệu bằng C/C++/Rust, hãy luôn liên kết với <code>jemalloc</code> hoặc <code>tcmalloc</code>. Sự khác biệt về hiệu năng dưới mức độ đồng thời cao là rất đáng kinh ngạc.</li>
+<li><strong>Vô hiệu hóa Transparent Huge Pages (THP):</strong> Đối với hầu hết các cơ sở dữ liệu lớn (MongoDB, PostgreSQL, Redis), THP gây ra những cú tăng vọt độ trễ khổng lồ do việc nén dồn bộ nhớ đồng bộ. Hãy tắt nó ở cấp độ hệ điều hành.</li>
+<li><strong>Dùng Huge Page Tường Minh cho Buffer Pool:</strong> Việc ghim (pin) vùng cache dữ liệu chính của bạn vào các Huge Page được cấp phát sẵn sẽ loại bỏ hoàn toàn hiện tượng TLB thrashing và việc swap ở cấp hệ điều hành, đảm bảo hiệu năng vững chắc như bàn thạch.</li>
+<li><strong>Arena Allocator Cho Mỗi Yêu Cầu:</strong> Khi xây dựng web server hoặc query engine, hãy cấp phát bộ nhớ theo từng yêu cầu (per-request) bằng một Arena. Khi yêu cầu kết thúc, reset con trỏ Arena. Điều này loại bỏ phân mảnh và bỏ qua các thuật toán thu gom rác phức tạp.</li>
+<li><strong>Giám Sát RSS so với Bộ Nhớ Đang Sử Dụng:</strong> Nếu tiến trình cơ sở dữ liệu của bạn báo cáo 10GB dữ liệu nhưng <code>htop</code> lại cho thấy RSS là 30GB, bạn đang gặp phải một vấn đề nghiêm trọng về phân mảnh bộ nhớ hoặc cấu hình <code>madvise</code>. Hãy điều chỉnh luồng dọn dẹp nền (background purging thread) của bộ cấp phát.</li>
+</ol>
+<hr>
+<h2>Tối Ưu Hóa SEO</h2>
+<ul>
+<li><strong>Từ khóa mục tiêu:</strong> Phân mảnh bộ nhớ (Memory Fragmentation) trong các tiến trình cơ sở dữ liệu chạy dài hạn.</li>
+<li><strong>Từ khóa phụ:</strong> Quản lý bộ nhớ Database, Kiến trúc Buffer Pool, jemalloc, tcmalloc, Transparent Huge Pages THP, Arena Allocator Database, Nén dồn bộ nhớ ở cấp Kernel hệ điều hành, Tối ưu hóa tỷ lệ trượt TLB, Độ trễ do Direct Compaction.</li>
+<li><strong>Meta Description:</strong> Một bài whitepaper kỹ thuật chuyên sâu về phân mảnh bộ nhớ trong cơ sở dữ liệu. Khảo sát sâu các hệ quả vi kiến trúc lên TLB, cuộc chiến giữa các bộ cấp phát bộ nhớ (jemalloc), và các giải pháp thuật toán như Slab và Arena Allocator.</li>
+<li><strong>URL Slug:</strong> 44-memory-fragmentation-long-running-db</li>
+</ul>
+    </main>
+          <aside class="related-wrap" aria-label="Bài liên quan">
+        <h2>Bài liên quan</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/vi/sach-trang-ky-thuat-51-co-so-du-lieu-htap-kien-truc-cua-xu-ly-giao-dich-phan-tich-hon-hop/">
+              <small>Đọc tiếp</small>
+              <strong>Sách Trắng Kỹ Thuật #51: Cơ Sở Dữ Liệu HTAP – Kiến Trúc Của Xử Lý Giao Dịch/Phân Tích Hỗn Hợp</strong>
+              <span>Tóm Tắt Dành Cho Quản Lý Sách trắng kỹ thuật này cung cấp một phân tích vi kiến...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/vi/whitepaper-ky-thuat-tap-50-time-series-databases-tsdb-giai-phau-thuat-toan-nen-gorilla-va-kien-truc-chunking-memory/">
+              <small>Đọc tiếp</small>
+              <strong>Whitepaper Kỹ Thuật Tập 50: Time-Series Databases (TSDB) – Giải Phẫu Thuật Toán Nén Gorilla và Kiến Trúc Chunking Memory</strong>
+              <span>Tóm Tắt Điều Hành (Executive Summary) Tài liệu whitepaper này cung cấp một cái nhìn sâu sắc, toàn...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/vi/whitepaper-ky-thuat-tap-49-ban-chat-cua-graph-databases-va-su-vi-dieu-cua-index-free-adjacency-tinh-ke-khong-can-chi-muc/">
+              <small>Đọc tiếp</small>
+              <strong>Whitepaper Kỹ Thuật Tập 49: Bản Chất Của Graph Databases và Sự Vi Diệu Của Index-Free Adjacency (Tính Kề Không Cần Chỉ Mục)</strong>
+              <span>Tóm Tắt Điều Hành (Executive Summary) Tài liệu whitepaper kỹ thuật này đi sâu vào phân tích giới...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">1058</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>

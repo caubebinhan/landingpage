@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/architectural-analysis-of-storage-engines-the-mechanical-limits-of-b-trees-and-i-o-optimization-in-lsm-trees/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/phan-tich-kien-truc-storage-engine-gioi-han-co-hoc-cua-b-tree-va-toi-uu-hoa-i-o-trong-lsm-tree/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E3%82%B9%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B8%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%B3%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E3%81%AE%E5%88%86%E6%9E%90-b-tree%E3%81%AE%E6%A9%9F/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>B-TreeとLSM-Treeの違い:ストレージエンジン設計を徹底解説</title>
+	<meta name="description" content="B-TreeとLSM-Treeというストレージエンジンの内部構造を、Write Amplification、Bloom Filter、CompactionとRUM Conjectureの観点から解説します。">
+	<link rel="canonical" href="https://hoasentable.com/ja/%E3%82%B9%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B8%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%B3%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E3%81%AE%E5%88%86%E6%9E%90-b-tree%E3%81%AE%E6%A9%9F/">
+	<meta property="og:locale" content="ja_JP">
+	<meta property="og:locale:alternate" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="B-TreeとLSM-Treeの違い:ストレージエンジン設計を徹底解説">
+	<meta property="og:description" content="B-TreeとLSM-Treeというストレージエンジンの内部構造を、Write Amplification、Bloom Filter、CompactionとRUM Conjectureの観点から解説します。">
+	<meta property="og:url" content="https://hoasentable.com/ja/ストレージエンジンアーキテクチャの分析-b-treeの機/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:30:48+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:28:57+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="執筆者">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="推定読み取り時間">
+	<meta name="twitter:data2" content="3 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"ストレージエンジンの内部構造:B-TreeとLSM-Treeがディスク物理特性にどう向き合うか","datePublished":"2026-07-22T01:30:48+00:00","dateModified":"2026-07-22T06:28:57+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/"},"wordCount":335,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/01-anatomy-of-storage-engine-btree-vs-lsmtree.svg","inLanguage":"ja","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/","url":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/","name":"B-TreeとLSM-Treeの違い:ストレージエンジン設計を徹底解説","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/01-anatomy-of-storage-engine-btree-vs-lsmtree.svg","datePublished":"2026-07-22T01:30:48+00:00","dateModified":"2026-07-22T06:28:57+00:00","author":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"description":"B-TreeとLSM-Treeというストレージエンジンの内部構造を、Write Amplification、Bloom Filter、CompactionとRUM Conjectureの観点から解説します。","breadcrumb":{"@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#breadcrumb"},"inLanguage":"ja","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/"]}]},{"@type":"ImageObject","inLanguage":"ja","@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/01-anatomy-of-storage-engine-btree-vs-lsmtree.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/01-anatomy-of-storage-engine-btree-vs-lsmtree.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/ja\/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/ja\/home-ja\/"},{"@type":"ListItem","position":2,"name":"HoaSen Table Blog (JA)","item":"https:\/\/hoasentable.com\/ja\/blog-ja\/"},{"@type":"ListItem","position":3,"name":"ストレージエンジンの内部構造:B-TreeとLSM-Treeがディスク物理特性にどう向き合うか"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website","url":"https:\/\/hoasentable.com\/ja\/home-ja\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/ja\/home-ja\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"ja"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"ja","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/ja\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » ストレージエンジンの内部構造:B-TreeとLSM-Treeがディスク物理特性にどう向き合うか Comments Feed" href="https://hoasentable.com/ja/%E3%82%B9%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B8%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%B3%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E3%81%AE%E5%88%86%E6%9E%90-b-tree%E3%81%AE%E6%A9%9F/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=929">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="なぜストレージエンジンの設計はCPUではなくI/Oで決まるのか 大規模かつ高スループットなデータベースシステムには、必ずStorage Engineというコンポーネントが中心に存在し、システム全体の速度を静かに左右しています。その役割自体はシンプルです。RAM上にデータ構造を保持し、それをディスク上の実体——回転する磁気プラッタであれ、SATA SSDであれ、NVMeドライブであれ——と同期させ続けることです。しかし、トランザクション量がある閾値を超えると、興味深いことが起こります。パフォーマンスの話がCPUの話ではなくなるのです。クエリオプティマイザも、命令パイプラインも、ネットワーク帯域幅も、もはや主役ではありません。決定的になるのは、そのストレージデバイスがどのようなアクセスパターンを好むか、という一点です。 これが本稿の核心的なテーマです。従来のデータ構造がデータにアクセスする方法(多くはランダムアクセス)と、物理ストレージが実際に得意とする方法(シーケンシャルアクセス、それも極端に)との間の不一致。ここを見誤ると、Read Amplification、Write Amplification、Space Amplification、そして手に負えないテールレイテンシという形で代償を払うことになります。 本稿では、現在のストレージエンジン設計を支配する2つのデータ構造を見ていきます。PostgreSQLやMySQL InnoDBの背骨であるB-Treeと、RocksDB、Cassandra、CockroachDBを支えるLog-Structured Merge-Tree(LSM-Tree)です。物理I/Oコスト、キャッシュ階層、そしてストレージエンジン設計者なら誰もがいずれ突き当たるトレードオフに名前を与えたRUM Conjectureについても見ていきます。 回転するディスクがB-Treeの形を決めた B-Tree(そしてほぼ普遍的な派生形であるB+Tree)は1970年代、Rudolf BayerとEdward McCreightによって、当時主流だったストレージ媒体——磁気ハードディスク(HDD)——向けに設計されました。HDDにはそのパフォーマンス特性すべてを決定づける、ある一つの性質があります。機械的なデバイスであるがゆえの、ランダムアクセス時の非常に高いレイテンシです。 HDD上でランダムI/Oリクエストが発生すると、物理的に2段階の処理が必要になります。 シーク時間($T_{seek}$): アクチュエータアームを正しいトラックへ移動させる。 回転遅延($L_{rotational}$): プラッタが回転し、対象セクタがヘッドの下に来るのを待つ。 回転遅延は次の式で表せます。 $$ L_{rotational} = frac{1}{2} times frac{60}{text{RPM}} text{ (秒)} $$ これらを合計すると、標準的な7200 RPMのドライブでは1回のランダムアクセスあたり平均8〜10ミリ秒かかります。ナノ秒未満の単位で命令を実行する現代のCPUと比べれば、これは数百万サイクル分もの無駄が生じるボトルネックです。一方、同一トラック上でのシーケンシャルリードはまったく違う顔を見せます。毎秒数百メガバイトという速度が出るのは、単純にアームが静止したままプラッタだけが回転しているからです。 ランダムアクセスとシーケンシャルアクセスのコスト差は些細な非効率ではなく、指数関数的な開きです。ここから一つの設計上の制約が導かれます。1回のディスクアクセスから、できる限り多くの有用なデータを引き出さなければならない、というものです。B-Treeはこれを、OSがすでに採用しているメモリ管理の仕組み——通常4KBから16KBの固定サイズページ——にきれいに乗せることで解決しました。B+Treeの各ノードは正確に1つの物理ページに対応します。各ノードにより多くの情報を詰め込むため、内部ノードにはルーティングキーと子ポインタだけを格納し、実際の行データはすべてリーフノードに置かれます。 graph TD Root[Root Page: 16KBKeys + Pointers] --&gt; L1_1[Level 1 Page: 16KBKeys + Pointers] Root --&gt; L1_2[Level 1 Page: 16KBKeys + […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"ストレージエンジンの内部構造:B-TreeとLSM-Treeがディスク物理特性にどう向き合うか","description":"なぜストレージエンジンの設計はCPUではなくI/Oで決まるのか 大規模かつ高スループットなデータベースシステムには、必ずStorage Engineというコンポーネントが中心に存在し、システム全体の速度を静かに左右しています。その役割自体はシンプルです。RAM上にデータ構造を保持し、それをディスク上の実体——回転する磁気プラッタであれ、SATA SSDであれ、NVMeドライブであれ——と同期させ続けることです。しかし、トランザクション量がある閾値を超えると、興味深いことが起こります。パフォーマンスの話がCPUの話ではなくなるのです。クエリオプティマイザも、命令パイプラインも、ネットワーク帯域幅も、もはや主役ではありません。決定的になるのは、そのストレージデバイスがどのようなアクセスパターンを好むか、という一点です。 これが本稿の核心的なテーマです。従来のデータ構造がデータにアクセスする方法(多くはランダムアクセス)と、物理ストレージが実際に得意とする方法(シーケンシャルアクセス、それも極端に)との間の不一致。ここを見誤ると、Read Amplification、Write Amplification、Space Amplification、そして手に負えないテールレイテンシという形で代償を払うことになります。 本稿では、現在のストレージエンジン設計を支配する2つのデータ構造を見ていきます。PostgreSQLやMySQL InnoDBの背骨であるB-Treeと、RocksDB、Cassandra、CockroachDBを支えるLog-Structured Merge-Tree(LSM-Tree)です。物理I/Oコスト、キャッシュ階層、そしてストレージエンジン設計者なら誰もがいずれ突き当たるトレードオフに名前を与えたRUM Conjectureについても見ていきます。 回転するディスクがB-Treeの形を決めた B-Tree(そしてほぼ普遍的な派生形であるB+Tree)は1970年代、Rudolf BayerとEdward McCreightによって、当時主流だったストレージ媒体——磁気ハードディスク(HDD)——向けに設計されました。HDDにはそのパフォーマンス特性すべてを決定づける、ある一つの性質があります。機械的なデバイスであるがゆえの、ランダムアクセス時の非常に高いレイテンシです。 HDD上でランダムI/Oリクエストが発生すると、物理的に2段階の処理が必要になります。 シーク時間($T_{seek}$): アクチュエータアームを正しいトラックへ移動させる。 回転遅延($L_{rotational}$): プラッタが回転し、対象セクタがヘッドの下に来るのを待つ。 回転遅延は次の式で表せます。 $$ L_{rotational} = frac{1}{2} times frac{60}{text{RPM}} text{ (秒)} $$ これらを合計すると、標準的な7200 RPMのドライブでは1回のランダムアクセスあたり平均8〜10ミリ秒かかります。ナノ秒未満の単位で命令を実行する現代のCPUと比べれば、これは数百万サイクル分もの無駄が生じるボトルネックです。一方、同一トラック上でのシーケンシャルリードはまったく違う顔を見せます。毎秒数百メガバイトという速度が出るのは、単純にアームが静止したままプラッタだけが回転しているからです。 ランダムアクセスとシーケンシャルアクセスのコスト差は些細な非効率ではなく、指数関数的な開きです。ここから一つの設計上の制約が導かれます。1回のディスクアクセスから、できる限り多くの有用なデータを引き出さなければならない、というものです。B-Treeはこれを、OSがすでに採用しているメモリ管理の仕組み——通常4KBから16KBの固定サイズページ——にきれいに乗せることで解決しました。B+Treeの各ノードは正確に1つの物理ページに対応します。各ノードにより多くの情報を詰め込むため、内部ノードにはルーティングキーと子ポインタだけを格納し、実際の行データはすべてリーフノードに置かれます。 graph TD Root[Root Page: 16KBKeys + Pointers] --&gt; L1_1[Level 1 Page: 16KBKeys + Pointers] Root --&gt; L1_2[Level 1 Page: 16KBKeys + […]","inLanguage":"ja","datePublished":"2026-07-22T01:30:48+00:00","dateModified":"2026-07-22T06:28:57+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/ja/home-ja/"},"mainEntityOfPage":"https://hoasentable.com/ja/%e3%82%b9%e3%83%88%e3%83%ac%e3%83%bc%e3%82%b8%e3%82%a8%e3%83%b3%e3%82%b8%e3%83%b3%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e5%88%86%e6%9e%90-b-tree%e3%81%ae%e6%a9%9f/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/ja/home-ja/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/ja/blog-ja/" class="back-btn">← ブログへ戻る</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/architectural-analysis-of-storage-engines-the-mechanical-limits-of-b-trees-and-i-o-optimization-in-lsm-trees/">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/phan-tich-kien-truc-storage-engine-gioi-han-co-hoc-cua-b-tree-va-toi-uu-hoa-i-o-trong-lsm-tree/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja current-lang"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E3%82%B9%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B8%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%B3%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E3%81%AE%E5%88%86%E6%9E%90-b-tree%E3%81%AE%E6%A9%9F/" aria-current="true">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/01-anatomy-of-storage-engine-btree-vs-lsmtree.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>ストレージエンジンの内部構造:B-TreeとLSM-Treeがディスク物理特性にどう向き合うか</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 3 分で読めます</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>なぜストレージエンジンの設計はCPUではなくI/Oで決まるのか</h2>
+<p>大規模かつ高スループットなデータベースシステムには、必ずStorage Engineというコンポーネントが中心に存在し、システム全体の速度を静かに左右しています。その役割自体はシンプルです。RAM上にデータ構造を保持し、それをディスク上の実体——回転する磁気プラッタであれ、SATA SSDであれ、NVMeドライブであれ——と同期させ続けることです。しかし、トランザクション量がある閾値を超えると、興味深いことが起こります。パフォーマンスの話がCPUの話ではなくなるのです。クエリオプティマイザも、命令パイプラインも、ネットワーク帯域幅も、もはや主役ではありません。決定的になるのは、そのストレージデバイスがどのようなアクセスパターンを好むか、という一点です。</p>
+<p>これが本稿の核心的なテーマです。従来のデータ構造がデータにアクセスする方法(多くはランダムアクセス)と、物理ストレージが実際に得意とする方法(シーケンシャルアクセス、それも極端に)との間の不一致。ここを見誤ると、Read Amplification、Write Amplification、Space Amplification、そして手に負えないテールレイテンシという形で代償を払うことになります。</p>
+<p>本稿では、現在のストレージエンジン設計を支配する2つのデータ構造を見ていきます。PostgreSQLやMySQL InnoDBの背骨であるB-Treeと、RocksDB、Cassandra、CockroachDBを支えるLog-Structured Merge-Tree(LSM-Tree)です。物理I/Oコスト、キャッシュ階層、そしてストレージエンジン設計者なら誰もがいずれ突き当たるトレードオフに名前を与えたRUM Conjectureについても見ていきます。</p>
+<h2>回転するディスクがB-Treeの形を決めた</h2>
+<p>B-Tree(そしてほぼ普遍的な派生形であるB+Tree)は1970年代、Rudolf BayerとEdward McCreightによって、当時主流だったストレージ媒体——磁気ハードディスク(HDD)——向けに設計されました。HDDにはそのパフォーマンス特性すべてを決定づける、ある一つの性質があります。機械的なデバイスであるがゆえの、ランダムアクセス時の非常に高いレイテンシです。</p>
+<p>HDD上でランダムI/Oリクエストが発生すると、物理的に2段階の処理が必要になります。</p>
+<ol>
+<li><strong>シーク時間($T_{seek}$):</strong> アクチュエータアームを正しいトラックへ移動させる。</li>
+<li><strong>回転遅延($L_{rotational}$):</strong> プラッタが回転し、対象セクタがヘッドの下に来るのを待つ。</li>
+</ol>
+<p>回転遅延は次の式で表せます。</p>
+<p>$$ L_{rotational} = frac{1}{2} times frac{60}{text{RPM}} text{ (秒)} $$</p>
+<p>これらを合計すると、標準的な7200 RPMのドライブでは1回のランダムアクセスあたり平均8〜10ミリ秒かかります。ナノ秒未満の単位で命令を実行する現代のCPUと比べれば、これは数百万サイクル分もの無駄が生じるボトルネックです。一方、同一トラック上でのシーケンシャルリードはまったく違う顔を見せます。毎秒数百メガバイトという速度が出るのは、単純にアームが静止したままプラッタだけが回転しているからです。</p>
+<p>ランダムアクセスとシーケンシャルアクセスのコスト差は些細な非効率ではなく、指数関数的な開きです。ここから一つの設計上の制約が導かれます。1回のディスクアクセスから、できる限り多くの有用なデータを引き出さなければならない、というものです。B-Treeはこれを、OSがすでに採用しているメモリ管理の仕組み——通常4KBから16KBの固定サイズページ——にきれいに乗せることで解決しました。B+Treeの各ノードは正確に1つの物理ページに対応します。各ノードにより多くの情報を詰め込むため、内部ノードにはルーティングキーと子ポインタだけを格納し、実際の行データはすべてリーフノードに置かれます。</p>
+<pre class="mermaid">graph TD
+    Root[Root Page: 16KB<br>Keys + Pointers] --&gt; L1_1[Level 1 Page: 16KB<br>Keys + Pointers]
+    Root --&gt; L1_2[Level 1 Page: 16KB<br>Keys + Pointers]
+    Root --&gt; L1_3[Level 1 Page: 16KB<br>Keys + Pointers]
+    
+    L1_1 --&gt; Leaf1[Leaf Page: 16KB<br>Data Tuples]
+    L1_1 --&gt; Leaf2[Leaf Page: 16KB<br>Data Tuples]
+    L1_2 --&gt; Leaf3[Leaf Page: 16KB<br>Data Tuples]
+    L1_3 --&gt; Leaf4[Leaf Page: 16KB<br>Data Tuples]
+
+    Leaf1 -.-&gt;|Doubly Linked List| Leaf2
+    Leaf2 -.-&gt;|Doubly Linked List| Leaf3
+    Leaf3 -.-&gt;|Doubly Linked List| Leaf4
+
+    style Root fill:#f9f,stroke:#333,stroke-width:2px
+    style Leaf1 fill:#bbf,stroke:#333,stroke-width:2px
+    style Leaf2 fill:#bbf,stroke:#333,stroke-width:2px
+    style Leaf3 fill:#bbf,stroke:#333,stroke-width:2px
+    style Leaf4 fill:#bbf,stroke:#333,stroke-width:2px</pre>
+<h3>B+Treeの検索が大規模データでも速い理由</h3>
+<p>B-Treeのルーティング性能は、ファンアウト係数($F$)にすべて依存します。データベースが16KBページ(InnoDBのデフォルト)を使い、キー・ポインタのエントリ1つが12バイトを消費するとすれば、1つの内部ノードにはおよそ次の数のポインタが収まります。</p>
+<p>$$ F = leftlfloor frac{B_{size}}{S_{entry}} rightrfloor approx 1365 text{ ポインタ} $$</p>
+<p>このファンアウトの大きさのおかげで、ツリーの高さは非常に緩やかな底を持つ対数関数、$mathcal{O}(log_F N)$で増加します。$N = 2.5 times 10^9$(25億)行を保持するテーブルであっても、ツリーの高さは次の値で十分です。</p>
+<p>$$ h = lceil log_{1365}(2.5 times 10^9) rceil = 3 $$</p>
+<p>わずか3階層です。つまりディスク上のランダムルックアップは最大3回の物理I/Oに収まるということです。実際にはバッファプールがルートとレベル1のノードを常にRAMにキャッシュしているため、ポイントルックアップのコストは実質$mathcal{O}(1)$回のI/Oで済むことがほとんどです。</p>
+<h2>すべてのB-Treeに潜むWrite Amplificationという問題</h2>
+<p>B-Treeのポイントクエリ性能は優れていて予測しやすいものですが、それには代償があります。すべての処理が「インプレース更新」を通じて行われるという点です。ある行を変更すると、Storage Engineは該当する16KBページを特定し、それをバッファプールに読み込み、メモリ上でバイト列にパッチを当て、その16KBブロック全体をディスク上の元の場所に書き戻す必要があります(多くの場合、OSのページキャッシュを迂回するDirect I/Oを使って)。</p>
+<p>書き込みが集中するワークロードの下では、このパターンがWrite Amplification($W_A$)と呼ばれる現象を生み出します。</p>
+<p>$$ W_A = frac{text{物理ディスクに実際に書き込まれるバイト数}}{text{ユーザーが論理的に要求したバイト数}} $$</p>
+<p>実際のデータ変更がわずか50バイトであっても、エンジンはそのページを丸ごと16,384バイト分フラッシュしなければなりません。これは、ごく小さな論理的変更に対して$W_A approx 327.68$というWrite Amplification係数を生む計算になります。</p>
+<p>リーフページが満杯(Fill Factor = 100%)になると、コストはさらに跳ね上がります。満杯のページへの挿入はページ分割(Page Split)を引き起こします。エンジンは新しいブロックを確保し、現在のページをロックし、データのおよそ半分を新しいページへ移し、親ノードの分離キーを更新します。親ノードも満杯であれば、この分割は連鎖的に上位へ伝播し、最悪の場合ルートまで達します。</p>
+<p>高い並行性の下でこのツリーの整合性を保つには、「ラッチ・クラビング」というアルゴリズムが必要です。あるスレッドは子ノードにアクセスする前に親ノードの読み書きラッチを取得し、子ノードが分割されないと数学的に証明できた時点で初めて親のラッチを解放します。大量の書き込みバーストの間、上位ノードでのラッチ競合はマルチコアCPU環境で実質的なボトルネックとなります。</p>
+<h3>SSDがこの問題を根本的には解決しない理由</h3>
+<p>NANDフラッシュを基盤とするSSDは物理的な前提を大きく変えました——シーク時間を完全に排除したのです——が、その代わりに同じくらい厳しい別の制約を持ち込みました。フラッシュセルはインプレースでの上書きができない、という制約です。ごく小さな領域を変更する場合でも、SSDのFlash Translation Layer(FTL)はRead-Modify-Writeサイクルを実行する必要があります。</p>
+<ol>
+<li>イレースブロック(通常2〜8MB)全体をフラッシュメモリからドライブ内部のSRAMキャッシュへ読み込む。</li>
+<li>そのキャッシュ内で該当する16KBページを変更する。</li>
+<li>古い物理ブロック「全体」に対して、低速かつ高電圧な消去コマンドを実行し、数百万のセルを消去する。</li>
+<li>更新後のブロック全体を新しい物理領域へ書き込む。</li>
+</ol>
+<p>B-Treeのページ分割やインプレース更新から生じるランダムで断片化したI/Oは、このイレースブロックの仕組みと激しくぶつかり合います。有効な帯域幅は低下し、さらに重要な点として、稼働中の本番ハードウェアではドライブの物理的な寿命(TBW、Terabytes Writtenで測定)が急速に縮み、負荷の高いエンタープライズ環境では早期故障につながります。</p>
+<h2>LSM-Tree:シーケンシャル書き込みにすべてを賭ける設計</h2>
+<p>書き込みのボトルネックを回避し、フラッシュメモリの物理特性に逆らうのではなく味方につけるため、LSM-Treeはインプレース更新という発想そのものを捨てます。挿入・更新・削除のすべてが、タイムスタンプ付きの新しいエントリとして扱われ、MemTableと呼ばれるインメモリバッファへシーケンシャルに追記されます。</p>
+<pre class="mermaid">sequenceDiagram
+    participant User
+    participant MemTable (RAM)
+    participant WAL (Disk)
+    participant SSTable (Disk)
+    
+    User-&gt;&gt;MemTable: 1. Insert/Update Data
+    User-&gt;&gt;WAL: 2. Sequential Write for Durability (Append-Only)
+    MemTable--&gt;&gt;User: 3. Return Success (Sub-millisecond)
+    
+    Note over MemTable, SSTable: MemTableが64MBに達した時 (Threshold)
+    MemTable-&gt;&gt;SSTable: 4. Flush to Disk (Sequential I/O)
+    Note over SSTable: SSTableファイルは完全に不変 (Immutable)</pre>
+<p>削除操作は物理的にデータを消すのではなく、Tombstoneフラグを持つより新しいレコードを挿入することで表現されます。MemTable自体は通常SkipListで実装され、確率的に決まるフォワードポインタによって、AVL木やRed-Black木のような再バランスに伴うロックコストを一切払うことなく、挿入・検索の計算量を$mathcal{O}(log N)$に保ちます。</p>
+<p>更新処理全体がメインメモリ上で完結するため、LSM-Treeの書き込みスループットはCPUとメモリバスの理論上の帯域幅に近づきます。とはいえ耐久性(ACIDの「D」)はどこかで確保しなければならず、すべての書き込みはユーザーへの成功応答の前に、ディスク上のWrite-Ahead Log(WAL)へ同期的に追記されます。WALはシーケンシャルな追記しか受け付けないため、このディスク書き込みにかかるレイテンシはほぼゼロに近づきます。</p>
+<p>MemTableが一定の容量(64MBや128MBがよく使われる既定値です)を超えると、そのメモリ領域は不変な構造として凍結され、Sorted String Table(SSTable)ファイルとしてディスクへフラッシュされます。本来ランダムだったはずの書き込みを大きなシーケンシャル書き込みへと変換することで、LSM-TreeはNVMeの帯域幅を余すことなく使い切り、ソフトウェア層のWrite Amplificationをほぼ排除し、NANDのイレースブロックが望む扱い方をそのまま実現します。</p>
+<h2>シーケンシャル書き込みの代償は読み取り側に現れる</h2>
+<p>この書き込み側の優位性は無償では手に入りません。インプレース更新がないということは、1つのプライマリキーの履歴が数十のファイルにまたがって散らばりうる、ということでもあります。ポイントクエリは時間を遡る形で調べる必要があります。まず稼働中のMemTable、次に凍結済みのMemTable、そして該当するキーの古いバージョンを持ちうる複数のSSTableファイルです。</p>
+<p>1回のルックアップのために複数の独立したファイルを開き、解凍し、スキャンする処理は、放置すればすぐに許容できない水準までReadAmplificationを膨らませます。</p>
+<h3>Bloom Filter:読み取りを再び速くする仕組み</h3>
+<p>LSM-Treeの実装はこれを、各SSTableのメタデータフッターに埋め込まれたBloom Filterで解決します。Bloom Filterは「この要素は集合に含まれているか」という問いに答えるコンパクトな確率的データ構造で、サイズ$m$のビット配列と$k$個の独立したハッシュ関数を使って$n$個の要素を扱います。</p>
+<p>偽陽性率は次の式に従います。</p>
+<p>$$ P approx left(1 – e^{-frac{kn}{m}}right)^k $$</p>
+<p>これを$k$について微分すると、ハッシュ関数の最適な個数は次のようになることがわかります。</p>
+<p>$$ k = frac{m}{n} ln 2 $$</p>
+<p>この最適値の下では、キー1つあたり約10ビットで済み、必要なRAMはごくわずかです。偽陽性率はおよそ1%に抑えられ、その1%は時折無駄なディスク読み取りを引き起こしますが、見返りは非常に大きいものです。本来ディスクに触れて「存在しないキー」を探しに行くはずだった読み取りの、およそ99%を排除できるのです。Bloom Filterが「存在しない」と答えれば、エンジンはディスクにまったく触れずそのファイルをスキップします。</p>
+<h3>Compaction:空間と読み取りの負債を返済する仕組み</h3>
+<p>放置すれば、LSM-Treeは重複したSSTableファイルと不要になったデータ(上書きされた更新やTombstone)を際限なく蓄積していきます。これがSpace Amplificationで、時間が経つほど悪化します。</p>
+<p>その対策がCompactionと呼ばれるバックグラウンド処理です。もっとも一般的な方式であるLevel-Tiered Compaction(RocksDBで採用)は、ストレージ空間を階層($L_0, L_1, L_2, dots$)に分け、各階層$L_{i+1}$の容量上限を$L_i$のおよそ$T$倍に抑えます(通常$T=10$)。</p>
+<p>階層$L_i$が上限に達すると、エンジンはN-way Merge Sortを実行します。$L_i$と$L_{i+1}$の重複するファイルを読み込み、メモリ上でマージして古いバージョンを破棄しTombstoneを削除したうえで、重複を排除した結果を$L_{i+1}$へシーケンシャルに書き戻します。</p>
+<p>これによりReadAmplificationとSpace Amplificationは抑えられますが、無償ではありません。Compactionのバックグラウンド書き込みコストはかなりのものです。Leveled Compactionの場合、Write Amplificationはおおよそ次の式に従います。</p>
+<p>$$ W_A approx text{Levels} times frac{T}{2} $$</p>
+<p>つまりシステムは、フォアグラウンドの読み取り性能を保ちディスク空間を回収するためだけに、実質的なI/O帯域幅とCPUサイクルをバックグラウンドで消費し続けているということです。</p>
+<h2>RUM Conjecture:どんなストレージエンジンもすべての軸で勝てない理由</h2>
+<p>ここまで見てきたトレードオフは偶然の産物ではなく、RUM Conjecture(Athanassoulis et al., 2016)という形で定式化されています。この定理は、Read Overhead($R$)、Update Overhead($U$)、Memory/Storage Overhead($M$)が次の関係で結びついていると述べます。</p>
+<p>$$ R times U times M = C $$</p>
+<p>この3つを同時に最適化することはできません。どれか一つを下げれば、残りの少なくとも一つは上がります。</p>
+<ul>
+<li><strong>B-Treeは$R$と$M$を最適化する:</strong> 読み取りは速く($O(log N)$のルックアップ)、データの重複がないためメモリオーバーヘッドも低く抑えられます。そのコストは$U$に現れます。ランダムI/Oとページ分割のせいで更新は高コストです。</li>
+<li><strong>LSM-Treeは$U$と$M$を最適化する:</strong> 更新は純粋なシーケンシャル追記であるため高速で、データはディスク上に密に詰め込まれます。そのコストは$R$に現れます。読み取りは本質的に遅く、そのコストを抑えるためにバックグラウンドCompactionへCPUを費やし、Bloom FilterをRAMに常駐させ続ける必要があります。</li>
+</ul>
+<h2>ストレージエンジンを選ぶうえで実務上意味すること</h2>
+<p>B-TreeとLSM-Treeが負荷の下で実際にどう振る舞うかを見てきたところで、実務的な結論をいくつか挙げます。</p>
+<ol>
+<li><strong>ハードウェアの物理特性がソフトウェアアーキテクチャを形作るのであって、逆ではありません。</strong> B-TreeはHDDの回転力学のために設計され、1回のシークあたりの有用データ量を最大化しました。LSM-TreeはNANDフラッシュのために設計され、すべてをシーケンシャルなストリームに変換することでイレースブロックのサイクルを尊重します。</li>
+<li><strong>シーケンシャルI/Oはどの媒体でも勝ちます。</strong> HDD、SSD、NVMe、さらにはRAMのキャッシュラインに至るまで、シーケンシャルアクセスは一貫してランダムアクセスを上回ります。KafkaやCassandraのようなシステムが確実にスケールできるのは、ディスクを追記専用のログとして扱っているからにほかなりません。</li>
+<li><strong>万能の答えは存在しません。トレードオフは意図的に選ぶものです。</strong> ワークロードの95%が読み取り(たとえばユーザープロファイルサービス)なら、PostgreSQLのようなB-Treeエンジンが適切な選択です。95%が書き込み(IoTテレメトリ、会計元帳、分散ロギングなど)なら、RocksDBやCassandraのようなLSM-TreeエンジンがI/Oの破綻を防ぎます。</li>
+<li><strong>Write Amplificationは性能問題であると同時にハードウェア寿命の問題です。</strong> フラッシュ上でのインプレース更新は摩耗を早めます。本番環境で$W_A$を監視することは、レイテンシだけでなくインフラ予算のためにも重要です。</li>
+<li><strong>スケールを可能にしているのは数学です。</strong> レイテンシの急増なしに数十億行へスケールできる背景には、確率的構造(Bloom Filter)と漸近的な限界(対数的ファンアウト)があります。これらの証明を理解しておくことは、この規模のシステムを設計するための前提条件です。</li>
+</ol>
+    </main>
+          <aside class="related-wrap" aria-label="関連記事">
+        <h2>関連記事</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-51-htap%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9-%E3%83%8F%E3%82%A4%E3%83%96%E3%83%AA/">
+              <small>次に読む</small>
+              <strong>技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ</strong>
+              <span>エグゼクティブサマリー この技術ホワイトペーパーは、ハイブリッドトランザクション/分析処理 (Hybrid Transactional/Analytical Processing – HTAP) データベースシステムの包括的かつマイクロアーキテクチャ的な分析を提供します。歴史的に、データベース業界はOLTP (オンライン・トランザクション処理) とOLAP (オンライン分析処理) の間の厳格な分岐を受け入れてきました。HTAPはこの妥協を打ち破ります。デュアルフォーマット・メモリトポロジー (Delta-Mainアーキテクチャ) の数学、異なるデータレイアウト間での多版同時実行制御 (Multi-Version Concurrency Control –...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/ja/%E3%83%86%E3%82%AF%E3%83%8B%E3%82%AB%E3%83%AB%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-%E7%AC%AC50%E5%9B%9E%EF%BC%9Atime-series-databases-tsdb-gorilla%E5%9C%A7/">
+              <small>次に読む</small>
+              <strong>テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖</strong>
+              <span>エグゼクティブサマリー (Executive Summary) このホワイトペーパーは、世界をリードする時系列データベース (Time-Series Database – TSDB、例: Prometheus, InfluxDB, Gorilla) がIoTシステムやマイクロサービスから生成される膨大なデータ量をどのように処理するかについて、深く包括的な視点を提供します。Gorilla圧縮アルゴリズムの数学的構造 (Delta-of-DeltaおよびIEEE-754 XOR) と、OSカーネルレベルでのChunkingメモリ管理戦略の分析を通じて、読者は数CPUクロックサイクルでデータを64:1の比率に圧縮する原理を理解し、リアルタイム分散システムに対する貴重な設計の教訓を得ることができます。 はじめに：時系列データの不変の特性 クラウドコンピューティングとモノのインターネット (IoT)...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%E7%AC%AC49%E5%9B%9E-%E3%82%B0%E3%83%A9%E3%83%95%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9/">
+              <small>次に読む</small>
+              <strong>技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique</strong>
+              <span>エグゼクティブサマリー 本ホワイトペーパーは、超高密度に接続されたデータ（highly-connected data）を扱う際のリレーショナルデータベース管理システム（RDBMS）の限界を深く分析し、Neo4jのような現代的なグラフデータベースの心臓部である「Index-Free Adjacency」（インデックス不要な隣接関係）の仕組みを紹介する。読者は、マルチホップトラバーサル（multi-hop traversal）における中核的な課題、$mathcal{O}(1)$という計算量の数学的優位性、そしてこれらのシステムがCPUとRAMにまったく新しい参照系での動作を強いるときに生じるハードウェアマイクロアーキテクチャレベル（OSページキャッシュ、Pointer Chasing、TLB Miss）での深い影響を理解できるだろう。最後に、グラフ管理システムにおける集中型アーキテクチャと分散型アーキテクチャのトレードオフについての貴重な教訓をまとめる。 はじめに：リレーショナルモデル（RDBMS）の崩壊を読み解く リレーショナルデータベース管理システム（RDBMS）は、過去50年にわたりソフトウェア業界を支配してきた。それらは集合論（Set Theory）と関係代数（Relational Algebra）という強固な数学的公理に基づいて完璧に動作する。あらゆるエンティティは2次元（行と列）のテーブルへと正規化される。 しかし、現実世界はバラバラの表計算シートではなく、巨大なネットワークである。ソーシャルネットワーク、レコメンデーションシステム、経路探索地図、スマート電力網、分子生物学 ― これらはすべて超高密度に接続されたデータである。この種のデータをRDBMSに無理やり押し込めることは、ソフトウェアに自然な流れに逆らう変換を強いることに他ならない。まさにこの不自然さこそが、リレーショナルモデルの越えられない物理的・数学的限界を露呈させ、グラフデータベース（Graph Databases）台頭の下地となった。 しかし、グラフデータベースは実際にはチップレベルでどのように動作しているのか？それは単にUI上に丸と矢印をいくつか描くことではない。その心臓部は、Index-Free Adjacency（IFA）と呼ばれる極端なメモリアーキテクチャにある。 核心的な課題：結合（Join）演算の爆発的なマイクロコスト...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">929</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>

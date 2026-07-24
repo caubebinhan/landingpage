@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title and meta description are emitted by Yoast SEO via wp_head() below -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Blog","name":"HoaSenジャーナル","description":"HoaSen Tableのエンジニアリング、パフォーマンス、アーキテクチャに関する記事。","url":"https://hoasentable.com/blog/","inLanguage":"ja","blogPost":[{"@type":"BlogPosting","headline":"技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ","url":"https://hoasentable.com/ja/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc-51-htap%e3%83%87%e3%83%bc%e3%82%bf%e3%83%99%e3%83%bc%e3%82%b9-%e3%83%8f%e3%82%a4%e3%83%96%e3%83%aa/","datePublished":"2026-07-22T01:31:59+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖","url":"https://hoasentable.com/ja/%e3%83%86%e3%82%af%e3%83%8b%e3%82%ab%e3%83%ab%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc-%e7%ac%ac50%e5%9b%9e%ef%bc%9atime-series-databases-tsdb-gorilla%e5%9c%a7/","datePublished":"2026-07-22T01:31:58+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique","url":"https://hoasentable.com/ja/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%e7%ac%ac49%e5%9b%9e-%e3%82%b0%e3%83%a9%e3%83%95%e3%83%87%e3%83%bc%e3%82%bf%e3%83%99%e3%83%bc%e3%82%b9/","datePublished":"2026-07-22T01:31:57+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"テクニカルホワイトペーパー第48回: StorageとComputeの分離 (Separation of Storage and Compute): クラウドネイティブアーキテクチャ、マイクロアーキテクチャのダイナミクス、および分散システムの未来","url":"https://hoasentable.com/ja/%e3%83%86%e3%82%af%e3%83%8b%e3%82%ab%e3%83%ab%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%e7%ac%ac48%e5%9b%9e-storage%e3%81%a8compute%e3%81%ae%e5%88%86%e9%9b%a2-separatio/","datePublished":"2026-07-22T01:31:56+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"データベース・オブザーバビリティにおけるBPFとeBPF: カーネルレベルでのデータベースの超音波検査","url":"https://hoasentable.com/ja/%e3%83%87%e3%83%bc%e3%82%bf%e3%83%99%e3%83%bc%e3%82%b9%e3%83%bb%e3%82%aa%e3%83%96%e3%82%b6%e3%83%bc%e3%83%90%e3%83%93%e3%83%aa%e3%83%86%e3%82%a3%e3%81%ab%e3%81%8a%e3%81%91%e3%82%8bbpf%e3%81%a8ebpf/","datePublished":"2026-07-22T01:31:54+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Hardware Transactional Memory (HTM): マイクロアーキテクチャの解剖とデータベースロッキングの未来","url":"https://hoasentable.com/ja/hardware-transactional-memory-htm-%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ae%e8%a7%a3%e5%89%96%e3%81%a8%e3%83%87%e3%83%bc%e3%82%bf/","datePublished":"2026-07-22T01:31:53+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"`io_uring` 対 `epoll`：データベースアーキテクチャにおける非同期I/Oの新時代","url":"https://hoasentable.com/ja/io_uring-%e5%af%be-epoll%ef%bc%9a%e3%83%87%e3%83%bc%e3%82%bf%e3%83%99%e3%83%bc%e3%82%b9%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81%e3%83%a3%e3%81%ab%e3%81%8a%e3%81%91%e3%82%8b%e9%9d%9e/","datePublished":"2026-07-22T01:31:51+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"長時間稼働データベースプロセスにおけるメモリフラグメンテーション：マイクロアーキテクチャ的影響とアルゴリズム的緩和策","url":"https://hoasentable.com/ja/%e9%95%b7%e6%99%82%e9%96%93%e7%a8%bc%e5%83%8d%e3%83%87%e3%83%bc%e3%82%bf%e3%83%99%e3%83%bc%e3%82%b9%e3%83%97%e3%83%ad%e3%82%bb%e3%82%b9%e3%81%ab%e3%81%8a%e3%81%91%e3%82%8b%e3%83%a1%e3%83%a2%e3%83%aa/","datePublished":"2026-07-22T01:31:50+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"SSDのライトアンプリフィケーション (Write Amplification): ハードディスクを消耗させるデータベースの病の解剖","url":"https://hoasentable.com/ja/ssd%e3%81%ae%e3%83%a9%e3%82%a4%e3%83%88%e3%82%a2%e3%83%b3%e3%83%97%e3%83%aa%e3%83%95%e3%82%a3%e3%82%b1%e3%83%bc%e3%82%b7%e3%83%a7%e3%83%b3-write-amplification-%e3%83%8f%e3%83%bc%e3%83%89%e3%83%87/","datePublished":"2026-07-22T01:31:49+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"`fsync()` と Data Durability: パフォーマンスとデータ整合性の間の死闘の解剖","url":"https://hoasentable.com/ja/fsync-%e3%81%a8-data-durability-%e3%83%91%e3%83%95%e3%82%a9%e3%83%bc%e3%83%9e%e3%83%b3%e3%82%b9%e3%81%a8%e3%83%87%e3%83%bc%e3%82%bf%e6%95%b4%e5%90%88%e6%80%a7%e3%81%ae%e9%96%93%e3%81%ae%e6%ad%bb/","datePublished":"2026-07-22T01:31:48+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"Database Connection Pooling の深い技術的本質: マイクロアーキテクチャ、数学的モデル、OSレベルの相互作用","url":"https://hoasentable.com/ja/database-connection-pooling-%e3%81%ae%e6%b7%b1%e3%81%84%e6%8a%80%e8%a1%93%e7%9a%84%e6%9c%ac%e8%b3%aa-%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af%e3%83%81/","datePublished":"2026-07-22T01:31:47+00:00","author":{"@type":"Person","name":"admin"}},{"@type":"BlogPosting","headline":"バッファプール管理: キャッシュエビクションメカニズム、メモリサブシステム相互作用、および並行性制御のマイクロアーキテクチャ分析","url":"https://hoasentable.com/ja/%e3%83%90%e3%83%83%e3%83%95%e3%82%a1%e3%83%97%e3%83%bc%e3%83%ab%e7%ae%a1%e7%90%86-%e3%82%ad%e3%83%a3%e3%83%83%e3%82%b7%e3%83%a5%e3%82%a8%e3%83%93%e3%82%af%e3%82%b7%e3%83%a7%e3%83%b3%e3%83%a1%e3%82%ab/","datePublished":"2026-07-22T01:31:45+00:00","author":{"@type":"Person","name":"admin"}}]}</script>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/blog/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/blog-vi/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/blog-ja/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>HoaSen Table ジャーナル - エンジニアリングとパフォーマンス</title>
+	<meta name="description" content="HoaSen Tableチームによる、データベースエンジン設計、クエリパフォーマンス最適化、フロントエンドアーキテクチャの詳細解説。">
+	<link rel="canonical" href="https://hoasentable.com/ja/blog-ja/">
+	<link rel="next" href="https://hoasentable.com/ja/blog-ja/page/2/">
+	<meta property="og:locale" content="ja_JP">
+	<meta property="og:locale:alternate" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="HoaSen Table ジャーナル - エンジニアリングとパフォーマンス">
+	<meta property="og:description" content="HoaSen Tableチームによる、データベースエンジン設計、クエリパフォーマンス最適化、フロントエンドアーキテクチャの詳細解説。">
+	<meta property="og:url" content="https://hoasentable.com/ja/blog-ja/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta name="twitter:card" content="summary_large_image">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":["WebPage","CollectionPage"],"@id":"https:\/\/hoasentable.com\/ja\/blog-ja\/","url":"https:\/\/hoasentable.com\/ja\/blog-ja\/","name":"HoaSen Table ジャーナル - エンジニアリングとパフォーマンス","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website"},"datePublished":"2026-07-14T03:15:49+00:00","description":"HoaSen Tableチームによる、データベースエンジン設計、クエリパフォーマンス最適化、フロントエンドアーキテクチャの詳細解説。","breadcrumb":{"@id":"https:\/\/hoasentable.com\/ja\/blog-ja\/#breadcrumb"},"inLanguage":"ja"},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/ja\/blog-ja\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/ja\/home-ja\/"},{"@type":"ListItem","position":2,"name":"HoaSen Table Blog (JA)"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website","url":"https:\/\/hoasentable.com\/ja\/home-ja\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/ja\/home-ja\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"ja"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));
+  --text:#1c1917;--rs:rgba(var(--red-rgb),.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),
+             linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);
+  width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;
+  background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');
+  background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+
+.blog-wrap{position:relative;z-index:5;max-width:1040px;margin:120px auto 80px;padding:0 24px}
+
+.blog-hdr {
+  margin-bottom: 40px;
+  border-bottom: 1.5px solid rgba(0,0,0,.08);
+  padding-bottom: 32px;
+}
+.blog-hdr .kicker {
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-family: "Public Sans", sans-serif;
+}
+.blog-hdr h1 {
+  font-family: "Spectral", serif;
+  font-size: clamp(34px, 5.2vw, 56px);
+  line-height: 1.1;
+  font-weight: 600;
+  font-style: italic;
+  color: #1c1917;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.blog-hdr p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+  max-width: 580px;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 32px;
+  width: 100%;
+}
+.post-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .02);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(var(--red-rgb), .05);
+  border-color: rgba(var(--red-rgb), .3);
+  background: #ffffff;
+}
+.card-link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #e9e6e0;
+}
+.card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.post-card:hover .card-img-wrap img {
+  transform: scale(1.05);
+}
+.card-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  background: radial-gradient(circle at 50% 50%, rgba(137, 24, 24, 0.06), transparent);
+}
+.card-thumb-placeholder svg {
+  width: 42px;
+  height: 42px;
+  opacity: 0.22;
+  transition: transform 0.3s ease;
+}
+.post-card:hover .card-thumb-placeholder svg {
+  transform: scale(1.1);
+}
+.card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.card-meta {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  font-family: "Public Sans", sans-serif;
+}
+.card-title {
+  font-family: "Spectral", serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1c1917;
+  line-height: 1.25;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+  transition: color 0.2s ease;
+}
+.post-card:hover .card-title {
+  color: var(--red);
+}
+.card-excerpt {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #57534e;
+  margin-bottom: 24px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+.card-more {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  transition: gap 0.25s ease;
+  font-family: "Public Sans", sans-serif;
+}
+.post-card:hover .card-more {
+  gap: 10px;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 50px;
+  font-family: "Public Sans", sans-serif;
+}
+.pagination a, .pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #57534e;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,.02);
+}
+.pagination a:hover {
+  border-color: rgba(var(--red-rgb),.3);
+  color: var(--red);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--red-rgb),.08);
+}
+.pagination .current {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+
+<a href="https://hoasentable.com/ja/home-ja/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/ja/home-ja/" class="back-btn">← ホームへ戻る</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/blog/">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/blog-vi/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja current-lang"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/blog-ja/" aria-current="true">日本語</a></li>
+</ul></div>
+
+<div class="blog-wrap">
+  <header class="blog-hdr">
+    <div class="kicker">HoaSenジャーナル</div>
+    <h1>エンジニアリングとパフォーマンス</h1>
+    <p>HoaSen Tableチームによる、データベースエンジン設計、クエリパフォーマンス最適化、フロントエンドアーキテクチャの詳細解説。</p>
+  </header>
+
+  <div class="blog-grid">
+                          <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-51-htap%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9-%E3%83%8F%E3%82%A4%E3%83%96%E3%83%AA/" class="card-link-overlay" aria-label="技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/51-htap-databases.svg" alt="技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ</h2>
+            <p class="card-excerpt">エグゼクティブサマリー この技術ホワイトペーパーは、ハイブリッドトランザクション/分析処理 (Hybrid Transactional/Analytical Processing – HTAP) データベースシステムの包括的かつマイクロアーキテクチャ的な分析を提供します。歴史的に、データベース業界はOLTP (オンライン・トランザクション処理) とOLAP (オンライン分析処理) の間の厳格な分岐を受け入れてきました。HTAPはこの妥協を打ち破ります。デュアルフォーマット・メモリトポロジー (Delta-Mainアーキテクチャ) の数学、異なるデータレイアウト間での多版同時実行制御 (Multi-Version Concurrency Control –...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E3%83%86%E3%82%AF%E3%83%8B%E3%82%AB%E3%83%AB%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-%E7%AC%AC50%E5%9B%9E%EF%BC%9Atime-series-databases-tsdb-gorilla%E5%9C%A7/" class="card-link-overlay" aria-label="テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/50-tsdb-gorilla-compression-chunking.svg" alt="テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖</h2>
+            <p class="card-excerpt">エグゼクティブサマリー (Executive Summary) このホワイトペーパーは、世界をリードする時系列データベース (Time-Series Database – TSDB、例: Prometheus, InfluxDB, Gorilla) がIoTシステムやマイクロサービスから生成される膨大なデータ量をどのように処理するかについて、深く包括的な視点を提供します。Gorilla圧縮アルゴリズムの数学的構造 (Delta-of-DeltaおよびIEEE-754 XOR) と、OSカーネルレベルでのChunkingメモリ管理戦略の分析を通じて、読者は数CPUクロックサイクルでデータを64:1の比率に圧縮する原理を理解し、リアルタイム分散システムに対する貴重な設計の教訓を得ることができます。 はじめに：時系列データの不変の特性 クラウドコンピューティングとモノのインターネット (IoT)...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%E7%AC%AC49%E5%9B%9E-%E3%82%B0%E3%83%A9%E3%83%95%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9/" class="card-link-overlay" aria-label="技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/49-graph-databases-index-free-adjacency.svg" alt="技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique</h2>
+            <p class="card-excerpt">エグゼクティブサマリー 本ホワイトペーパーは、超高密度に接続されたデータ（highly-connected data）を扱う際のリレーショナルデータベース管理システム（RDBMS）の限界を深く分析し、Neo4jのような現代的なグラフデータベースの心臓部である「Index-Free Adjacency」（インデックス不要な隣接関係）の仕組みを紹介する。読者は、マルチホップトラバーサル（multi-hop traversal）における中核的な課題、$mathcal{O}(1)$という計算量の数学的優位性、そしてこれらのシステムがCPUとRAMにまったく新しい参照系での動作を強いるときに生じるハードウェアマイクロアーキテクチャレベル（OSページキャッシュ、Pointer Chasing、TLB Miss）での深い影響を理解できるだろう。最後に、グラフ管理システムにおける集中型アーキテクチャと分散型アーキテクチャのトレードオフについての貴重な教訓をまとめる。 はじめに：リレーショナルモデル（RDBMS）の崩壊を読み解く リレーショナルデータベース管理システム（RDBMS）は、過去50年にわたりソフトウェア業界を支配してきた。それらは集合論（Set Theory）と関係代数（Relational Algebra）という強固な数学的公理に基づいて完璧に動作する。あらゆるエンティティは2次元（行と列）のテーブルへと正規化される。 しかし、現実世界はバラバラの表計算シートではなく、巨大なネットワークである。ソーシャルネットワーク、レコメンデーションシステム、経路探索地図、スマート電力網、分子生物学 ― これらはすべて超高密度に接続されたデータである。この種のデータをRDBMSに無理やり押し込めることは、ソフトウェアに自然な流れに逆らう変換を強いることに他ならない。まさにこの不自然さこそが、リレーショナルモデルの越えられない物理的・数学的限界を露呈させ、グラフデータベース（Graph Databases）台頭の下地となった。 しかし、グラフデータベースは実際にはチップレベルでどのように動作しているのか？それは単にUI上に丸と矢印をいくつか描くことではない。その心臓部は、Index-Free Adjacency（IFA）と呼ばれる極端なメモリアーキテクチャにある。 核心的な課題：結合（Join）演算の爆発的なマイクロコスト...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E3%83%86%E3%82%AF%E3%83%8B%E3%82%AB%E3%83%AB%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%E7%AC%AC48%E5%9B%9E-storage%E3%81%A8compute%E3%81%AE%E5%88%86%E9%9B%A2-separatio/" class="card-link-overlay" aria-label="テクニカルホワイトペーパー第48回: StorageとComputeの分離 (Separation of Storage and Compute): クラウドネイティブアーキテクチャ、マイクロアーキテクチャのダイナミクス、および分散システムの未来"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/48-separation-of-storage-and-compute.svg" alt="テクニカルホワイトペーパー第48回: StorageとComputeの分離 (Separation of Storage and Compute): クラウドネイティブアーキテクチャ、マイクロアーキテクチャのダイナミクス、および分散システムの未来">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">テクニカルホワイトペーパー第48回: StorageとComputeの分離 (Separation of Storage and Compute): クラウドネイティブアーキテクチャ、マイクロアーキテクチャのダイナミクス、および分散システムの未来</h2>
+            <p class="card-excerpt">エグゼクティブサマリー (Executive Summary) この記事は、エンジニア、システムアーキテクト、研究者がストレージ (Storage) とコンピューティング (Compute) リソースの分離というトレンドの本質、動作原理、および深い教訓を理解できるように、詳細な技術ドキュメント (whitepaper) として設計されています。読み終えると、現代の分散アーキテクチャが解決すべき中心的な問題、システムが物理法則の限界 (ネットワーク遅延、メモリ帯域幅) をどのように克服するか、そしてSnowflake、BigQuery、Auroraなどの次世代クラウドネイティブデータベース (Cloud-native Databases) に適用される非常に価値のある設計の教訓をマスターすることができます。 はじめに：クラウドネイティブアーキテクチャを読み解く本質 データベース管理システム (DBMS)...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%83%BB%E3%82%AA%E3%83%96%E3%82%B6%E3%83%BC%E3%83%90%E3%83%93%E3%83%AA%E3%83%86%E3%82%A3%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8Bbpf%E3%81%A8ebpf/" class="card-link-overlay" aria-label="データベース・オブザーバビリティにおけるBPFとeBPF: カーネルレベルでのデータベースの超音波検査"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/47-bpf-ebpf-database-observability.svg" alt="データベース・オブザーバビリティにおけるBPFとeBPF: カーネルレベルでのデータベースの超音波検査">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">データベース・オブザーバビリティにおけるBPFとeBPF: カーネルレベルでのデータベースの超音波検査</h2>
+            <p class="card-excerpt">概要と中核的な問題 (Core Problem Statement) 分散マイクロサービス (Distributed Microservices) と高負荷のトランザクション処理システムの時代において、データベースは最大のボトルネック (bottleneck) として機能することがよくあります。しかし、データベースの障害診断とパフォーマンス監視 (Observability) は非常に困難な課題です。 中核的な問題: 従来のデータベースは「ブラックボックス」 (Black Box)として動作します。 SQLクエリがなぜ遅いのかを知るために、エンジニアはしばしばスロークエリログ (Slow...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/hardware-transactional-memory-htm-%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E3%81%AE%E8%A7%A3%E5%89%96%E3%81%A8%E3%83%87%E3%83%BC%E3%82%BF/" class="card-link-overlay" aria-label="Hardware Transactional Memory (HTM): マイクロアーキテクチャの解剖とデータベースロッキングの未来"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/46-hardware-transactional-memory-htm.svg" alt="Hardware Transactional Memory (HTM): マイクロアーキテクチャの解剖とデータベースロッキングの未来">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Hardware Transactional Memory (HTM): マイクロアーキテクチャの解剖とデータベースロッキングの未来</h2>
+            <p class="card-excerpt">概要と中心的な問題 (Core Problem Statement) マルチスレッド (multi-threading) プログラミングと高負荷のトランザクション処理データベース (OLTP) の設計の世界において、共有データ (shared data) の整合性を維持することは死活問題です。何十年もの間、コンピュータサイエンス業界の唯一の解決策は、Mutex、Semaphore、またはSpinlockなどのソフトウェアロックを介した悲観的並行性制御 (Pessimistic Concurrency Control – PCC) のメカニズムを使用することでした。...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/io_uring-%E5%AF%BE-epoll%EF%BC%9A%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E9%9D%9E/" class="card-link-overlay" aria-label="`io_uring` 対 `epoll`：データベースアーキテクチャにおける非同期I/Oの新時代"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/45-iouring-vs-epoll-asynchronous-io.svg" alt="`io_uring` 対 `epoll`：データベースアーキテクチャにおける非同期I/Oの新時代">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">`io_uring` 対 `epoll`：データベースアーキテクチャにおける非同期I/Oの新時代</h2>
+            <p class="card-excerpt">エグゼクティブサマリーと中核課題（Core Problem Statement） 過去20年以上にわたり、Linuxサーバーのエコシステムは、C10K問題（1万の同時接続を処理する課題）を克服するためにepoll機構（kernel 2.5で導入）に依存してきた。しかし、ストレージハードウェアが機械式ディスク（HDD、ミリ秒単位のレイテンシ）からPCIe NVMe Gen 4/5規格のソリッドステートドライブ（マイクロ秒単位のレイテンシ）へと進化するにつれ、epollと従来の非同期I/Oモデルはマイクロアーキテクチャレベルで致命的な弱点を露呈することとなった。 中核課題：ScyllaDB、Aerospike、PostgreSQLのような現代的なデータベースエンジンは、ストレージの物理的限界によってではなく、Linuxオペレーティングシステムそのもののソフトウェアオーバーヘッドによってパフォーマンスを「絞め殺されて」いる。 epollや旧来のPOSIX AIO標準を用いて非同期I/O操作を行うには、CPUがユーザー空間（User Space）とカーネル空間（Kernel Space）の境界を絶えず越えなければならない。read()、write()、epoll_wait()といった各システムコール（syscall）は、コンテキストスイッチ、ページテーブル保護（KPTI）、データコピーのために数千CPUクロックサイクルを要求する。高速なNVMe環境では、CPUはデータを実際に移動させる時間よりも、OSとの「事務手続き」に多くの時間を費やしてしまう。 io_uring（Linux kernel 5.1から導入）の登場は、Linuxのi/Oアーキテクチャを完全に解体し再構築する革命である。ユーザー空間とカーネル空間の間で直接共有される2つのリングバッファ（Ring Buffer）をメモリマップ（mmap）することで、io_uringはアプリケーションが単一のシステムコールも発行することなく、数百万件のI/O要求を送信し、その結果を受け取ることを可能にする。 本レポートでは、io_uringのマイクロアーキテクチャにおける量子的原理を詳細に分析し、epollおよびlinux-aioの物理的限界と対比させ、データベース管理システム（DBMS）がこの技術的驚異を活用するために自らのコアエンジン全体をどのように再設計しているかを解説する。...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E9%95%B7%E6%99%82%E9%96%93%E7%A8%BC%E5%83%8D%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%83%97%E3%83%AD%E3%82%BB%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%83%A1%E3%83%A2%E3%83%AA/" class="card-link-overlay" aria-label="長時間稼働データベースプロセスにおけるメモリフラグメンテーション：マイクロアーキテクチャ的影響とアルゴリズム的緩和策"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/44-memory-fragmentation-long-running-db.svg" alt="長時間稼働データベースプロセスにおけるメモリフラグメンテーション：マイクロアーキテクチャ的影響とアルゴリズム的緩和策">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">長時間稼働データベースプロセスにおけるメモリフラグメンテーション：マイクロアーキテクチャ的影響とアルゴリズム的緩和策</h2>
+            <p class="card-excerpt">エグゼクティブサマリーと中核課題（Core Problem Statement） 高性能コンピューティングとデータエンジニアリングの領域において、長時間稼働するデータベースプロセス内で発生するメモリフラグメンテーション（メモリ断片化、Memory Fragmentation）は、静かでありながら致命的なパフォーマンスボトルネックを構成する。これはスループットとレイテンシが長期の稼働期間にわたって徐々に劣化する形で現れ、しばしば突発的なレイテンシスパイクや壊滅的なメモリ不足（Out-Of-Memory、OOM）クラッシュに至る。 中核課題：高い同時実行性を要求されるトランザクション処理（OLTP）や分析ワークロード（OLAP）向けに設計されたデータベース管理システム（DBMS）は、かつてない頻度——しばしば毎秒数百万回——でメモリの割り当て（allocation）と解放（deallocation）を実行する。数週間、数か月にわたる継続稼働の中で、仮想メモリサブシステムと相互作用するオペレーティングシステムの基盤となるメモリアロケータ（allocator）は、ヒープ内部で深刻な構造的エントロピー（structural entropy）に必ず直面する。 このエントロピーはメモリアドレス空間の連続性を破壊する。メモリが高度に断片化すると、論理的には連続しているデータ構造（B+Treeのノードや列指向配列（columnar array）など）が物理的には異なるメモリページに散在するようになる。この空間的分散は、現代のCPUキャッシュ設計に内在する空間的局所性（spatial locality）の前提を完全に無効化し、TLB（Translation Lookaside Buffer）ミス率を急騰させ、MMU（Memory Management Unit）にコストの高い多段ページテーブルウォークを強いる。最終的に、本来クエリを実行しているべきCPUは、RAMを待つ時間に費やされてしまう。 本ホワイトペーパーでは、フラグメンテーションが高まった際のマイクロアーキテクチャ的帰結、標準Cライブラリアロケータ（glibc）の不十分さ、そして現代のデータベースシステムに組み込まれた高度に専門化されたアルゴリズム的緩和策——Slabアロケータ、バッファプール（Buffer Pool）、リージョンベースのアリーナ（Region-based Arena）、Huge Pagesのようなカーネルとの明示的な相互作用を含む——について厳密に検証する。...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/ssd%E3%81%AE%E3%83%A9%E3%82%A4%E3%83%88%E3%82%A2%E3%83%B3%E3%83%97%E3%83%AA%E3%83%95%E3%82%A3%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3-write-amplification-%E3%83%8F%E3%83%BC%E3%83%89%E3%83%87/" class="card-link-overlay" aria-label="SSDのライトアンプリフィケーション (Write Amplification): ハードディスクを消耗させるデータベースの病の解剖"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/43-write-amplification-ssd.svg" alt="SSDのライトアンプリフィケーション (Write Amplification): ハードディスクを消耗させるデータベースの病の解剖">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">SSDのライトアンプリフィケーション (Write Amplification): ハードディスクを消耗させるデータベースの病の解剖</h2>
+            <p class="card-excerpt">概要と中核的な問題 (Core Problem Statement) 現代のデータセンターの世界では、NANDフラッシュベースのソリッドステートドライブ（SSD）が機械式磁気ディスク（HDD）に完全に取って代わり、数百万のIOPS（Input/Output Operations Per Second）を処理する能力を提供しています。しかし、この素晴らしい半導体材料には致命的な弱点があります。それは寿命がプログラム/消去（Program/Erase – P/E）サイクル数によって制限されていることです。 中核的な問題: データベース管理システム（DBMS）やソフトウェアアプリケーションがオペレーティングシステムに1ギガバイトなどのデータの書き込みをSSDに要求した場合、物理的なハードディスクは実際にはその1ギガバイトの何倍もの書き込み操作を実行しなければなりません。この恐ろしい物理現象はライトアンプリフィケーション (Write Amplification – WA) と呼ばれます。 B-Tree構造に根ざした古代のアーキテクチャ設計を持つ従来のデータベース（MySQL、PostgreSQLなど）は、ランダムな書き込み（random...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/fsync-%E3%81%A8-data-durability-%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E3%81%A8%E3%83%87%E3%83%BC%E3%82%BF%E6%95%B4%E5%90%88%E6%80%A7%E3%81%AE%E9%96%93%E3%81%AE%E6%AD%BB/" class="card-link-overlay" aria-label="`fsync()` と Data Durability: パフォーマンスとデータ整合性の間の死闘の解剖"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/42-fsync-data-durability.svg" alt="`fsync()` と Data Durability: パフォーマンスとデータ整合性の間の死闘の解剖">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">`fsync()` と Data Durability: パフォーマンスとデータ整合性の間の死闘の解剖</h2>
+            <p class="card-excerpt">要約と中核となる問題 (Core Problem Statement) 分散システム (distributed systems)、リレーショナルデータベース (RDBMS)、および極度のデータ整合性を必要とするアプリケーション（コアバンキングトランザクションシステムなど）の世界において、データの耐久性 (Data Durability – ACIDの’D’) の概念は、妥協できない基盤としての役割を果たします。 中核となる問題: ユーザーが「保存」をクリックしたばかりのデータの行が、誰かがサーバーの電源プラグを即座に乱暴に引き抜いたとしても、決して消えないことをソフトウェアはどうやって100％確信できるでしょうか？ この学術的な議論と物理的な限界の中心は、POSIX標準のシステムコール (system call)...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/database-connection-pooling-%E3%81%AE%E6%B7%B1%E3%81%84%E6%8A%80%E8%A1%93%E7%9A%84%E6%9C%AC%E8%B3%AA-%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81/" class="card-link-overlay" aria-label="Database Connection Pooling の深い技術的本質: マイクロアーキテクチャ、数学的モデル、OSレベルの相互作用"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/41-database-connection-pooling.svg" alt="Database Connection Pooling の深い技術的本質: マイクロアーキテクチャ、数学的モデル、OSレベルの相互作用">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">Database Connection Pooling の深い技術的本質: マイクロアーキテクチャ、数学的モデル、OSレベルの相互作用</h2>
+            <p class="card-excerpt">概要と中核的な問題 (Core Problem Statement) 分散システム (distributed systems)、マイクロサービス (microservices) アーキテクチャ、および最新の Web アプリケーションにおいて、アプリケーション層 (Application Layer) とデータベース層 (Database Layer) 間の通信は、しばしばパフォーマンス上の最も深刻なボトルネック (bottleneck)...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+                      <article class="post-card">
+          <a href="https://hoasentable.com/ja/%E3%83%90%E3%83%83%E3%83%95%E3%82%A1%E3%83%97%E3%83%BC%E3%83%AB%E7%AE%A1%E7%90%86-%E3%82%AD%E3%83%A3%E3%83%83%E3%82%B7%E3%83%A5%E3%82%A8%E3%83%93%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%A1%E3%82%AB/" class="card-link-overlay" aria-label="バッファプール管理: キャッシュエビクションメカニズム、メモリサブシステム相互作用、および並行性制御のマイクロアーキテクチャ分析"></a>
+          <div class="card-img-wrap ">
+                          <img src="https://hoasentable.com/wp-content/uploads/hoasen-covers/40-buffer-pool-management.svg" alt="バッファプール管理: キャッシュエビクションメカニズム、メモリサブシステム相互作用、および並行性制御のマイクロアーキテクチャ分析">
+                      </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">July 22, 2026</span>
+              <span class="card-author">/ admin</span>
+            </div>
+            <h2 class="card-title">バッファプール管理: キャッシュエビクションメカニズム、メモリサブシステム相互作用、および並行性制御のマイクロアーキテクチャ分析</h2>
+            <p class="card-excerpt">エグゼクティブサマリーと核心課題 現代のデータ集約型アプリケーションにおけるデータ検索レイテンシの最適化は、根本的にバッファプールマネージャー（BPM）のオーケストレーションに依存しています。永続的であるが本質的に高レイテンシの二次記憶装置（セカンダリストレージ）ティアと、揮発性で低レイテンシのメインメモリを橋渡しする主要な仲介者として、バッファプールは、リレーショナルデータベース管理システム（RDBMS）および分散キーバリューストアのスループットと応答時間を決定する中核的なアーキテクチャコンポーネントを構成します。 核心的な問題: バッファプールのアーキテクチャ上の必要性は、ハードディスクドライブ（HDD）やソリッドステートドライブ（SSD）などの不揮発性メモリ技術の深刻な機械的および電子的制約に由来します。ダイナミックランダムアクセスメモリ（DRAM）が50〜100ナノ秒オーダーのレイテンシを誇る一方で、NVMe SSDは数十マイクロ秒で応答し、HDDは数ミリ秒かかります。中央処理装置（CPU）がサブナノ秒の粒度で命令を実行するコンピューティング環境では、物理ストレージメディアを直接参照する同期I/O操作は、容認できないパイプラインのストール（pipeline stall）を課します。アクティブなディスクブロックをメインメモリのフレームに積極的にキャッシュする洗練された抽象化レイヤーがなければ、CPUは時間の99％以上をデータ検索の待機に費やし、アイドル状態になります。 この技術ホワイトペーパーでは、バッファプール管理の包括的かつマイクロアーキテクチャレベルの分析を提供します。物理メモリ構成、キャッシュヒット率を支配する数学的形式論、高度なキャッシュ置換アルゴリズム（LRU、Clock Sweep、LRU-K、LIRS）、Non-Uniform Memory Access（NUMA）アーキテクチャでの並行性制御メカニズム、および非同期ページクリーナーとWrite-Ahead Logging（WAL）の間の複雑な相互作用を深く掘り下げます。 深掘り: 物理メモリとストレージ階層化 バッファプールの役割を真に理解するには、ストレージ階層を理解する必要があります。バッファプールは単なるキャッシュではなく、データの変異（ミューテーション）が発生するアクティブなワークスペースです。 レイテンシのギャップ CPUの処理速度とストレージへのアクセス時間の間の広がるギャップは、積極的なキャッシングを必要としています。10〜14 GB/sのスループットが可能なPCIe Gen...</p>
+            <span class="card-more">Read Article <svg width="12" height="12" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+          </div>
+        </article>
+      
+      </div>
+
+      <div class="pagination">
+      <span aria-current="page" class="page-numbers current">1</span>
+<a class="page-numbers" href="https://hoasentable.com/ja/blog-ja/page/2/">2</a>
+<a class="page-numbers" href="https://hoasentable.com/ja/blog-ja/page/3/">3</a>
+<span class="page-numbers dots">…</span>
+<a class="page-numbers" href="https://hoasentable.com/ja/blog-ja/page/5/">5</a>
+<a class="next page-numbers" href="https://hoasentable.com/ja/blog-ja/page/2/">次へ »</a>    </div>
+  
+</div>
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">1078</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+</body>
+</html>

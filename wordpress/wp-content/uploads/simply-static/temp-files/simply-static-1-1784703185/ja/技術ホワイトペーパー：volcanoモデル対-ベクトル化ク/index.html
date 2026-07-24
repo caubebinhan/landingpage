@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/technical-whitepaper-volcano-model-vs-vectorized-query-execution-in-modern-database-engines/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/mo-hinh-volcano-va-thuc-thi-truy-van-theo-vector-trong-cac-engine-co-so-du-lieu-hien-dai/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%EF%BC%9Avolcano%E3%83%A2%E3%83%87%E3%83%AB%E5%AF%BE-%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB%E5%8C%96%E3%82%AF/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較 - HoaSen</title>
+	<link rel="canonical" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%EF%BC%9Avolcano%E3%83%A2%E3%83%87%E3%83%AB%E5%AF%BE-%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB%E5%8C%96%E3%82%AF/">
+	<meta property="og:locale" content="ja_JP">
+	<meta property="og:locale:alternate" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較 - HoaSen">
+	<meta property="og:description" content="エグゼクティブサマリー リレーショナルデータベースのクエリ実行エンジンの設計と実装は、過去30年間で根本的かつ構造的な変革を遂げてきました。半導体ハードウェアアーキテクチャの絶え間ない幾何級数的な進化に牽引され、複雑な分析クエリを評価するためのパラダイムは劇的に変化しています。 データベース黎明期には、ハードディスクドライブ（HDD）のI/O帯域幅が絶対的なボトルネックでした。このディスク律速の時代において、Volcanoイテレータモデルが事実上の標準として登場し、クエリ評価のための非常にエレガントで、普遍的に組み合わせ可能な抽象化を提供しました。しかし、半導体の微細化がCPU処理能力、コア数、揮発性メインメモリ容量を急激に押し上げるにつれ、古典的なVolcanoモデルは現代のハードウェア上で深刻な構造的非効率性を示すようになり、壊滅的に低いクロックあたり命令数（IPC）スループットにつながりました。 このアーキテクチャ上の乖離は、ベクトル化クエリ実行（Vectorized Query Execution）の開発という、根本的なパラダイムシフトを必要としました。本ホワイトペーパーは、両方の実行モデルについて、その基本的なアルゴリズム、メモリアクセストポロジー、オペレーティングシステムとの相互作用、そして絶対的なハードウェア限界を解剖する、厳密かつ微視的で数学的根拠に基づいた分析を提示します。読者は、現代のデータベースがシリコンレベルでどのようにデータを処理するか、レガシーアーキテクチャに内在する問題、そしてデータベースエンジンを最適化するための重要な教訓について、深い理解を得ることができるでしょう。 はじめに：中核となる問題提起 問題: なぜ一部のデータベースエンジンは、全く同じハードウェア上で、分析クエリ（OLAP）を桁違いに高速に実行できるのでしょうか？ その答えは、アルゴリズムの高レベルな理論的複雑性（例えばビッグO記法）にあることはめったにありません。むしろ、性能差は、それらの高レベルなアルゴリズムを、正確なCPU命令と階層的なメモリアクセスへと機械的に変換する過程に深く根ざしています。レガシーなデータベースエンジンは、ディスクがボトルネックであり、CPUが常に待機している時代に設計されました。今日では、データはしばしば完全にRAM上にキャッシュされており（インメモリデータベース）、ボトルネックはCPUがメモリからデータを取得する能力（メモリ帯域幅）、命令をデコードする能力、そして実行パイプラインを飽和させ続ける能力へと、急激にシフトしています。 現代のスーパースカラCPU上で従来のクエリ実行モデルを実行すると、CPU使用率の壊滅的な低下が観察されます。CPUは、意味のあるリレーショナル演算を実行するのではなく、その大部分のクロックサイクルを、メモリ待ちのストールや投機的な予測ミスからの回復に費やしています。このソフトウェアアーキテクチャとハードウェアの現実との間の断絶こそが、ベクトル化実行が解決する中核的な問題なのです。 Volcanoモデルとタプル単位のパイプライン処理 Volcanoイテレータモデルは、1990年代初頭にGoetz Graefeによって正式に導入され、物理的なクエリ実行を、物理演算子の有向非巡回グラフ（典型的には木構造）として実装します。各演算子ノードは、特定のリレーショナル代数演算（選択、射影、結合、集約）に対応します。 アーキテクチャとデータフロー Volcanoモデルを特徴づけるのは、open()、next()、close()という3つの仮想メソッドによって古典的に定義される、非常に標準化されたタプル単位の手続き型インターフェースです。データは、葉ノードからルートノードへと一方向に流れます。 graph TD Root[ルート演算子: Limit] --&gt;|next: タプル| Agg[集約演算子] Agg --&gt;|next: タプル| Filter[選択/フィルタ演算子] Filter --&gt;|next: タプル| Join[ハッシュ結合演算子] Join --&gt;|next: タプル| Scan1[テーブルスキャン演算子: Orders] Join --&gt;|next: タプル| Scan2[テーブルスキャン演算子: Customers] style Root fill:#f9f,stroke:#333,stroke-width:2px style Agg fill:#ccf,stroke:#333,stroke-width:2px style Filter fill:#cfc,stroke:#333,stroke-width:2px style Join fill:#fcc,stroke:#333,stroke-width:2px style Scan1 […]">
+	<meta property="og:url" content="https://hoasentable.com/ja/技術ホワイトペーパー：volcanoモデル対-ベクトル化ク/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:31:37+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:29:05+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="執筆者">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="推定読み取り時間">
+	<meta name="twitter:data2" content="2 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較","datePublished":"2026-07-22T01:31:37+00:00","dateModified":"2026-07-22T06:29:05+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/"},"wordCount":167,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/34-volcano-vs-vectorized-execution.svg","inLanguage":"ja","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/","url":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/","name":"技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較 - HoaSen","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/34-volcano-vs-vectorized-execution.svg","datePublished":"2026-07-22T01:31:37+00:00","dateModified":"2026-07-22T06:29:05+00:00","author":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"breadcrumb":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#breadcrumb"},"inLanguage":"ja","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/"]}]},{"@type":"ImageObject","inLanguage":"ja","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/34-volcano-vs-vectorized-execution.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/34-volcano-vs-vectorized-execution.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/ja\/home-ja\/"},{"@type":"ListItem","position":2,"name":"HoaSen Table Blog (JA)","item":"https:\/\/hoasentable.com\/ja\/blog-ja\/"},{"@type":"ListItem","position":3,"name":"技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website","url":"https:\/\/hoasentable.com\/ja\/home-ja\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/ja\/home-ja\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"ja"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"ja","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/ja\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » 技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較 Comments Feed" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%EF%BC%9Avolcano%E3%83%A2%E3%83%87%E3%83%AB%E5%AF%BE-%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB%E5%8C%96%E3%82%AF/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=1027">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="エグゼクティブサマリー リレーショナルデータベースのクエリ実行エンジンの設計と実装は、過去30年間で根本的かつ構造的な変革を遂げてきました。半導体ハードウェアアーキテクチャの絶え間ない幾何級数的な進化に牽引され、複雑な分析クエリを評価するためのパラダイムは劇的に変化しています。 データベース黎明期には、ハードディスクドライブ（HDD）のI/O帯域幅が絶対的なボトルネックでした。このディスク律速の時代において、Volcanoイテレータモデルが事実上の標準として登場し、クエリ評価のための非常にエレガントで、普遍的に組み合わせ可能な抽象化を提供しました。しかし、半導体の微細化がCPU処理能力、コア数、揮発性メインメモリ容量を急激に押し上げるにつれ、古典的なVolcanoモデルは現代のハードウェア上で深刻な構造的非効率性を示すようになり、壊滅的に低いクロックあたり命令数（IPC）スループットにつながりました。 このアーキテクチャ上の乖離は、ベクトル化クエリ実行（Vectorized Query Execution）の開発という、根本的なパラダイムシフトを必要としました。本ホワイトペーパーは、両方の実行モデルについて、その基本的なアルゴリズム、メモリアクセストポロジー、オペレーティングシステムとの相互作用、そして絶対的なハードウェア限界を解剖する、厳密かつ微視的で数学的根拠に基づいた分析を提示します。読者は、現代のデータベースがシリコンレベルでどのようにデータを処理するか、レガシーアーキテクチャに内在する問題、そしてデータベースエンジンを最適化するための重要な教訓について、深い理解を得ることができるでしょう。 はじめに：中核となる問題提起 問題: なぜ一部のデータベースエンジンは、全く同じハードウェア上で、分析クエリ（OLAP）を桁違いに高速に実行できるのでしょうか？ その答えは、アルゴリズムの高レベルな理論的複雑性（例えばビッグO記法）にあることはめったにありません。むしろ、性能差は、それらの高レベルなアルゴリズムを、正確なCPU命令と階層的なメモリアクセスへと機械的に変換する過程に深く根ざしています。レガシーなデータベースエンジンは、ディスクがボトルネックであり、CPUが常に待機している時代に設計されました。今日では、データはしばしば完全にRAM上にキャッシュされており（インメモリデータベース）、ボトルネックはCPUがメモリからデータを取得する能力（メモリ帯域幅）、命令をデコードする能力、そして実行パイプラインを飽和させ続ける能力へと、急激にシフトしています。 現代のスーパースカラCPU上で従来のクエリ実行モデルを実行すると、CPU使用率の壊滅的な低下が観察されます。CPUは、意味のあるリレーショナル演算を実行するのではなく、その大部分のクロックサイクルを、メモリ待ちのストールや投機的な予測ミスからの回復に費やしています。このソフトウェアアーキテクチャとハードウェアの現実との間の断絶こそが、ベクトル化実行が解決する中核的な問題なのです。 Volcanoモデルとタプル単位のパイプライン処理 Volcanoイテレータモデルは、1990年代初頭にGoetz Graefeによって正式に導入され、物理的なクエリ実行を、物理演算子の有向非巡回グラフ（典型的には木構造）として実装します。各演算子ノードは、特定のリレーショナル代数演算（選択、射影、結合、集約）に対応します。 アーキテクチャとデータフロー Volcanoモデルを特徴づけるのは、open()、next()、close()という3つの仮想メソッドによって古典的に定義される、非常に標準化されたタプル単位の手続き型インターフェースです。データは、葉ノードからルートノードへと一方向に流れます。 graph TD Root[ルート演算子: Limit] --&gt;|next: タプル| Agg[集約演算子] Agg --&gt;|next: タプル| Filter[選択/フィルタ演算子] Filter --&gt;|next: タプル| Join[ハッシュ結合演算子] Join --&gt;|next: タプル| Scan1[テーブルスキャン演算子: Orders] Join --&gt;|next: タプル| Scan2[テーブルスキャン演算子: Customers] style Root fill:#f9f,stroke:#333,stroke-width:2px style Agg fill:#ccf,stroke:#333,stroke-width:2px style Filter fill:#cfc,stroke:#333,stroke-width:2px style Join fill:#fcc,stroke:#333,stroke-width:2px style Scan1 […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較","description":"エグゼクティブサマリー リレーショナルデータベースのクエリ実行エンジンの設計と実装は、過去30年間で根本的かつ構造的な変革を遂げてきました。半導体ハードウェアアーキテクチャの絶え間ない幾何級数的な進化に牽引され、複雑な分析クエリを評価するためのパラダイムは劇的に変化しています。 データベース黎明期には、ハードディスクドライブ（HDD）のI/O帯域幅が絶対的なボトルネックでした。このディスク律速の時代において、Volcanoイテレータモデルが事実上の標準として登場し、クエリ評価のための非常にエレガントで、普遍的に組み合わせ可能な抽象化を提供しました。しかし、半導体の微細化がCPU処理能力、コア数、揮発性メインメモリ容量を急激に押し上げるにつれ、古典的なVolcanoモデルは現代のハードウェア上で深刻な構造的非効率性を示すようになり、壊滅的に低いクロックあたり命令数（IPC）スループットにつながりました。 このアーキテクチャ上の乖離は、ベクトル化クエリ実行（Vectorized Query Execution）の開発という、根本的なパラダイムシフトを必要としました。本ホワイトペーパーは、両方の実行モデルについて、その基本的なアルゴリズム、メモリアクセストポロジー、オペレーティングシステムとの相互作用、そして絶対的なハードウェア限界を解剖する、厳密かつ微視的で数学的根拠に基づいた分析を提示します。読者は、現代のデータベースがシリコンレベルでどのようにデータを処理するか、レガシーアーキテクチャに内在する問題、そしてデータベースエンジンを最適化するための重要な教訓について、深い理解を得ることができるでしょう。 はじめに：中核となる問題提起 問題: なぜ一部のデータベースエンジンは、全く同じハードウェア上で、分析クエリ（OLAP）を桁違いに高速に実行できるのでしょうか？ その答えは、アルゴリズムの高レベルな理論的複雑性（例えばビッグO記法）にあることはめったにありません。むしろ、性能差は、それらの高レベルなアルゴリズムを、正確なCPU命令と階層的なメモリアクセスへと機械的に変換する過程に深く根ざしています。レガシーなデータベースエンジンは、ディスクがボトルネックであり、CPUが常に待機している時代に設計されました。今日では、データはしばしば完全にRAM上にキャッシュされており（インメモリデータベース）、ボトルネックはCPUがメモリからデータを取得する能力（メモリ帯域幅）、命令をデコードする能力、そして実行パイプラインを飽和させ続ける能力へと、急激にシフトしています。 現代のスーパースカラCPU上で従来のクエリ実行モデルを実行すると、CPU使用率の壊滅的な低下が観察されます。CPUは、意味のあるリレーショナル演算を実行するのではなく、その大部分のクロックサイクルを、メモリ待ちのストールや投機的な予測ミスからの回復に費やしています。このソフトウェアアーキテクチャとハードウェアの現実との間の断絶こそが、ベクトル化実行が解決する中核的な問題なのです。 Volcanoモデルとタプル単位のパイプライン処理 Volcanoイテレータモデルは、1990年代初頭にGoetz Graefeによって正式に導入され、物理的なクエリ実行を、物理演算子の有向非巡回グラフ（典型的には木構造）として実装します。各演算子ノードは、特定のリレーショナル代数演算（選択、射影、結合、集約）に対応します。 アーキテクチャとデータフロー Volcanoモデルを特徴づけるのは、open()、next()、close()という3つの仮想メソッドによって古典的に定義される、非常に標準化されたタプル単位の手続き型インターフェースです。データは、葉ノードからルートノードへと一方向に流れます。 graph TD Root[ルート演算子: Limit] --&gt;|next: タプル| Agg[集約演算子] Agg --&gt;|next: タプル| Filter[選択/フィルタ演算子] Filter --&gt;|next: タプル| Join[ハッシュ結合演算子] Join --&gt;|next: タプル| Scan1[テーブルスキャン演算子: Orders] Join --&gt;|next: タプル| Scan2[テーブルスキャン演算子: Customers] style Root fill:#f9f,stroke:#333,stroke-width:2px style Agg fill:#ccf,stroke:#333,stroke-width:2px style Filter fill:#cfc,stroke:#333,stroke-width:2px style Join fill:#fcc,stroke:#333,stroke-width:2px style Scan1 […]","inLanguage":"ja","datePublished":"2026-07-22T01:31:37+00:00","dateModified":"2026-07-22T06:29:05+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/ja/home-ja/"},"mainEntityOfPage":"https://hoasentable.com/ja/%e6%8a%80%e8%a1%93%e3%83%9b%e3%83%af%e3%82%a4%e3%83%88%e3%83%9a%e3%83%bc%e3%83%91%e3%83%bc%ef%bc%9avolcano%e3%83%a2%e3%83%87%e3%83%ab%e5%af%be-%e3%83%99%e3%82%af%e3%83%88%e3%83%ab%e5%8c%96%e3%82%af/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/ja/home-ja/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/ja/blog-ja/" class="back-btn">← ブログへ戻る</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/technical-whitepaper-volcano-model-vs-vectorized-query-execution-in-modern-database-engines/">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/mo-hinh-volcano-va-thuc-thi-truy-van-theo-vector-trong-cac-engine-co-so-du-lieu-hien-dai/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja current-lang"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%EF%BC%9Avolcano%E3%83%A2%E3%83%87%E3%83%AB%E5%AF%BE-%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB%E5%8C%96%E3%82%AF/" aria-current="true">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/34-volcano-vs-vectorized-execution.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>技術ホワイトペーパー：Volcanoモデル対 ベクトル化クエリ実行 ― 現代データベースエンジンにおける比較</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 3 分で読めます</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>エグゼクティブサマリー</h2>
+<p>リレーショナルデータベースのクエリ実行エンジンの設計と実装は、過去30年間で根本的かつ構造的な変革を遂げてきました。半導体ハードウェアアーキテクチャの絶え間ない幾何級数的な進化に牽引され、複雑な分析クエリを評価するためのパラダイムは劇的に変化しています。</p>
+<p>データベース黎明期には、ハードディスクドライブ（HDD）のI/O帯域幅が絶対的なボトルネックでした。このディスク律速の時代において、<strong>Volcanoイテレータモデル</strong>が事実上の標準として登場し、クエリ評価のための非常にエレガントで、普遍的に組み合わせ可能な抽象化を提供しました。しかし、半導体の微細化がCPU処理能力、コア数、揮発性メインメモリ容量を急激に押し上げるにつれ、古典的なVolcanoモデルは現代のハードウェア上で深刻な構造的非効率性を示すようになり、壊滅的に低いクロックあたり命令数（IPC）スループットにつながりました。</p>
+<p>このアーキテクチャ上の乖離は、<strong>ベクトル化クエリ実行（Vectorized Query Execution）</strong>の開発という、根本的なパラダイムシフトを必要としました。本ホワイトペーパーは、両方の実行モデルについて、その基本的なアルゴリズム、メモリアクセストポロジー、オペレーティングシステムとの相互作用、そして絶対的なハードウェア限界を解剖する、厳密かつ微視的で数学的根拠に基づいた分析を提示します。読者は、現代のデータベースがシリコンレベルでどのようにデータを処理するか、レガシーアーキテクチャに内在する問題、そしてデータベースエンジンを最適化するための重要な教訓について、深い理解を得ることができるでしょう。</p>
+<hr>
+<h2>はじめに：中核となる問題提起</h2>
+<p><strong>問題:</strong> なぜ一部のデータベースエンジンは、全く同じハードウェア上で、分析クエリ（OLAP）を桁違いに高速に実行できるのでしょうか？</p>
+<p>その答えは、アルゴリズムの高レベルな理論的複雑性（例えばビッグO記法）にあることはめったにありません。むしろ、性能差は、それらの高レベルなアルゴリズムを、正確なCPU命令と階層的なメモリアクセスへと機械的に変換する過程に深く根ざしています。レガシーなデータベースエンジンは、ディスクがボトルネックであり、CPUが常に待機している時代に設計されました。今日では、データはしばしば完全にRAM上にキャッシュされており（インメモリデータベース）、ボトルネックはCPUがメモリからデータを取得する能力（メモリ帯域幅）、命令をデコードする能力、そして実行パイプラインを飽和させ続ける能力へと、急激にシフトしています。</p>
+<p>現代のスーパースカラCPU上で従来のクエリ実行モデルを実行すると、CPU使用率の壊滅的な低下が観察されます。CPUは、意味のあるリレーショナル演算を実行するのではなく、その大部分のクロックサイクルを、メモリ待ちのストールや投機的な予測ミスからの回復に費やしています。このソフトウェアアーキテクチャとハードウェアの現実との間の断絶こそが、ベクトル化実行が解決する中核的な問題なのです。</p>
+<hr>
+<h2>Volcanoモデルとタプル単位のパイプライン処理</h2>
+<p>Volcanoイテレータモデルは、1990年代初頭にGoetz Graefeによって正式に導入され、物理的なクエリ実行を、物理演算子の有向非巡回グラフ（典型的には木構造）として実装します。各演算子ノードは、特定のリレーショナル代数演算（選択、射影、結合、集約）に対応します。</p>
+<h3>アーキテクチャとデータフロー</h3>
+<p>Volcanoモデルを特徴づけるのは、<code>open()</code>、<code>next()</code>、<code>close()</code>という3つの仮想メソッドによって古典的に定義される、非常に標準化された<strong>タプル単位の手続き型インターフェース</strong>です。データは、葉ノードからルートノードへと一方向に流れます。</p>
+<pre class="mermaid">graph TD
+    Root[ルート演算子: Limit] --&gt;|next: タプル| Agg[集約演算子]
+    Agg --&gt;|next: タプル| Filter[選択/フィルタ演算子]
+    Filter --&gt;|next: タプル| Join[ハッシュ結合演算子]
+    Join --&gt;|next: タプル| Scan1[テーブルスキャン演算子: Orders]
+    Join --&gt;|next: タプル| Scan2[テーブルスキャン演算子: Customers]
+    style Root fill:#f9f,stroke:#333,stroke-width:2px
+    style Agg fill:#ccf,stroke:#333,stroke-width:2px
+    style Filter fill:#cfc,stroke:#333,stroke-width:2px
+    style Join fill:#fcc,stroke:#333,stroke-width:2px
+    style Scan1 fill:#eee,stroke:#333,stroke-width:2px
+    style Scan2 fill:#eee,stroke:#333,stroke-width:2px</pre>
+<p>親演算子が<code>next()</code>呼び出しを実行すると、子演算子は自身の内部状態マシンを処理し、後続の<code>next()</code>呼び出しを通じて自身の子からデータを取得し、ロジックを適用して、完全にマテリアライズされた単一のタプルを生成します。</p>
+<h3>効率という幻想</h3>
+<p>このパイプライン化された需要駆動型のアプローチは、中間結果セットがめったにマテリアライズされないため、従来のディスクベースのシステムでは非常にメモリ効率が良いものでした。しかし、現代のスーパースカラCPU上では、壊滅的かつ体系的なマイクロアーキテクチャ上のオーバーヘッドをもたらします。</p>
+<h3>解釈オーバーヘッドと仮想呼び出し</h3>
+<p>非効率性の主な原因は、<strong>仮想関数呼び出し（動的ディスパッチ）</strong>の広範な使用にあります。物理演算子は汎用インターフェースを継承する多態的なサブクラスとして実装されるため、すべての<code>next()</code>呼び出しは構造的に動的ディスパッチを必要とします。</p>
+<p>現代のマイクロアーキテクチャでは、CPUの分岐ターゲットバッファ（BTB）が宛先を正確に予測できない場合、間接分岐が実行パイプラインをストールさせます。数十億のタプルを処理する深いVolcano実行木では、BTBは激しいキャパシティミスを経験し、持続的な予測ミスにつながります。</p>
+<p>$$T_{volcano} approx sum_{i=1}^{N} sum_{j=1}^{D} left( C_{vcall}^{(i,j)} + C_{logic}^{(i,j)} + P_{miss}^{(i,j)} times C_{penalty} right)$$</p>
+<p>この式において、$C_{vcall}$は単純な演算の実行時間を頻繁に支配します。手続き的な制御フローを調整するために明示的に必要とされる膨大な量のアセンブリ命令は、実際のリレーショナルロジックを実行する命令数を大幅に上回ります。</p>
+<h3>キャッシュスラッシングと行指向ストレージ</h3>
+<p>さらに、Volcanoモデルはネイティブに、N分ストレージモデル（NSM）、すなわち根本的に<strong>行指向ストレージ</strong>として知られる形式に従うデータを処理します。行指向タプルの特定のフィールドを読み取ると、メモリアクセスが分散します。現代のプロセッサは、厳密に64バイトのアラインされたチャンク（キャッシュライン）でDRAMからメモリを取得します。射影演算子が256バイトのタプルからわずか4バイトの整数のみを必要とする場合でも、ハードウェアは64バイトのキャッシュライン全体を取得し、貴重なメモリ帯域幅を浪費します。</p>
+<pre><code class="language-cpp">// Volcano実行をモデル化するC++疑似コード
+class PhysicalOperator {
+public:
+    virtual Tuple* next() = 0; 
+};
+
+class FilterOperator : public PhysicalOperator {
+private:
+    PhysicalOperator* child_;
+    Predicate* pred_;
+public:
+    Tuple* next() override {
+        // 木を下る繰り返しの仮想呼び出しがBTBの予測性を破壊する
+        while (Tuple* t = child_-&gt;next()) {
+            if (pred_-&gt;evaluate(t)) return t;
+        }
+        return nullptr;
+    }
+};</code></pre>
+<hr>
+<h2>ベクトル化クエリ実行とハードウェアとの共生</h2>
+<p><strong>ベクトル化クエリ実行</strong>は、スーパースカラシリコンとのメカニカル・シンパシー（機械的親和性）を達成し、ハードウェア利用率を最大化するために明示的に設計された、根本的でゼロベースのアーキテクチャ再設計を表しています。MonetDB/X100（VectorWise）によって先駆的に開発されたこのパラダイムは、タプル単位のアプローチを完全に放棄します。</p>
+<h3>データフロー優位への転換</h3>
+<p>個別のタプルを処理する代わりに、演算子は<strong>列指向形式で厳密に整理された、密で固定サイズのタプルのバッチ</strong>（VectorBatch）を渡すことで通信します。典型的な最適ベクトルサイズは数学的に1024から4096要素の範囲であり、ワーキングセットがCPUのL1またはL2データキャッシュに完全に収まるように慎重に調整されています。</p>
+<pre class="mermaid">graph LR
+    Scan[テーブルスキャン演算子] --&gt;|VectorBatch: 1024〜4096タプル| Filter[フィルタ演算子]
+    Filter --&gt;|VectorBatch: フィルタ済み選択| Hash[ハッシュ構築/プローブ演算子]
+    Hash --&gt;|VectorBatch: 結合済み結果ベクトル| Agg[ベクトル化集約]
+    
+    subgraph VectorBatchのメモリ配置
+        C1[列1配列: 連続したint32_t]
+        C2[列2配列: 連続したfloat64_t]
+        Sel[選択ベクトル: 連続したuint16_t]
+    end
+    Scan -.-&gt; VectorBatchのメモリ配置</pre>
+<p>膨大な数のタプルのバッチに手続き的な制御フローのオーバーヘッドを分散させることで、ベクトル化実行は仮想関数呼び出しの統計的影響を指数関数的に削減します。<code>next()</code>メソッドは単一の<code>Tuple</code>ポインタではなく<code>VectorBatch</code>参照を返し、計算プロファイルを制御フロー優位のパラダイムから厳密な<strong>データフロー優位のパラダイム</strong>へと変換します。</p>
+<h3>密なインナーループとCPUプリフェッチ</h3>
+<p>演算子がベクトルバッチを処理する際、リレーショナルロジックは、密で連続的な配列を順次反復する、非常に予測可能でシンプルな<code>for</code>ループとして物理的に実装されます。</p>
+<p>この列指向レイアウトは、CPUキャッシュ階層に組み込まれた空間局所性の前提と完全に一致します。シーケンシャルなメモリアクセスは、ハードウェアのストライドプリフェッチャーおよびネクストラインプリフェッチャーを確実にトリガーし、実行ユニットが要求する前にDRAMからL1/L2キャッシュへキャッシュラインを積極的にロードします。これにより、メモリレイテンシが効果的に隠蔽され、メモリ帯域幅が完全に飽和します。</p>
+<pre><code class="language-rust">// ベクトル化実行を示すRust疑似コード
+struct VectorBatch {
+    columns: Vec&lt;Vec&lt;u8&gt;&gt;, 
+    selection_vector: Vec&lt;u16&gt;, 
+    count: usize,
+}
+
+impl FilterOperator {
+    fn next_batch(&amp;mut self) -&gt; Option&lt;VectorBatch&gt; {
+        let mut batch = self.child.next_batch()?;
+        let data = get_typed_column::&lt;i32&gt;(&amp;batch, self.filter_col_idx);
+        let mut new_sel = Vec::with_capacity(batch.count);
+        
+        // 自動ベクトル化に非常に適した密なインナーループ
+        for i in 0..batch.count {
+            let row_idx = batch.selection_vector[i] as usize;
+            // 分岐のない評価
+            if data[row_idx] &gt; self.threshold {
+                new_sel.push(row_idx as u16);
+            }
+        }
+        
+        batch.selection_vector = new_sel;
+        batch.count = batch.selection_vector.len();
+        Some(batch)
+    }
+}</code></pre>
+<p>ベクトル化された時間（$T_{vectorized}$）の数式は、構造的な制御オーバーヘッドの極端な償却を示しています。</p>
+<p>$$T_{vectorized} approx sum_{j=1}^{D} left( frac{N}{B} times C_{vcall}^{(j)} + sum_{k=1}^{N/B} C_{vector_logic}^{(j,k)} right)$$</p>
+<p>ベクトルバッチサイズ$B$が増加するにつれ、解釈の償却コストはゼロに近づきます。実行は、ハードウェアのメモリ帯域幅（$BW_{dram}$）とALUスループットによって厳密に制約されるようになります。</p>
+<hr>
+<h2>SIMD（単一命令・複数データ）の力</h2>
+<p>ベクトル化の中で最も技術的に革新的な側面は、SIMDアーキテクチャ（Intel AVX-512、ARM SVE）との深い相乗効果です。これらの命令セットは、単一のクロックサイクル命令が複数のスカラーデータ要素に対して同時に動作することを可能にします。</p>
+<p>ベクトル化エンジンはプリミティブ型の連続配列にデータを格納するため、現代のコンパイラ（LLVM/GCC）は密なインナーループを<strong>自動ベクトル化</strong>できます。あるいは、データベースエンジニアは明示的なSIMDイントリンシクスを利用します。単一のAVX-512命令は、16個の32ビット整数比較を物理的に同時に実行できます。</p>
+<p>$$T_{vectorized_simd} approx frac{N}{B} times C_{vcall} + N times frac{C_{vector_logic}}{W_{simd}}$$</p>
+<p>分岐予測ミスを完全に排除するため、ベクトル化エンジンは<strong>分岐のないプログラミング</strong>を採用します。<code>if</code>文の代わりに、ビット演算またはSIMDマスク演算を利用して選択ベクトルや物理的なビットマップを計算します。制御依存関係をアルゴリズム的にデータ依存関係へと変換することで、CPUパイプラインは完全に飽和した状態を維持し、分岐予測器の限界を回避します。</p>
+<hr>
+<h2>マイクロアーキテクチャ的な比較分析</h2>
+<p>科学的に厳密な比較により、マイクロアーキテクチャの実行に根ざした大きな格差が明らかになります。</p>
+<ul>
+<li><strong>リオーダーバッファ（ROB）の飽和:</strong> Volcanoモデルの頻繁な仮想呼び出しは直列化バリアとして機能し、ROBを枯渇させます。ベクトル化ループは、ROBに独立した命令の膨大なプールを提供し、積極的な動的ループアンローリングと複数のALUにまたがる並行命令実行を可能にします。</li>
+<li><strong>TLBスラッシング:</strong> トランスレーション・ルックアサイド・バッファ（TLB）は仮想アドレスを物理アドレスに変換します。Volcanoの断片化されたヒープ割り当ては壊滅的なTLBスラッシングを引き起こし、高価なページテーブルウォークをトリガーします。ベクトル化エンジンは、巨大で事前割り当てされた列指向のチャンク上で動作し、完璧な空間局所性を示します。透過的巨大ページ（Transparent Huge Pages、1GBブロック）と組み合わせると、TLBミスは根絶されます。</li>
+<li><strong>ハッシュ結合におけるソフトウェアパイプライン化プリフェッチ:</strong> Volcanoでは、ハッシュテーブルをタプルごとにプローブすることで、ロジックがランダムメモリアクセス（CPUストール）と激しく絡み合います。ベクトル化実行では、ハッシュ結合はループフィッションによってこれらのフェーズを分離します。エンジンはSIMDを使用してベクトルのハッシュを計算し、バケットに対する明示的なソフトウェアプリフェッチ命令（<code>__builtin_prefetch</code>）を生成し、その後別のループで比較を行います。これにより、高レイテンシのメモリアクセスとCPU計算が物理的にオーバーラップします。</li>
+</ul>
+<hr>
+<h2>教訓とベストプラクティス</h2>
+<ol>
+<li><strong>メカニカル・シンパシーは譲れない:</strong> ソフトウェアアーキテクチャは、CPUを汎用チューリングマシンとして扱うことはできません。極限の性能を得るには、SIMD、キャッシュライン、TLB階層、OoO(アウト・オブ・オーダー)パイプラインといったシリコンの特徴を明示的に活用するようにソフトウェアを形作る必要があります。</li>
+<li><strong>制御フローよりデータフロー:</strong> 分析ワークロードにおいては、条件ロジック（分岐）からデータ操作（ビットマップ、選択ベクトル）へ移行することで、データ分布の偏りに関わらず決定論的で高スループットな実行が保証されます。</li>
+<li><strong>OLAPにおいて列指向は王である:</strong> ストレージ形式と実行形式は一致していなければなりません。行指向のVolcanoエンジンに列指向ストレージを供給すると、絶え間ないタプルの再構築が必要になり、利点が相殺されてしまいます。列指向ストレージ（Parquet、ORC）と組み合わせたベクトル化実行は、分析性能の頂点を represents します。</li>
+<li><strong>解釈オーバーヘッドに注意:</strong> システムプログラミングにおける抽象化（仮想関数など）が「ゼロコスト」であることはめったにありません。密でデータ集約的なループでは、多態的なディスパッチが命令パイプラインを破壊します。</li>
+<li><strong>メモリ帯域幅は最後のフロンティア:</strong> ベクトル化によってCPUサイクルを最適化した後、性能はRAMがデータを供給できる速度によって制約されるようになります。データ配置の管理とメモリフットプリントの最小化が依然として重要です。</li>
+</ol>
+<hr>
+<h2>結論</h2>
+<p>VolcanoモデルとVectorized実行モデルの間の構造的な乖離は、システムエンジニアリングにおけるより広範な原則を浮き彫りにします。データ量が指数関数的に拡大し、ムーアの法則が単一スレッドのクロック速度に物理的な限界を課す中で、ハードウェアを無視した(Volcano)エンジンとハードウェアと共生する(Vectorized)エンジンとの格差は広がる一方でしょう。ベクトル化クエリ実行は、超大規模分析データ処理の未来にとって揺るぎないアーキテクチャ上の基盤であることを確固たるものとし、データベースがシリコンレベルでどのように機能するかを根本的に再定義しました。</p>
+    </main>
+          <aside class="related-wrap" aria-label="関連記事">
+        <h2>関連記事</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-51-htap%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9-%E3%83%8F%E3%82%A4%E3%83%96%E3%83%AA/">
+              <small>次に読む</small>
+              <strong>技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ</strong>
+              <span>エグゼクティブサマリー この技術ホワイトペーパーは、ハイブリッドトランザクション/分析処理 (Hybrid Transactional/Analytical Processing – HTAP) データベースシステムの包括的かつマイクロアーキテクチャ的な分析を提供します。歴史的に、データベース業界はOLTP (オンライン・トランザクション処理) とOLAP (オンライン分析処理) の間の厳格な分岐を受け入れてきました。HTAPはこの妥協を打ち破ります。デュアルフォーマット・メモリトポロジー (Delta-Mainアーキテクチャ) の数学、異なるデータレイアウト間での多版同時実行制御 (Multi-Version Concurrency Control –...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/ja/%E3%83%86%E3%82%AF%E3%83%8B%E3%82%AB%E3%83%AB%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-%E7%AC%AC50%E5%9B%9E%EF%BC%9Atime-series-databases-tsdb-gorilla%E5%9C%A7/">
+              <small>次に読む</small>
+              <strong>テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖</strong>
+              <span>エグゼクティブサマリー (Executive Summary) このホワイトペーパーは、世界をリードする時系列データベース (Time-Series Database – TSDB、例: Prometheus, InfluxDB, Gorilla) がIoTシステムやマイクロサービスから生成される膨大なデータ量をどのように処理するかについて、深く包括的な視点を提供します。Gorilla圧縮アルゴリズムの数学的構造 (Delta-of-DeltaおよびIEEE-754 XOR) と、OSカーネルレベルでのChunkingメモリ管理戦略の分析を通じて、読者は数CPUクロックサイクルでデータを64:1の比率に圧縮する原理を理解し、リアルタイム分散システムに対する貴重な設計の教訓を得ることができます。 はじめに：時系列データの不変の特性 クラウドコンピューティングとモノのインターネット (IoT)...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%E7%AC%AC49%E5%9B%9E-%E3%82%B0%E3%83%A9%E3%83%95%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9/">
+              <small>次に読む</small>
+              <strong>技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique</strong>
+              <span>エグゼクティブサマリー 本ホワイトペーパーは、超高密度に接続されたデータ（highly-connected data）を扱う際のリレーショナルデータベース管理システム（RDBMS）の限界を深く分析し、Neo4jのような現代的なグラフデータベースの心臓部である「Index-Free Adjacency」（インデックス不要な隣接関係）の仕組みを紹介する。読者は、マルチホップトラバーサル（multi-hop traversal）における中核的な課題、$mathcal{O}(1)$という計算量の数学的優位性、そしてこれらのシステムがCPUとRAMにまったく新しい参照系での動作を強いるときに生じるハードウェアマイクロアーキテクチャレベル（OSページキャッシュ、Pointer Chasing、TLB Miss）での深い影響を理解できるだろう。最後に、グラフ管理システムにおける集中型アーキテクチャと分散型アーキテクチャのトレードオフについての貴重な教訓をまとめる。 はじめに：リレーショナルモデル（RDBMS）の崩壊を読み解く リレーショナルデータベース管理システム（RDBMS）は、過去50年にわたりソフトウェア業界を支配してきた。それらは集合論（Set Theory）と関係代数（Relational Algebra）という強固な数学的公理に基づいて完璧に動作する。あらゆるエンティティは2次元（行と列）のテーブルへと正規化される。 しかし、現実世界はバラバラの表計算シートではなく、巨大なネットワークである。ソーシャルネットワーク、レコメンデーションシステム、経路探索地図、スマート電力網、分子生物学 ― これらはすべて超高密度に接続されたデータである。この種のデータをRDBMSに無理やり押し込めることは、ソフトウェアに自然な流れに逆らう変換を強いることに他ならない。まさにこの不自然さこそが、リレーショナルモデルの越えられない物理的・数学的限界を露呈させ、グラフデータベース（Graph Databases）台頭の下地となった。 しかし、グラフデータベースは実際にはチップレベルでどのように動作しているのか？それは単にUI上に丸と矢印をいくつか描くことではない。その心臓部は、Index-Free Adjacency（IFA）と呼ばれる極端なメモリアーキテクチャにある。 核心的な課題：結合（Join）演算の爆発的なマイクロコスト...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">1027</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>

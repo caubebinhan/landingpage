@@ -3,11 +3,10 @@
  * Template Name: Autocomplete Deep Dive
  */
 $lang = function_exists('pll_current_language') ? pll_current_language() : 'en';
-$is_vi = (strpos($lang,'vi')===0);
 $t = [
-  'title'   => $is_vi ? 'Autocomplete Chi Tiết' : 'Autocomplete Deep Dive',
-  'desc'    => $is_vi ? 'Khám phá cách AST-driven autocomplete hoạt động.' : 'Discover how AST-driven autocomplete works.',
-  'back'    => $is_vi ? '← Về trang chủ' : '← Back to Home',
+  'title'   => __( 'Autocomplete Deep Dive', 'hoasen-theme' ),
+  'desc'    => __( 'Discover how AST-driven autocomplete works.', 'hoasen-theme' ),
+  'back'    => __( '← Back to Home', 'hoasen-theme' ),
 ];
 ?>
 <!DOCTYPE html>
@@ -16,8 +15,7 @@ $t = [
 <link rel="icon" type="image/svg+xml" href="<?php echo get_stylesheet_directory_uri(); ?>/logo_svg.svg"/>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<title><?php echo esc_html($t['title']); ?> — HoaSen Table</title>
-<meta name="description" content="<?php echo esc_attr($t['desc']); ?>"/>
+<!-- title and meta description are emitted by Yoast SEO via wp_head() below -->
 <script type="application/ld+json">
 <?php echo wp_json_encode([
   '@context' => 'https://schema.org',
@@ -88,6 +86,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
 .ast-row.hi{background:rgba(137,24,24,.06);color:var(--red);font-weight:700}
 .ast-tag{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:800;font-family:"Inter",sans-serif;background:#eee;color:#888}
 .ast-lg{font-size:9px;color:var(--green);font-weight:800;font-family:"Inter",sans-serif;margin-left:auto}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Inter",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#666;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
 </style>
 </head>
 <body>
@@ -118,11 +122,14 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
   <div class="brand-name">HoaSen Table</div>
 </a>
 <a href="<?php echo esc_url(home_url('/')); ?>" class="back-btn"><?php echo esc_html($t['back']); ?></a>
+<?php if ( function_exists( 'pll_the_languages' ) ) : ?>
+<div class="lang-sw"><ul><?php pll_the_languages( array( 'show_flags' => 0, 'show_names' => 1, 'hide_current' => 0 ) ); ?></ul></div>
+<?php endif; ?>
 
 <header class="hero">
-  <div class="hero-tag"><?php esc_html_e($is_vi ? 'Khám phá công nghệ' : 'Technology Deep Dive', 'hoasen-theme'); ?></div>
-  <h1><?php esc_html_e($is_vi ? 'Bên dưới lớp vỏ Autocomplete' : 'Under the Hood of Autocomplete', 'hoasen-theme'); ?></h1>
-  <p><?php esc_html_e($is_vi ? 'Không chỉ là gợi ý chuỗi đơn thuần. HoaSen Table tích hợp một parser SQL thời gian thực để xây dựng AST, đảm bảo mỗi gợi ý đều chuẩn xác về mặt cú pháp ngữ pháp.' : 'Not just fuzzy string matching. HoaSen Table integrates a real-time SQL parser to build an AST, ensuring every suggestion is syntactically perfect.', 'hoasen-theme'); ?></p>
+  <div class="hero-tag"><?php esc_html_e( 'Technology Deep Dive', 'hoasen-theme' ); ?></div>
+  <h1><?php esc_html_e( 'Under the Hood of Autocomplete', 'hoasen-theme' ); ?></h1>
+  <p><?php esc_html_e( 'Not just fuzzy string matching. HoaSen Table integrates a real-time SQL parser to build an AST, ensuring every suggestion is syntactically perfect.', 'hoasen-theme' ); ?></p>
 </header>
 
 <main class="demo-wrap">

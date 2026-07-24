@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/technical-whitepaper-the-micro-architectural-execution-mechanics-behind-sql-window-functions/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/bach-thu-ky-thuat-co-che-thuc-thi-vi-kien-truc-dang-sau-sql-window-functions/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E7%99%BD%E6%9B%B8-sql-window-functions%E3%81%AE%E8%83%8C%E5%BE%8C%E3%81%AB%E3%81%82%E3%82%8B%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム - HoaSen</title>
+	<link rel="canonical" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E7%99%BD%E6%9B%B8-sql-window-functions%E3%81%AE%E8%83%8C%E5%BE%8C%E3%81%AB%E3%81%82%E3%82%8B%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF/">
+	<meta property="og:locale" content="ja_JP">
+	<meta property="og:locale:alternate" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム - HoaSen">
+	<meta property="og:description" content="エグゼクティブサマリー (Executive Summary) SQL Window Functions（ウィンドウ関数）は、データエンジニアやアナリストが複雑な分析計算を実行する方法に革命をもたらしました。データの行を単一の結果に折りたたむ集約関数（Aggregate Functions）とは異なり、Window Functionsは入力レコードのそれぞれを保持しながら、周囲の「データフレーム（Window Frame）」と関連する値を計算します。 しかし、エレガントなSQL構文（ROW_NUMBER() OVER(PARTITION BY... ORDER BY...)など）の背後には、リレーショナルデータベース管理システム（RDBMS）や分散システム（Spark、Trino）において、最も複雑でコストが高く、高度な技術を要する実行エンジンの1つが存在しています。 本白書では、アルゴリズムの断片化（Partitioning、Sorting）の概念から、最新のデータ構造（Monotonic Deque、Segment Tree）、ハードウェアマイクロアーキテクチャレベルでの深い相互作用（SIMD、Cache Lines、NUMA、JIT Compilation）に至るまで、Window Functionsの実行メカニズムを詳細に解剖します。このドキュメントを読み終える頃には、Window Functionsの動作原理を完全に理解し、大規模システムにおけるパフォーマンスのボトルネックを特定し、データ最適化設計の教訓（Lessons Learned）を引き出すことができるようになります。 Window Functionsの核心的な問題 (The Core Problem) 問題とは何か？ 数百万人の顧客を対象とした7日間の移動平均（7-day moving average）を計算するクエリを考えてみましょう。 AVG(sales) OVER(PARTITION BY customer_id ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) 特定の行に結果を返すために、システムはその行を読み取るだけでなく、以下のことを行う必要があります。 数百万の顧客を適切にパーティションにグループ化する（Partitioning）。 各顧客内で日付順にデータを並べ替える（Sorting）。 計算のために7行の「スライディングウィンドウフレーム」を維持しつつ、ウィンドウが移動するにつれて最も古い行を破棄し、最も新しい行をフレームに追加する。 通常の線形スキャンとは異なり、このプロセスは非常に洗練されたローカル状態の保持を必要とします。データが大きすぎてRAMに収まらない場合、システムはクラッシュするか、ページング/スワッピング（Paging/Swapping）を継続的に実行しなければならず、クエリの遅延が数秒から数時間へと増大します。現代のRDBMSの課題は、CPUの処理スループットを最大レベルに保ち、L1/L2/L3 Cache全体を活用しながら、この複雑な問題をいかに解決するかにあります。 フェーズ1：データのパーティショニングとルーティング (Data Partitioning) 論理パーティション（PARTITION […]">
+	<meta property="og:url" content="https://hoasentable.com/ja/技術白書-sql-window-functionsの背後にあるマイクロアーキテク/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:31:42+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:29:06+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="執筆者">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="推定読み取り時間">
+	<meta name="twitter:data2" content="2 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム","datePublished":"2026-07-22T01:31:42+00:00","dateModified":"2026-07-22T06:29:06+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/"},"wordCount":330,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/38-sql-window-functions-execution.svg","inLanguage":"ja","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/","url":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/","name":"技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム - HoaSen","isPartOf":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/38-sql-window-functions-execution.svg","datePublished":"2026-07-22T01:31:42+00:00","dateModified":"2026-07-22T06:29:06+00:00","author":{"@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"breadcrumb":{"@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#breadcrumb"},"inLanguage":"ja","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/"]}]},{"@type":"ImageObject","inLanguage":"ja","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/38-sql-window-functions-execution.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/38-sql-window-functions-execution.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/ja\/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/ja\/home-ja\/"},{"@type":"ListItem","position":2,"name":"HoaSen Table Blog (JA)","item":"https:\/\/hoasentable.com\/ja\/blog-ja\/"},{"@type":"ListItem","position":3,"name":"技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#website","url":"https:\/\/hoasentable.com\/ja\/home-ja\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/ja\/home-ja\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"ja"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/ja\/home-ja\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"ja","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/ja\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » 技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム Comments Feed" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E7%99%BD%E6%9B%B8-sql-window-functions%E3%81%AE%E8%83%8C%E5%BE%8C%E3%81%AB%E3%81%82%E3%82%8B%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=1040">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="エグゼクティブサマリー (Executive Summary) SQL Window Functions（ウィンドウ関数）は、データエンジニアやアナリストが複雑な分析計算を実行する方法に革命をもたらしました。データの行を単一の結果に折りたたむ集約関数（Aggregate Functions）とは異なり、Window Functionsは入力レコードのそれぞれを保持しながら、周囲の「データフレーム（Window Frame）」と関連する値を計算します。 しかし、エレガントなSQL構文（ROW_NUMBER() OVER(PARTITION BY... ORDER BY...)など）の背後には、リレーショナルデータベース管理システム（RDBMS）や分散システム（Spark、Trino）において、最も複雑でコストが高く、高度な技術を要する実行エンジンの1つが存在しています。 本白書では、アルゴリズムの断片化（Partitioning、Sorting）の概念から、最新のデータ構造（Monotonic Deque、Segment Tree）、ハードウェアマイクロアーキテクチャレベルでの深い相互作用（SIMD、Cache Lines、NUMA、JIT Compilation）に至るまで、Window Functionsの実行メカニズムを詳細に解剖します。このドキュメントを読み終える頃には、Window Functionsの動作原理を完全に理解し、大規模システムにおけるパフォーマンスのボトルネックを特定し、データ最適化設計の教訓（Lessons Learned）を引き出すことができるようになります。 Window Functionsの核心的な問題 (The Core Problem) 問題とは何か？ 数百万人の顧客を対象とした7日間の移動平均（7-day moving average）を計算するクエリを考えてみましょう。 AVG(sales) OVER(PARTITION BY customer_id ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) 特定の行に結果を返すために、システムはその行を読み取るだけでなく、以下のことを行う必要があります。 数百万の顧客を適切にパーティションにグループ化する（Partitioning）。 各顧客内で日付順にデータを並べ替える（Sorting）。 計算のために7行の「スライディングウィンドウフレーム」を維持しつつ、ウィンドウが移動するにつれて最も古い行を破棄し、最も新しい行をフレームに追加する。 通常の線形スキャンとは異なり、このプロセスは非常に洗練されたローカル状態の保持を必要とします。データが大きすぎてRAMに収まらない場合、システムはクラッシュするか、ページング/スワッピング（Paging/Swapping）を継続的に実行しなければならず、クエリの遅延が数秒から数時間へと増大します。現代のRDBMSの課題は、CPUの処理スループットを最大レベルに保ち、L1/L2/L3 Cache全体を活用しながら、この複雑な問題をいかに解決するかにあります。 フェーズ1：データのパーティショニングとルーティング (Data Partitioning) 論理パーティション（PARTITION […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム","description":"エグゼクティブサマリー (Executive Summary) SQL Window Functions（ウィンドウ関数）は、データエンジニアやアナリストが複雑な分析計算を実行する方法に革命をもたらしました。データの行を単一の結果に折りたたむ集約関数（Aggregate Functions）とは異なり、Window Functionsは入力レコードのそれぞれを保持しながら、周囲の「データフレーム（Window Frame）」と関連する値を計算します。 しかし、エレガントなSQL構文（ROW_NUMBER() OVER(PARTITION BY... ORDER BY...)など）の背後には、リレーショナルデータベース管理システム（RDBMS）や分散システム（Spark、Trino）において、最も複雑でコストが高く、高度な技術を要する実行エンジンの1つが存在しています。 本白書では、アルゴリズムの断片化（Partitioning、Sorting）の概念から、最新のデータ構造（Monotonic Deque、Segment Tree）、ハードウェアマイクロアーキテクチャレベルでの深い相互作用（SIMD、Cache Lines、NUMA、JIT Compilation）に至るまで、Window Functionsの実行メカニズムを詳細に解剖します。このドキュメントを読み終える頃には、Window Functionsの動作原理を完全に理解し、大規模システムにおけるパフォーマンスのボトルネックを特定し、データ最適化設計の教訓（Lessons Learned）を引き出すことができるようになります。 Window Functionsの核心的な問題 (The Core Problem) 問題とは何か？ 数百万人の顧客を対象とした7日間の移動平均（7-day moving average）を計算するクエリを考えてみましょう。 AVG(sales) OVER(PARTITION BY customer_id ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) 特定の行に結果を返すために、システムはその行を読み取るだけでなく、以下のことを行う必要があります。 数百万の顧客を適切にパーティションにグループ化する（Partitioning）。 各顧客内で日付順にデータを並べ替える（Sorting）。 計算のために7行の「スライディングウィンドウフレーム」を維持しつつ、ウィンドウが移動するにつれて最も古い行を破棄し、最も新しい行をフレームに追加する。 通常の線形スキャンとは異なり、このプロセスは非常に洗練されたローカル状態の保持を必要とします。データが大きすぎてRAMに収まらない場合、システムはクラッシュするか、ページング/スワッピング（Paging/Swapping）を継続的に実行しなければならず、クエリの遅延が数秒から数時間へと増大します。現代のRDBMSの課題は、CPUの処理スループットを最大レベルに保ち、L1/L2/L3 Cache全体を活用しながら、この複雑な問題をいかに解決するかにあります。 フェーズ1：データのパーティショニングとルーティング (Data Partitioning) 論理パーティション（PARTITION […]","inLanguage":"ja","datePublished":"2026-07-22T01:31:42+00:00","dateModified":"2026-07-22T06:29:06+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/ja/home-ja/"},"mainEntityOfPage":"https://hoasentable.com/ja/%e6%8a%80%e8%a1%93%e7%99%bd%e6%9b%b8-sql-window-functions%e3%81%ae%e8%83%8c%e5%be%8c%e3%81%ab%e3%81%82%e3%82%8b%e3%83%9e%e3%82%a4%e3%82%af%e3%83%ad%e3%82%a2%e3%83%bc%e3%82%ad%e3%83%86%e3%82%af/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/ja/home-ja/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/ja/blog-ja/" class="back-btn">← ブログへ戻る</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/technical-whitepaper-the-micro-architectural-execution-mechanics-behind-sql-window-functions/">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/bach-thu-ky-thuat-co-che-thuc-thi-vi-kien-truc-dang-sau-sql-window-functions/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja current-lang"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E7%99%BD%E6%9B%B8-sql-window-functions%E3%81%AE%E8%83%8C%E5%BE%8C%E3%81%AB%E3%81%82%E3%82%8B%E3%83%9E%E3%82%A4%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF/" aria-current="true">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/38-sql-window-functions-execution.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>技術白書: SQL Window Functionsの背後にあるマイクロアーキテクチャ実行メカニズム</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 3 分で読めます</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>エグゼクティブサマリー (Executive Summary)</h2>
+<p>SQL Window Functions（ウィンドウ関数）は、データエンジニアやアナリストが複雑な分析計算を実行する方法に革命をもたらしました。データの行を単一の結果に折りたたむ集約関数（Aggregate Functions）とは異なり、Window Functionsは入力レコードのそれぞれを保持しながら、周囲の「データフレーム（Window Frame）」と関連する値を計算します。</p>
+<p>しかし、エレガントなSQL構文（<code>ROW_NUMBER() OVER(PARTITION BY... ORDER BY...)</code>など）の背後には、リレーショナルデータベース管理システム（RDBMS）や分散システム（Spark、Trino）において、最も複雑でコストが高く、高度な技術を要する実行エンジンの1つが存在しています。</p>
+<p>本白書では、アルゴリズムの断片化（Partitioning、Sorting）の概念から、最新のデータ構造（Monotonic Deque、Segment Tree）、ハードウェアマイクロアーキテクチャレベルでの深い相互作用（SIMD、Cache Lines、NUMA、JIT Compilation）に至るまで、Window Functionsの実行メカニズムを詳細に解剖します。このドキュメントを読み終える頃には、Window Functionsの動作原理を完全に理解し、大規模システムにおけるパフォーマンスのボトルネックを特定し、データ最適化設計の教訓（Lessons Learned）を引き出すことができるようになります。</p>
+<hr>
+<h2>Window Functionsの核心的な問題 (The Core Problem)</h2>
+<p><strong>問題とは何か？</strong> 数百万人の顧客を対象とした7日間の移動平均（7-day moving average）を計算するクエリを考えてみましょう。 <code>AVG(sales) OVER(PARTITION BY customer_id ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)</code></p>
+<p>特定の行に結果を返すために、システムはその行を読み取るだけでなく、以下のことを行う必要があります。</p>
+<ol>
+<li>数百万の顧客を適切にパーティションにグループ化する（Partitioning）。</li>
+<li>各顧客内で日付順にデータを並べ替える（Sorting）。</li>
+<li>計算のために7行の「スライディングウィンドウフレーム」を維持しつつ、ウィンドウが移動するにつれて最も古い行を破棄し、最も新しい行をフレームに追加する。</li>
+</ol>
+<p>通常の線形スキャンとは異なり、このプロセスは非常に洗練されたローカル状態の保持を必要とします。データが大きすぎてRAMに収まらない場合、システムはクラッシュするか、ページング/スワッピング（Paging/Swapping）を継続的に実行しなければならず、クエリの遅延が数秒から数時間へと増大します。現代のRDBMSの課題は、CPUの処理スループットを最大レベルに保ち、L1/L2/L3 Cache全体を活用しながら、この複雑な問題をいかに解決するかにあります。</p>
+<hr>
+<h2>フェーズ1：データのパーティショニングとルーティング (Data Partitioning)</h2>
+<p>論理パーティション（<code>PARTITION BY</code>に基づく）へのデータの細分化が最初のステップです。</p>
+<h3>HashingとSIMDの力</h3>
+<p>システムは単純な文字列比較命令でグループ化を行いません。<strong>SIMD (AVX-512)</strong> 命令セットに実装された超高速ハッシュアルゴリズム（MurmurHash3やxxHashなど）を使用します。8〜16個のハッシュキーをベクトルレジスタ（Vector Registers）に同時にロードすることで、CPUは単一のクロックサイクル（clock cycle）で16レコードのパーティショニングを計算できます。</p>
+<p>$$h(x) = text{xxHash}(x_k) pmod P$$</p>
+<h3>Radix BufferとCache Thrashing</h3>
+<p>キャッシュミス（Cache Miss）現象を防ぐために、データストリームは<strong>Radix Buffer</strong>を介してルーティングされます。このバッファサイズは、L2/L3 Cacheのスペース（通常256KBから数MB）にぴったり収まるよう厳密に調整されています。データを何千ものパーティションに同時に注ぎ込むと、CPUは継続的にCache Lineを置き換える必要が生じ（Cache Thrashing）、メモリ帯域幅が著しく低下します。</p>
+<h3>External Partitioning技術とOS mmap</h3>
+<p>パーティションがRAMを超えて膨張した場合（Out-of-Core）、RDBMSはExternal Partitioningをアクティブにします。一時メモリファイルを<code>madvise(MADV_SEQUENTIAL)</code>フラグと組み合わせた<code>mmap()</code>関数を介してディスクにマッピングします。このカーネルレベルのディレクティブは、Windowアルゴリズムが実際にそれを要求する前にSSDからRAMへデータを継続的にプッシュするアグレッシブな先読み（Aggressive Read-Ahead）モードをオンにするようOSに「促し」、I/O遅延（I/O latency）を排除します。</p>
+<hr>
+<h2>フェーズ2：データの並べ替え (Sorting Algorithm Dynamics)</h2>
+<p>パーティショニングが完了すると、システムは非常にコストのかかる問題、内部の<code>ORDER BY</code>に直面します。数学的な計算量は$Omega(N log N)$を下回ることはありません。</p>
+<h3>IntroSortと敗者木 (Loser Tree) 構造</h3>
+<p>データが完全にRAM内に収まる場合、<strong>IntroSort</strong>（QuicksortとHeapsortのハイブリッド）が支配的になります。しかしRAMが枯渇すると、<strong>External Merge Sort</strong>アルゴリズムが介入する必要があります。データは細分化され、予備的にソートされ、ソート済みラン（sorted runs）としてNVMeディスクに書き込まれます。</p>
+<p>マージフェーズ（Merge Phase）において、システムは<strong>敗者木（Loser Tree / Tournament Tree）</strong>を使用します。この技術はマイクロアーキテクチャのメモリにとって非常に最適化されています。新しい要素が木に入るとき、システムは$log_2(K)$回の比較のみを必要とし、木ノード構造のすべての更新操作はCPU Cache Lineの同じ物理ストライプ上で実行されます。</p>
+<hr>
+<h2>フェーズ3：評価状態マシン (Window Frame Evaluation)</h2>
+<p>ここでアルゴリズムの魔法が真に輝きます。レコード$i$のウィンドウフレームは次のように数学化されます。</p>
+<p>$$ W_i = { r_j in P mid max(1, i – L) le j le min(N, i + U) } $$</p>
+<h3>単純な分析関数 (ROW_NUMBER, RANK)</h3>
+<p>これらの関数の場合、システムは現在のインデックスの軌跡を保持するレジスタ（Registers）を維持するだけで済みます。計算量は超高速の$mathcal{O}(N)$です。</p>
+<h3>スライディングウィンドウ問題 (Sliding Window Maximum/Minimum)</h3>
+<p>スライディングフレーム（例：過去30日間）での<code>MAX()</code>または<code>MIN()</code>の計算は単純ではありません。素朴に計算すると計算量は$mathcal{O}(N times W)$（$W$はウィンドウサイズ）になります。$W = 10,000$の場合、クエリはフリーズします。 ここでの偉大な解決策は、<strong>単調両端キュー（Monotonic Deque）</strong>を使用することです。DequeはMAXになる可能性のある候補のリストを保持し、小さすぎる（MAXになることは決してない）行を即座に破棄します。結果として、コストは純粋な線形時間$mathcal{O}(N)$にまで減少します。</p>
+<pre><code class="language-rust">// Window MaximumのためのMonotonic Dequeアルゴリズムのシミュレーション
+pub fn evaluate_max(&amp;self) -&gt; Vec&lt;T&gt; {
+    let mut deque: VecDeque&lt;usize&gt; = VecDeque::new();
+    for i in 0..n {
+        // 1. ウィンドウからスライドした行を破棄する
+        if let Some(&amp;front_idx) = deque.front() {
+            if i &gt;= self.window_size &amp;&amp; front_idx &lt;= i - self.window_size { deque.pop_front(); }
+        }
+        // 2. 劣った候補を破棄する
+        while let Some(&amp;back_idx) = deque.back() {
+            if self.data[back_idx] &lt;= self.data[i] { deque.pop_back(); } 
+            else { break; }
+        }
+        deque.push_back(i); // 3. 新しい候補を登録する
+    }
+}</code></pre>
+<h3>桁落ち (Catastrophic Cancellation) 対策</h3>
+<p>浮動小数点データに対して<code>SUM()</code>を計算する場合、大きな数値を連続して加算した後に小さな数値を減算する（スライディングウィンドウフレームによる）と、バイナリの精度が失われます。高度なRDBMSは<strong>Kahan Summation（カハンの加算アルゴリズム）</strong>を適用して補正エラーバッファを維持し、累積偏差をゼロ付近のイプシロン閾値に保ちます。</p>
+<h3>難しい関数のためのセグメント木 (Segment Tree)</h3>
+<p><code>COUNT(DISTINCT)</code>のような関数や、不規則な<code>RANGE</code>に基づくウィンドウフレームの場合、Dequeは役に立ちません。データベースは直ちにRAM内に<strong>セグメント木（Segment Tree）</strong>または<strong>フェニック木（Fenwick Tree）</strong>を構築します。このときコストは$mathcal{O}(N log N)$に上昇し、複雑なクエリに対応します。</p>
+<hr>
+<h2>分散アーキテクチャとオペレーティングシステム (Distributed &amp; OS-Level Constraints)</h2>
+<h3>分散システム (MPP) のためのプレフィックスサム (Prefix Sum)</h3>
+<p>SnowflakeやBigQueryなどの大規模なデータウェアハウス（Data Warehouse）システムでは、Window Functionの計算を1つの仮想マシン（Node）に配置することはできません。1つの顧客パーティションのデータが多すぎる（Data Skew）場合、そのNodeはハング（OOM）します。 システムは<strong>プレフィックスサム (Prefix Sum / Scan)</strong> アルゴリズムを使用してこれを解決します。1人の顧客のデータは複数のセグメントに分割され、多くのNodeに割り当てられます。Node Aは最初の10日間の合計を計算し、Node Bは次の10日間の合計を計算します。その後、それらはお互いに「残り」の部分をブロードキャスト（Broadcast）します。数学の結合法則（Associativity）を利用することで、システムは分散遅延を$mathcal{O}(N / P + log P)$の閾値まで減少させます。</p>
+<h3>ヒュージページ (Huge Pages) とダイレクト I/O (OSバイパス)</h3>
+<p>巨大なキューと木の構造を格納するため、データベースは通常の4KB RAMを使用できません。仮想ページテーブルのミス（TLB Miss）はCPUを破壊します。データベースは<strong>トランスペアレントヒュージページ (Transparent Huge Pages – 2MB/1GB)</strong> を設定することが義務付けられています。</p>
+<p>さらに、Window Functionのデータスキャンは「一度読んだら捨てる」操作です。OS Page Cacheを使用すると、他の有用なデータがRAMから押し出されてしまいます。データベースは<code>O_DIRECT</code>フラグを<code>io_uring</code>（Linux Asynchronous I/O）と組み合わせて使用し、オペレーティングシステムのカーネルを完全にバイパスして、NVMe SSDコントローラから内部メモリ領域にデータを直接転送します。</p>
+<h3>NUMAアーキテクチャとフォールスシェアリング (False Sharing) 現象</h3>
+<p>2 CPUサーバーでは、RAM構造は2つのNode（NUMA Node 0および1）に分割されます。RDBMSは<strong>CPU Pinning</strong>を使用して、CPU 0の計算スレッドがCPU 0にアタッチされたRAMのみを読み取るようにする必要があります。さらに、2つのスレッドが同じ64バイトの物理Cache Lineを上書きする（False Sharing）のを避けるために、C++でデータオブジェクトをパディング（<code>alignas(64)</code>）する必要があります。これは半導体回路の帯域幅を崩壊させる可能性のある現象です。</p>
+<hr>
+<h2>教訓 (Lessons Learned &amp; Best Practices)</h2>
+<p>Window Functionの複雑なアーキテクチャを紐解くことで、システムエンジニアやDBAは以下の貴重な教訓を得ることができます。</p>
+<ol>
+<li><strong>ソートのコストを理解する (The Cost of Sorting):</strong> 単にグループ化が必要なだけなら、Window Function内で<code>ORDER BY</code>を乱用しないでください。どの<code>ORDER BY</code>コマンドでも、巨大なソートエンジン（計算量$mathcal{O}(N log N)$およびSSDへの書き込みリスクあり）が起動します。</li>
+<li><strong>ウィンドウフレームのサイズがアルゴリズムを決定する:</strong> 小さな制限範囲を持つ<code>ROWS BETWEEN</code>を使用することは、常に<code>RANGE BETWEEN</code>よりも高速です（後者はシステムに複雑な境界ロジックの処理を強要し、セグメント木を構築することさえあります）。</li>
+<li><strong>データスキューネス (Data Skewness) の危険性:</strong> <code>PARTITION BY</code>句はデータが分散される方法を形作ります。<code>国</code>でパーティション化し、顧客の99%がベトナムにいる場合、すべてのデータが1つのCPUスレッド（または1つのNode）に集中し、クラスタの並列性が無意味になります。均等な分散を持つパーティションキーを探してください。</li>
+<li><strong>RAMの制限とシステム構成:</strong> Sort/Hash用の専用メモリ割り当てパラメータ（PostgreSQLの<code>work_mem</code>など）を賢く設定してください。割り当てが少なすぎると、クエリはハードドライブで非常に遅いExternal Merge Sortをトリガーします。割り当てが多すぎると、LinuxのOOM Killerがデータベースプロセスを終了させます。</li>
+</ol>
+<h2>結論</h2>
+<p>Window Functionの実行メカニズムは、複雑な組み合わせグラフ構造、微分最適化アルゴリズム、およびハードウェアレベルでの物理的なオーバークロック操作の複雑な交響曲です。このメカニズムを理解することは、よりスマートなSQLコードを書くのに役立つだけでなく、データアーキテクトが一般的なツールの限界を超える優れたビッグデータ分析システムを設計するための足がかりにもなります。</p>
+<hr>
+    </main>
+          <aside class="related-wrap" aria-label="関連記事">
+        <h2>関連記事</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-51-htap%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9-%E3%83%8F%E3%82%A4%E3%83%96%E3%83%AA/">
+              <small>次に読む</small>
+              <strong>技術ホワイトペーパー #51: HTAPデータベース – ハイブリッドトランザクション/分析処理のアーキテクチャ</strong>
+              <span>エグゼクティブサマリー この技術ホワイトペーパーは、ハイブリッドトランザクション/分析処理 (Hybrid Transactional/Analytical Processing – HTAP) データベースシステムの包括的かつマイクロアーキテクチャ的な分析を提供します。歴史的に、データベース業界はOLTP (オンライン・トランザクション処理) とOLAP (オンライン分析処理) の間の厳格な分岐を受け入れてきました。HTAPはこの妥協を打ち破ります。デュアルフォーマット・メモリトポロジー (Delta-Mainアーキテクチャ) の数学、異なるデータレイアウト間での多版同時実行制御 (Multi-Version Concurrency Control –...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/ja/%E3%83%86%E3%82%AF%E3%83%8B%E3%82%AB%E3%83%AB%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC-%E7%AC%AC50%E5%9B%9E%EF%BC%9Atime-series-databases-tsdb-gorilla%E5%9C%A7/">
+              <small>次に読む</small>
+              <strong>テクニカルホワイトペーパー 第50回：Time-Series Databases (TSDB) – Gorilla圧縮アルゴリズムとChunking Memoryアーキテクチャの解剖</strong>
+              <span>エグゼクティブサマリー (Executive Summary) このホワイトペーパーは、世界をリードする時系列データベース (Time-Series Database – TSDB、例: Prometheus, InfluxDB, Gorilla) がIoTシステムやマイクロサービスから生成される膨大なデータ量をどのように処理するかについて、深く包括的な視点を提供します。Gorilla圧縮アルゴリズムの数学的構造 (Delta-of-DeltaおよびIEEE-754 XOR) と、OSカーネルレベルでのChunkingメモリ管理戦略の分析を通じて、読者は数CPUクロックサイクルでデータを64:1の比率に圧縮する原理を理解し、リアルタイム分散システムに対する貴重な設計の教訓を得ることができます。 はじめに：時系列データの不変の特性 クラウドコンピューティングとモノのインターネット (IoT)...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/ja/%E6%8A%80%E8%A1%93%E3%83%9B%E3%83%AF%E3%82%A4%E3%83%88%E3%83%9A%E3%83%BC%E3%83%91%E3%83%BC%E7%AC%AC49%E5%9B%9E-%E3%82%B0%E3%83%A9%E3%83%95%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9/">
+              <small>次に読む</small>
+              <strong>技術ホワイトペーパー第49回: グラフデータベースの本質とIndex-Free Adjacency（インデックス不要な隣接関係）の妙technique</strong>
+              <span>エグゼクティブサマリー 本ホワイトペーパーは、超高密度に接続されたデータ（highly-connected data）を扱う際のリレーショナルデータベース管理システム（RDBMS）の限界を深く分析し、Neo4jのような現代的なグラフデータベースの心臓部である「Index-Free Adjacency」（インデックス不要な隣接関係）の仕組みを紹介する。読者は、マルチホップトラバーサル（multi-hop traversal）における中核的な課題、$mathcal{O}(1)$という計算量の数学的優位性、そしてこれらのシステムがCPUとRAMにまったく新しい参照系での動作を強いるときに生じるハードウェアマイクロアーキテクチャレベル（OSページキャッシュ、Pointer Chasing、TLB Miss）での深い影響を理解できるだろう。最後に、グラフ管理システムにおける集中型アーキテクチャと分散型アーキテクチャのトレードオフについての貴重な教訓をまとめる。 はじめに：リレーショナルモデル（RDBMS）の崩壊を読み解く リレーショナルデータベース管理システム（RDBMS）は、過去50年にわたりソフトウェア業界を支配してきた。それらは集合論（Set Theory）と関係代数（Relational Algebra）という強固な数学的公理に基づいて完璧に動作する。あらゆるエンティティは2次元（行と列）のテーブルへと正規化される。 しかし、現実世界はバラバラの表計算シートではなく、巨大なネットワークである。ソーシャルネットワーク、レコメンデーションシステム、経路探索地図、スマート電力網、分子生物学 ― これらはすべて超高密度に接続されたデータである。この種のデータをRDBMSに無理やり押し込めることは、ソフトウェアに自然な流れに逆らう変換を強いることに他ならない。まさにこの不自然さこそが、リレーショナルモデルの越えられない物理的・数学的限界を露呈させ、グラフデータベース（Graph Databases）台頭の下地となった。 しかし、グラフデータベースは実際にはチップレベルでどのように動作しているのか？それは単にUI上に丸と矢印をいくつか描くことではない。その心臓部は、Index-Free Adjacency（IFA）と呼ばれる極端なメモリアーキテクチャにある。 核心的な課題：結合（Join）演算の爆発的なマイクロコスト...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">1040</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Yoast SEO &#8211; Advanced SEO with real-time guidance and built-in AI - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-06-11 14:02:58+0000\n"
+"PO-Revision-Date: 2026-07-20 14:27:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,10 @@ msgstr ""
 "X-Generator: GlotPress/4.0.3\n"
 "Language: ja_JP\n"
 "Project-Id-Version: Plugins - Yoast SEO &#8211; Advanced SEO with real-time guidance and built-in AI - Stable (latest release)\n"
+
+#: src/myyoast-client/user-interface/myyoast-client-integration.php:76
+msgid "Every 90 days"
+msgstr "90日ごと"
 
 #. translators: %1$s expands to an opening p tag, %2$s and %4$s expand to a
 #. closing p tag, %3$s expands to an opening p tag and opening strong tag, %5$s

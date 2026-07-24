@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/probabilistic-data-structures-bloom-filters-hyperloglog-va-count-min-sketch-whitepaper/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E7%A2%BA%E7%8E%87%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E6%A7%8B%E9%80%A0%EF%BC%9A%E3%83%96%E3%83%AB%E3%83%BC%E3%83%A0%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%EF%BC%88bloom-filters%EF%BC%89%E3%80%81hyperlo/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper) - HoaSen</title>
+	<link rel="canonical" href="https://hoasentable.com/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper/">
+	<meta property="og:locale" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:locale:alternate" content="ja_JP">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper) - HoaSen">
+	<meta property="og:description" content="Executive Summary (Overview) In the era of Big Data and distributed cloud computing, core systems must routinely process millions of events per second (EPS). This enormous volume of data and its relentless flow rate create extreme challenges for physical memory, processing throughput, and network latency. Probabilistic Data Structures (PDS) have emerged as an elite class […]">
+	<meta property="og:url" content="https://hoasentable.com/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:31:13+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:29:01+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="Written by">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="Est. reading time">
+	<meta name="twitter:data2" content="14 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper)","datePublished":"2026-07-22T01:31:13+00:00","dateModified":"2026-07-22T06:29:01+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/"},"wordCount":2260,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/18-bloom-filters-hyperloglog.svg","inLanguage":"en-US","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/","url":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/","name":"Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper) - HoaSen","isPartOf":{"@id":"https:\/\/hoasentable.com\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/18-bloom-filters-hyperloglog.svg","datePublished":"2026-07-22T01:31:13+00:00","dateModified":"2026-07-22T06:29:01+00:00","author":{"@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"breadcrumb":{"@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/"]}]},{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/18-bloom-filters-hyperloglog.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/18-bloom-filters-hyperloglog.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/"},{"@type":"ListItem","position":2,"name":"Blog","item":"https:\/\/hoasentable.com\/blog\/"},{"@type":"ListItem","position":3,"name":"Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper)"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/#website","url":"https:\/\/hoasentable.com\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper) Comments Feed" href="https://hoasentable.com/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=979">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="Executive Summary (Overview) In the era of Big Data and distributed cloud computing, core systems must routinely process millions of events per second (EPS). This enormous volume of data and its relentless flow rate create extreme challenges for physical memory, processing throughput, and network latency. Probabilistic Data Structures (PDS) have emerged as an elite class […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper)","description":"Executive Summary (Overview) In the era of Big Data and distributed cloud computing, core systems must routinely process millions of events per second (EPS). This enormous volume of data and its relentless flow rate create extreme challenges for physical memory, processing throughput, and network latency. Probabilistic Data Structures (PDS) have emerged as an elite class […]","inLanguage":"en_US","datePublished":"2026-07-22T01:31:13+00:00","dateModified":"2026-07-22T06:29:01+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/"},"mainEntityOfPage":"https://hoasentable.com/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/blog/" class="back-btn">← Back to Blog</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en current-lang lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/probabilistic-data-structures-bloom-filters-hyperloglog-and-count-min-sketch-whitepaper/" aria-current="true">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/probabilistic-data-structures-bloom-filters-hyperloglog-va-count-min-sketch-whitepaper/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E7%A2%BA%E7%8E%87%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E6%A7%8B%E9%80%A0%EF%BC%9A%E3%83%96%E3%83%AB%E3%83%BC%E3%83%A0%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%EF%BC%88bloom-filters%EF%BC%89%E3%80%81hyperlo/">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/18-bloom-filters-hyperloglog.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>Probabilistic Data Structures: Bloom Filters, HyperLogLog, and Count-Min Sketch (Whitepaper)</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 13 min read</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>Executive Summary (Overview)</h2>
+<p>In the era of Big Data and distributed cloud computing, core systems must routinely process millions of events per second (EPS). This enormous volume of data and its relentless flow rate create extreme challenges for physical memory, processing throughput, and network latency. Probabilistic Data Structures (PDS) have emerged as an elite class of solutions, offering a trade-off: a very small, tightly controlled error rate (governed by a foundation of differential and probability mathematics) in exchange for an exponential and logarithmic reduction in storage resource consumption.</p>
+<p>This whitepaper takes a deep dive into three pillar probabilistic data structures of modern computer science: <strong>Bloom Filters</strong>, <strong>HyperLogLog</strong>, and <strong>Count-Min Sketch</strong>. We will not stop at basic mathematical theory — we will thoroughly dissect how these architectures interact deeply with hardware infrastructure (CPU Caches, TLB, SIMD), the operating system (Linux Kernel Memory Paging), and how to configure them optimally to achieve maximum performance in real-time, enterprise-grade systems.</p>
+<h2>Core Problem Statement</h2>
+<p>The crisis facing traditional (deterministic) data structures becomes glaringly apparent once the sample space ($N$) approaches the scale of billions or trillions of elements.</p>
+<ul>
+<li><strong>Linear Space Complexity:</strong> Classic structures such as B-Trees, Hash Tables, or Red-Black Trees require memory capacity that grows as $O(N)$. Storing 1 billion IP addresses (in 128-bit IPv6 format) requires tens of gigabytes of RAM just for the raw data, not counting the enormous overhead of pointers, node metadata, and memory fragmentation.</li>
+<li><strong>Cache Thrashing &amp; Locality:</strong> When the memory working set far exceeds the capacity of the CPU’s L3 cache, the cache-miss rate skyrockets. The processor is forced to repeatedly fetch data directly from main memory (RAM), consuming hundreds of clock cycles per access and utterly destroying the performance of the superscalar instruction pipeline.</li>
+<li><strong>Multicore Bandwidth Limits:</strong> When thousands of threads simultaneously attempt to update a single, massive shared hash-table structure, locking mechanisms (locks/mutexes/semaphores) immediately produce a severe bottleneck, or worse, false sharing across cache lines that get corrupted across independent physical processors.</li>
+<li><strong>The Shannon Mathematical Limit:</strong> Shannon’s information theory shows that if a system only needs to answer binary-class queries (does an element exist or not?) or macro-level statistical estimates (how many unique elements are there? what is the frequency of occurrence?), stubbornly storing the entire raw dataset is a terrible waste of resources, contrary to nature.</li>
+</ul>
+<p>To solve this problem at its root, probabilistic data structures were born. They are designed with asymptotic space complexity of $O(1)$ or $O(log log N)$, severing the dependency of storage capacity on the sheer volume of input data, and opening the door to infinitely scalable distributed system designs.</p>
+<h2>Deep Technical Knowledge / Internals</h2>
+<h3>Bloom Filters: The Machine That Answers Existence Questions</h3>
+<p>A Bloom Filter is a linear bit array combined with a set of $k$ independent hash functions, specifically designed to test the membership of an element against a massive-scale set. The response of a query is deliberately restricted to two hard-edged outcomes: “Definitely does not exist” (Absolute False) or “Probably exists” (Probable True). In other words, this model accepts the occurrence of False Positives at a defined rate, but is designed to be perfectly resistant to ever producing a False Negative.</p>
+<p><strong>Mathematical Foundation &amp; Differential Optimization Configuration:</strong> The probability of a false positive, $epsilon$, depends on the relationship between the array size $m$, the number of encoding hash functions $k$, and the expected volume of inserted elements $n$. The error rate is modeled by the equation:</p>
+<p>$epsilon approx (1 – e^{-kn/m})^k$</p>
+<p>To minimize $epsilon$ under a fixed space constraint, engineers take the first derivative with respect to $k$ and set it to zero, yielding the absolute optimal setting: $k = frac{m}{n} ln 2$. From there, the required memory bound can be inverted into the formula: $m = -frac{n ln epsilon}{(ln 2)^2}$. In practice, continuously computing $k$ hashing algorithms (e.g., SHA-1 or MurmurHash3) is extremely costly in ALU cycles. The “Double Hashing” technique was developed to address this obstacle. Every hash function from the third one onward can be rapidly synthesized by linearly recycling the two original hash results:</p>
+<p>$h_i(x) = (h_1(x) + i cdot h_2(x)) pmod m$</p>
+<p><strong>Hardware Interaction &amp; Blocked Bloom Filter Architecture:</strong> The fatal weakness of the traditional Bloom Filter is its destruction of spatial locality. A query with a configuration of $k=7$ scatters randomly across a gigabyte-scale bit array, resulting in 7 independent L3 cache misses — a cardinal sin in HFT (High-Frequency Trading) or core telecommunications systems. The deep architectural solution is the <strong>Blocked Bloom Filter</strong> (a partitioned filter). Here, the monolithic linear array is chopped into independent Blocks, with each Block sized to fit perfectly within a single physical Cache Line of x86 micro-architecture (typically 64 bytes, equivalent to 512 bits). The first “priming” hash function is responsible for selecting exactly one Block, and only the remaining $k-1$ hash functions are permitted to flip bits within that safe 512-bit boundary. Although the false-positive rate rises slightly due to the uneven random distribution (the “balls into bins” phenomenon), retrieval speed jumps dramatically — 10x to 20x — because the cache-miss rate is suppressed to at most a single raw-RAM hit. Furthermore, by applying AVX-512 vectorized instructions, the CPU can easily compare 512 physical bits in a single clock cycle.</p>
+<pre class="mermaid">classDiagram
+    class ProbabilisticDataStructure {
+        &lt;&gt;
+        +insert(element)
+        +query(element)
+    }
+    class BloomFilter {
+        -BitArray memory_bits
+        -HashFunctions[] K_hashes
+        +insert(element) void
+        +query(element) boolean
+        +optimal_k() integer
+    }
+    class BlockedBloomFilter {
+        -CacheLineAlignedArray blocks
+        +insert_avx512(element) void
+        +query_simd(element) boolean
+    }
+    ProbabilisticDataStructure &lt;|-- BloomFilter
+    BloomFilter &lt;|-- BlockedBloomFilter</pre>
+<h3>HyperLogLog (HLL): The Art of Estimating Set Cardinality</h3>
+<p>The problem of counting unique visitors from a flood of 100 billion web requests, with available RAM limited to just a few kilobytes, seems impossible using traditional hash-set counting techniques. Yet the HyperLogLog algorithm can accomplish this seemingly superhuman task in full.</p>
+<p><strong>The Pioneering Flajolet-Martin Algorithm &amp; Harmonic Mean Correction:</strong> The core idea rests on the foundation of natural random distribution: for a system generating perfectly uniform hash sequences, the probability that any given hash code begins with a run of exactly $k$ leading zero bits decays as $2^{-(k+1)}$. By recording the maximum observed length of leading zeros ($rho_{max}$), one can estimate the size of the sample space as approximately $2^{rho_{max}}$. To control and suppress the enormous variance introduced by random outlier observations, HLL does not rely on a single observer. Instead, the massive data stream is decomposed into $m = 2^b$ independent spaces (called registers). The aggregate macro-level value is combined using the specialized mathematical Harmonic Mean formula, chosen specifically to heavily penalize anomalous weights, multiplied by a highly refined Maclaurin correction factor $alpha_m$:</p>
+<p>$E = alpha_m m^2 left( sum_{j=1}^m 2^{-M[j]} right)^{-1}$</p>
+<p>The peak micro-level efficiency: a single register only needs a 6-bit structure to be able to track up to $2^{64}$ elements. With a matrix of $m=16384$ memory cells, the entire massive HLL system consumes only 12KB of RAM while still proudly delivering an astonishing standard error rate of: $frac{1.04}{sqrt{m}} approx 0.81%$.</p>
+<p><strong>Linux Kernel Optimization &amp; Huge Pages Management:</strong> In hyper-distributed structures, the continuous creation and merging of millions of HLL structures places tremendous pressure on the OS’s virtual paging mechanism. The TLB (Translation Lookaside Buffer) will collapse repeatedly if the system still runs on the default 4KB page standard. Configuring the core system with the <em>Transparent Huge Pages</em> (THP) flag at 2MB or 1GB helps consolidate all HLL register arrays into contiguous linear physical address spaces. This solution nearly completely neutralizes TLB Misses, refusing to waste millions of processor cycles diving into cumbersome Page Table Walk structures.</p>
+<h3>Count-Min Sketch (CMS): Frequency Retrieval Through a Fog of Noise</h3>
+<p>Count-Min Sketch (CMS) rises to become a powerful tool when the problem requires not merely existence, but the accurate retrieval of the frequency of occurrence of event streams within massively noisy sample spaces.</p>
+<p><strong>Orthogonal Matrix Design &amp; the Markov Distribution Inequality:</strong> The physical architecture of CMS manifests as an intersecting integer-cell network formed from a matrix with $d$ rows and $w$ columns. These two constants are derived absolutely from Markov’s statistical inequality: the column dimension $w = lceil e / epsilon rceil$ is responsible for suppressing the magnitude of positive error, while the row count $d = lceil ln(1 / delta) rceil$ constructs a multi-layered shield isolating the probability of a failure escape ($delta$). To return an estimated result for the target entity, CMS executes $d$ hash algorithms — one per row — and then performs a Min() extremum-selection operation. This design always trends toward an overestimation bias, but one that is rigorously bounded mathematically.</p>
+<p><strong>Conservative Update Optimization &amp; Lock-Free Multi-Threading Techniques:</strong> To cope with the extreme asymmetry of Zipfian-distributed data (where the vast majority of network traffic concentrates intensely on a very small number of IDs), the <em>Conservative Update</em> technique becomes an essential standard. Rather than blindly accumulating counts, CMS first scans and computes the Min across all target rows. The accumulation is then applied only to those buffer cells whose count is below the target minimum threshold, permanently suppressing the runaway growth of phantom positive bias caused by noisy outlier elements.</p>
+<p>On the multi-core architecture front, planting traditional coarse-grained Mutex synchronization points on a frequently accessed shared matrix would decimate every bandwidth target. CMS reaches terabit-scale execution speed thanks to atomic primitives, or a Thread-Local Array Replica architecture combined with a Map-Reduce background worker.</p>
+<pre><code class="language-rust">// Sample source code illustrating an enterprise-grade Count-Min Sketch (Rust)
+// Using Conservative Update and memory ordering optimized for cache locality (linearized 2D array)
+use std::sync::atomic::{AtomicU64, Ordering};
+
+pub struct CountMinSketch {
+    counters: Vec&lt;AtomicU64&gt;,
+    d_rows: usize,
+    w_cols: usize,
+}
+
+impl CountMinSketch {
+    pub fn new(epsilon: f64, delta: f64) -&gt; Self {
+        let w_cols = (std::f64::consts::E / epsilon).ceil() as usize;
+        let d_rows = (1.0 / delta).ln().ceil() as usize;
+        let size = w_cols * d_rows;
+        
+        // Pre-allocate contiguous space in the buffer
+        let mut counters = Vec::with_capacity(size);
+        for _ in 0..size {
+            counters.push(AtomicU64::new(0));
+        }
+        
+        CountMinSketch { counters, d_rows, w_cols }
+    }
+
+    pub fn insert_conservative(&amp;self, hash_key: u64, count: u64) {
+        let mut min_val = u64::MAX;
+        let mut positions = Vec::with_capacity(self.d_rows);
+        
+        // Phase 1: Query to extract the Min value using Relaxed memory ordering (no thread barrier)
+        for i in 0..self.d_rows {
+            let col = self.hash_family(hash_key, i) % self.w_cols;
+            let idx = i * self.w_cols + col; // Flatten the matrix to improve cache locality
+            positions.push(idx);
+            
+            let current_val = self.counters[idx].load(Ordering::Relaxed);
+            if current_val &lt; min_val {
+                min_val = current_val;
+            }
+        }
+        
+        // Phase 2: Conservative Update executed via a Compare-And-Swap (CAS) atomic instruction chain
+        let target_val = min_val.saturating_add(count);
+        for &amp;idx in &amp;positions {
+            let mut current = self.counters[idx].load(Ordering::Relaxed);
+            while current &lt; target_val {
+                match self.counters[idx].compare_exchange_weak(
+                    current, target_val,
+                    Ordering::Release, Ordering::Relaxed // Standard Release-Acquire memory semantics
+                ) {
+                    Ok(_) =&gt; break, // Atomic update succeeded
+                    Err(actual) =&gt; current = actual, // Data was overwritten by another thread, reload and retry
+                }
+            }
+        }
+    }
+    
+    #[inline(always)] // Force inlining to boost ALU instruction-level throughput
+    fn hash_family(&amp;self, base_hash: u64, seed_index: usize) -&gt; usize {
+        // Reuse ALU bandwidth via Linear Double Hashing, avoiding repeated SHA/Murmur calls
+        (base_hash.wrapping_add((seed_index as u64).wrapping_mul(0x9E3779B97F4A7C15))) as usize
+    }
+}</code></pre>
+<pre class="mermaid">graph TD
+    A[Data Stream / Network Packets] --&gt; B[MurmurHash3 64-bit Core Engine]
+    B --&gt; C(Row 1: Simulated Hash 1)
+    B --&gt; D(Row 2: Simulated Hash 2)
+    B --&gt; E(Row d: Simulated Hash d)
+    C --&gt; F[Counter Array 1]
+    D --&gt; G[Counter Array 2]
+    E --&gt; H[Counter Array d]
+    F -. Read .-&gt; I{Conservative Min() Filter}
+    G -. Read .-&gt; I
+    H -. Read .-&gt; I
+    I --&gt; J[Estimated Frequency]
+    J -- CAS Update --&gt; F
+    J -- CAS Update --&gt; G
+    J -- CAS Update --&gt; H</pre>
+<h2>Practical Applications &amp; Case Studies</h2>
+<h3>Preventing Global CDN Cache Congestion (Cloudflare &amp; Akamai)</h3>
+<p>“One-hit wonders” is a brutal distribution phenomenon where billions of static URL resources are accessed by users exactly once in their entire lifecycle, generating cache pollution that pushes high-value, high-traffic assets out of expensive RAM. Cloudflare deploys a Bloom Filter structure standing guard at the CDN system’s front gate. Any static resource is only granted permission to be physically copied into the expensive SSD cache tier if and only if the system detects a “hit” signal from the Bloom Filter (meaning this is at least the second time the resource has been requested). This subtle passive-defense design spectacularly slashes write-traffic bandwidth by 60%, extending the lifecycle of the entire enterprise NVMe SSD cluster.</p>
+<h3>Optimizing the Disk Write Layer (Cassandra, RocksDB, LevelDB)</h3>
+<p>LSM-Tree (Log-Structured Merge-Tree) databases persist data durably on disk through SSTable file structures. When the system receives a key-search read request, a traditional engine must set up a loop that plows through countless files. By attaching a tiny in-RAM Bloom Filter to each monolithic SSTable file, the processing engine gains the supreme power to instantly discard and skip 99.9% of the disk files that definitely do not contain that key identifier, dragging the enormous Disk I/O cost down from a linear $O(N)$ loop to near-instant $O(1)$ access.</p>
+<h3>Real-Time Big Data Analytics Ecosystems (Redis, Presto, BigQuery)</h3>
+<p>At the heart of in-memory storage platforms like Redis, the prestigious <code>PFADD</code> and <code>PFCOUNT</code> commands provide the native HyperLogLog toolset. Global AdTech advertising empires deploy this power to continuously tally Unique Views from trillions of impressions with micro-second-level latency. Compared to running the classic SQL <code>COUNT(DISTINCT user_id)</code> operator — which requires building a decomposition-and-sort matrix that overflows RAM at enormous cost — the massive Google BigQuery platform uses HLL Sketching to produce results with &gt;99% accuracy, shrinking the computation bill from thousands of dollars down to just a few cents of physical operating cost.</p>
+<h3>DDoS-Resistant Core Network Router Systems (Cisco, Juniper)</h3>
+<p>Core telecommunications routers face the pressure of dissecting and analyzing Heavy Hitter traffic groups (IP ranges sending an extreme volume of packets beyond a defined threshold — an early biological indicator of a DDoS uprising) at Tbps (terabits per second) line-rate bandwidth. At this terrifying line-rate speed, the slow cycle time of system RAM has absolutely no ability to keep up. The Count-Min Sketch matrix structure is hardwired directly into specialized ASIC/FPGA integrated circuits, tracking the frequency of billions of IPs while using an extremely precious sliver of on-chip SRAM (under 3MB), never once needing to trigger a dynamic memory allocation request to the operating system.</p>
+<h2>Lessons Learned</h2>
+<ol>
+<li><strong>Absolutism Is the Arrogance of Software:</strong> In the era of infinite Big Data streams, the obsession with preserving perfectly complete and accurate information storage is a form of self-destructive technological arrogance. Embracing the power of approximation, scientifically compromising on an acceptable error-percentage threshold, is the only key to unlocking unbounded system operating capability. Brute-force RAM configuration can never defeat the power of probability distribution.</li>
+<li><strong>Spatial Locality Is King:</strong> No matter how legendary a PDS algorithm’s $O(1)$ memory-saving design may be, if the machine code performs blind hashing scattered randomly across the entire surface of RAM, the entire performance profile will instantly be massacred by CPU cache misses. Variants like the Blocked Bloom Filter are compelling proof that a deep, thorough understanding of the physical L1/L2 cache-line boundary architecture holds tens of thousands of times more practical value than academic Big-O complexity-theory improvements on paper.</li>
+<li><strong>The Lock-Free Eventual Concurrency Model:</strong> In a massively parallel concurrent environment, any design that shares a common counter state through a mutex bottleneck is committing catastrophic bandwidth suicide. Architects must master low-level CPU instruction techniques such as Atomics, Compare-And-Swap (CAS) loops, Thread-Local Storage, or a Map-Reduce background worker architecture, in order to build a distributed PDS pipeline that can never be congested (lock-free eventual consistency).</li>
+<li><strong>Vertical Coordination from the Hardware Layer to the OS Core:</strong> Infrastructure developers will never be able to fully unlock the potential power of a massive data structure without getting their hands dirty tuning the Linux kernel configuration (Transparent Huge Pages, NUMA CPU Pinning, Cache Alignment). A modern Distributed Systems Architect must be someone equally fluent in both differential mathematical foundations and the complex physical mechanics of virtual memory page layout in the operating system.</li>
+</ol>
+<hr>
+<p><em>A Reference Document for Distributed Systems Architecture Engineers</em> <em>A special topic on tiered memory system optimization, applied practically to Core Banking Systems, Cloud Edge Networking, and High-Frequency Trading (HFT) platforms.</em></p>
+    </main>
+          <aside class="related-wrap" aria-label="Related articles">
+        <h2>Related articles</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-51-htap-databases-the-architecture-of-hybrid-transactional-analytical-processing/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #51: HTAP Databases – The Architecture of Hybrid Transactional/Analytical Processing</strong>
+              <span>Executive Summary This technical whitepaper provides an exhaustive, micro-architectural analysis of Hybrid Transactional/Analytical Processing (HTAP) database systems. Historically,...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-50-time-series-databases-tsdb-dissecting-the-gorilla-compression-algorithm-and-memory-chunking-architecture/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #50: Time-Series Databases (TSDB) – Dissecting the Gorilla Compression Algorithm and Memory Chunking Architecture</strong>
+              <span>Executive Summary This whitepaper provides a deep, comprehensive look at how the world’s leading time-series databases (TSDB) —...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-49-the-nature-of-graph-databases-and-the-marvel-of-index-free-adjacency/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #49: The Nature of Graph Databases and the Marvel of Index-Free Adjacency</strong>
+              <span>Executive Summary This technical whitepaper delves into the limits of Relational Database Management Systems (RDBMS) when handling highly-connected...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">979</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>

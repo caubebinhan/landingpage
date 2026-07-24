@@ -1,0 +1,1213 @@
+# Copyright (C) 2025 Patrick Posner
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Simply Static Pro 2.1.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/simply-static-pro\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-12-07T18:09:04+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: simply-static-pro\n"
+
+#. Plugin Name of the plugin
+#: simply-static-pro.php
+msgid "Simply Static Pro"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: simply-static-pro.php
+msgid "https://patrickposner.dev"
+msgstr ""
+
+#. Description of the plugin
+#: simply-static-pro.php
+msgid "Enhances Simply Static with GitHub Integration, Forms, Comments and more."
+msgstr ""
+
+#. Author of the plugin
+#: simply-static-pro.php
+msgid "Patrick Posner"
+msgstr ""
+
+#. translators: 1: file candidates list
+#: simply-static-pro.php:126
+#, php-format
+msgid "Simply Static Pro could not find a required file in Simply Static core (tried: %1$s). Please update Simply Static to the latest version."
+msgstr ""
+
+#: simply-static-pro.php:334
+msgid "You need to update Simply Static to version 3.5.2 before continuing to use Simply Static Pro, as we made significant changes requiring an upgrade."
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:52
+#: src/build/class-ssp-build-meta.php:94
+msgid "URLs"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:54
+#: src/build/class-ssp-build-meta.php:99
+msgid "Add URLs you want to export or delete here (one per line). Simply Static will export or delete those URLs on your static site."
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:57
+#: src/build/class-ssp-build-meta.php:109
+msgid "Files and Directories"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:59
+#: src/build/class-ssp-build-meta.php:114
+msgid "Add paths to files or directories (one per line). Simply Static will export or delete those files and directories on your static site."
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:60
+#: src/build/class-ssp-build-meta.php:115
+#, php-format
+msgid "Example: %s"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:60
+#: src/build/class-ssp-build-meta.php:115
+msgid "my-file.pdf"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:63
+#: src/build/class-ssp-build-meta.php:102
+#, php-format
+msgid "Wildcard Example: %s"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:63
+#: src/build/class-ssp-build-meta.php:102
+msgid "simple-*"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:64
+#: src/build/class-ssp-build-meta.php:103
+msgid "This will try to find all pages that match that in URL"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:69
+#: src/build/class-ssp-build-meta.php:120
+msgid "Export Assets"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:72
+#: src/build/class-ssp-build-meta.php:126
+msgid "Export Assets such as CSS, JS and images found on page."
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:156
+msgid "Name"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:157
+msgid "Static Site Actions"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:179
+msgid "Export Static"
+msgstr ""
+
+#: src/build/class-ssp-build-meta.php:184
+msgid "Delete Static"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:63
+msgid "Successfully deleted files."
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:64
+msgid "There was a problem deleting the files."
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:66
+msgid "Export in Progress"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:97
+#: src/build/class-ssp-build-settings.php:98
+#: src/build/class-ssp-build-settings.php:129
+msgid "Builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:112
+msgctxt "taxonomy general name"
+msgid "Builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:113
+msgctxt "taxonomy singular name"
+msgid "Build"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:114
+msgid "Search Builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:115
+msgid "Popular Builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:116
+msgid "All Builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:119
+msgid "Name of the build"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:120
+msgid "Back to Builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:121
+msgid "Edit Build"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:122
+msgid "Update Build"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:123
+msgid "Add New Build"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:124
+msgid "New Build Name"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:125
+msgid "Separate builds with commas"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:126
+msgid "Add or remove builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:127
+msgid "Choose from the most used builds"
+msgstr ""
+
+#: src/build/class-ssp-build-settings.php:128
+msgid "No builds found."
+msgstr ""
+
+#: src/build/class-ssp-build.php:226
+#: src/build/class-ssp-build.php:230
+#: src/build/class-ssp-build.php:234
+msgid "Deleted file on path"
+msgstr ""
+
+#: src/build/class-ssp-build.php:254
+msgid "The file could not be deleted. Please check your access key in Simply Static -> Settings -> Deployment"
+msgstr ""
+
+#: src/build/class-ssp-build.php:387
+msgid "Build URL"
+msgstr ""
+
+#: src/build/class-ssp-build.php:705
+msgid "Build File"
+msgstr ""
+
+#: src/build/class-ssp-build.php:719
+msgid "Build Dir"
+msgstr ""
+
+#: src/class-ssp-helper.php:150
+msgid "Config File"
+msgstr ""
+
+#: src/crawler/class-ssp-multilingual-crawler.php:28
+msgid "Multilingual URLs"
+msgstr ""
+
+#: src/crawler/class-ssp-multilingual-crawler.php:29
+msgid "Detects translations created with Polylang, WPML, and TranslatePress."
+msgstr ""
+
+#: src/crawler/class-ssp-nsg-seo-generator-crawler.php:27
+msgid "SEO Generator URLs"
+msgstr ""
+
+#: src/crawler/class-ssp-nsg-seo-generator-crawler.php:28
+msgid "Detects URLs generated by the SEO Generator plugin."
+msgstr ""
+
+#: src/crawler/class-ssp-nsg-seo-generator-crawler.php:114
+#: src/crawler/class-ssp-the-events-calendar-crawler.php:137
+#, php-format
+msgid "Added by %s Crawler"
+msgstr ""
+
+#: src/crawler/class-ssp-the-events-calendar-crawler.php:32
+msgid "The Events Calendar URLs"
+msgstr ""
+
+#: src/crawler/class-ssp-the-events-calendar-crawler.php:33
+msgid "Detects event, category, and calendar view URLs from The Events Calendar."
+msgstr ""
+
+#: src/deployment/aws-s3/class-ssp-aws-deploy-task.php:140
+#, php-format
+msgid "Uploaded %d of %d pages/files"
+msgstr ""
+
+#: src/deployment/aws-s3/class-ssp-aws-deploy-task.php:202
+msgid "Could not upload the file to AWS S3 Bucket"
+msgstr ""
+
+#: src/deployment/aws-s3/class-ssp-aws-empty-task.php:42
+msgid "Skipping emptying S3 bucket: 404-only export."
+msgstr ""
+
+#: src/deployment/aws-s3/class-ssp-aws-empty-task.php:58
+msgid "Emptying S3 Bucket..."
+msgstr ""
+
+#: src/deployment/aws-s3/class-ssp-aws-empty-task.php:85
+#, php-format
+msgid "There was an error emptying the bucket. Skipping to deployment. File: %s. Error: %s "
+msgstr ""
+
+#: src/deployment/bunny-cdn/class-ssp-bunny-deploy-task.php:65
+#: src/deployment/simply-static-studio/class-ssp-simply-static-studio-deploy-task.php:61
+msgid "Destination URL:"
+msgstr ""
+
+#: src/deployment/bunny-cdn/class-ssp-bunny-updater.php:210
+#: src/deployment/simply-static-studio/class-ssp-simply-static-studio-updater.php:103
+msgid "The specified file does not exist."
+msgstr ""
+
+#: src/deployment/bunny-cdn/class-ssp-bunny-updater.php:361
+#: src/deployment/simply-static-studio/class-ssp-simply-static-studio-updater.php:249
+#, php-format
+msgid "HTTP error %d"
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-commit-task.php:125
+#, php-format
+msgid "Committed %d of %d files"
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-commit-task.php:150
+#, php-format
+msgid "GitHub branch \"%s\" not found in %s/%s. Export canceled."
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-commit-task.php:157
+#, php-format
+msgid "GitHub preflight failed: %s. Export canceled."
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-commit-task.php:220
+msgid "Added the 404 page."
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-commit-task.php:277
+msgid "Rate limit was reached. We are skipping further processing until available again."
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-repository.php:126
+#: src/deployment/github/class-ssp-github-repository.php:128
+msgid "This repository was created with Simply Static Pro"
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-repository.php:132
+msgid "Added the sample file."
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-repository.php:134
+msgid "Repository was successfully created."
+msgstr ""
+
+#: src/deployment/github/class-ssp-github-repository.php:157
+msgid "Repository was successfully deleted."
+msgstr ""
+
+#: src/deployment/sftp/class-ssp-sftp-deploy-task.php:84
+msgid "We could not authenticate with SFTP. Stopping SFTP upload."
+msgstr ""
+
+#: src/deployment/simply-static-studio/class-ssp-simply-static-studio-updater.php:89
+msgid "Static Studio deployment constants are missing."
+msgstr ""
+
+#: src/deployment/tiiny-host/class-ssp-tiiny-deploy-task.php:35
+msgid "Creating the ZIP file and sending it to Tiiny.host."
+msgstr ""
+
+#: src/deployment/tiiny-host/class-ssp-tiiny-deploy-task.php:42
+msgid "Finshed the deployment to Tiiny.host"
+msgstr ""
+
+#: src/deployment/tiiny-host/class-ssp-tiiny-deploy-task.php:46
+msgid "There was an error submitting the ZIP file to Tiiny.host - please review your connection details."
+msgstr ""
+
+#: src/deployment/tiiny-host/class-ssp-tiiny-updater.php:49
+msgid "Unable to create ZIP archive"
+msgstr ""
+
+#: src/form/class-ssp-form-captcha.php:89
+msgid "Captcha verification failed. Please try again."
+msgstr ""
+
+#: src/form/class-ssp-form-meta.php:55
+msgid "Set up your static form"
+msgstr ""
+
+#: src/form/class-ssp-form-meta.php:137
+#: src/form/src/Fields.jsx:154
+msgid "Your message was sent successfully."
+msgstr ""
+
+#: src/form/class-ssp-form-meta.php:144
+#: src/form/src/Fields.jsx:155
+msgid "There was an error with your submission. Please review the fields, correct any errors and try again."
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:282
+#: src/form/class-ssp-form-settings.php:283
+msgid "Form Connections"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:297
+msgctxt "Post type general name"
+msgid "Form Connections"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:298
+msgctxt "Post type singular name"
+msgid "Form Connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:299
+msgctxt "Admin Menu text"
+msgid "Form Connections"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:300
+msgctxt "Add New on Toolbar"
+msgid "Form Connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:301
+msgid "Add New"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:302
+msgid "Add New Form Connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:303
+msgid "New Form Connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:304
+msgid "Edit Form Connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:305
+msgid "View Form Connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:306
+msgid "All Forms Connections"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:307
+msgid "Search Form Connections"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:308
+msgid "Parent Form Connections:"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:309
+msgid "No form connections found."
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:310
+msgid "No form connections found in Trash."
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:311
+msgctxt "Overrides the “Featured Image” phrase for this post type. Added in 4.3"
+msgid "Form Cover Image"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:312
+msgctxt "Overrides the “Set featured image” phrase for this post type. Added in 4.3"
+msgid "Set cover image"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:313
+msgctxt "Overrides the “Remove featured image” phrase for this post type. Added in 4.3"
+msgid "Remove cover image"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:314
+msgctxt "Overrides the “Use as featured image” phrase for this post type. Added in 4.3"
+msgid "Use as cover image"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:315
+msgctxt "The post type archive label used in nav menus. Default “Post Archives”. Added in 4.4"
+msgid "Form Connection archives"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:316
+msgctxt "Overrides the “Insert into post”/”Insert into page” phrase (used when inserting media into a post). Added in 4.4"
+msgid "Insert into form connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:317
+msgctxt "Overrides the “Uploaded to this post”/”Uploaded to this page” phrase (used when viewing media attached to a post). Added in 4.4"
+msgid "Uploaded to this form connection"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:318
+msgctxt "Screen reader text for the filter links heading on the post type listing screen. Default “Filter posts list”/”Filter pages list”. Added in 4.4"
+msgid "Filter form connections list"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:319
+msgctxt "Screen reader text for the pagination heading on the post type listing screen. Default “Posts list navigation”/”Pages list navigation”. Added in 4.4"
+msgid "Form Connections list navigation"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:320
+msgctxt "Screen reader text for the items list heading on the post type listing screen. Default “Posts list”/”Pages list”. Added in 4.4"
+msgid "Form Connections list"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:353
+msgid "Title"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:354
+msgid "Form Type"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:355
+msgid "Form Plugin"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:356
+msgid "Form ID"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:375
+msgid "Embedded"
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:379
+msgid "No form type selected."
+msgstr ""
+
+#: src/form/class-ssp-form-settings.php:401
+msgid "No form plugin selected"
+msgstr ""
+
+#: src/form/form-entries/admin/class-ssp-form-entries-admin.php:40
+#: src/form/form-entries/admin/class-ssp-form-entries-admin.php:41
+msgid "Form Entries"
+msgstr ""
+
+#: src/form/form-entries/rest/class-ssp-form-entries-rest.php:118
+msgid "Submitted successfully."
+msgstr ""
+
+#. translators: %s: site name
+#: src/form/form-entries/rest/class-ssp-form-entries-rest.php:144
+#, php-format
+msgid "New submission on %s"
+msgstr ""
+
+#. translators: %s: site name
+#: src/form/form-entries/rest/class-ssp-form-entries-rest.php:145
+#, php-format
+msgid "New submission on <a href=\"%s\">%s</a>"
+msgstr ""
+
+#: src/form/form-entries/rest/class-ssp-form-entries-rest.php:149
+msgid "Form ID:"
+msgstr ""
+
+#: src/form/form-entries/rest/class-ssp-form-entries-rest.php:150
+msgid "Form Plugin:"
+msgstr ""
+
+#: src/form/form-entries/rest/class-ssp-form-entries-rest.php:154
+msgid "Message:"
+msgstr ""
+
+#: src/form/templates/ssp-form-single.php:57
+msgid "You have configured a webhook, this template will not be used."
+msgstr ""
+
+#: src/integrations/class-ssp-complianz.php:21
+msgid "Complianz | GDPR/CCPA Cookie Consent"
+msgstr ""
+
+#: src/integrations/class-ssp-complianz.php:22
+msgid "Integrates Complianz Cookie banner to work on the static site."
+msgstr ""
+
+#: src/integrations/class-ssp-complianz.php:171
+msgid "Complianz Asset"
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:17
+msgid "Environments (Core)"
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:18
+msgid "Define multiple environments of Simply Static so you can easily change between saved configurations."
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:100
+#: src/integrations/class-ssp-environments.php:124
+msgid "Version is required"
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:147
+msgid "Name is required"
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:286
+msgid "Version does not exist"
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:339
+msgid "Environment already exists with this name."
+msgstr ""
+
+#: src/integrations/class-ssp-environments.php:354
+msgid "Version does not exist."
+msgstr ""
+
+#: src/integrations/class-ssp-github.php:19
+msgid "Github"
+msgstr ""
+
+#: src/integrations/class-ssp-github.php:20
+msgid "Used when deploying the exported sites to Github"
+msgstr ""
+
+#: src/integrations/class-ssp-multilingual.php:21
+msgid "Multilingual"
+msgstr ""
+
+#: src/integrations/class-ssp-multilingual.php:22
+msgid "Integrates WPML, Polylang and TranslatePress to work with Static WordPress."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:24
+msgid "Multisite"
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:25
+msgid "Allows queued multisite exports and management through network dashboard."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:83
+msgid "Queued"
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:308
+msgid "Not a multisite installation."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:311
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:328
+#: src/integrations/class-ssp-multisite.php:357
+msgid "Multisite export lock has been reset."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:344
+msgid "You do not have permission to reset the multisite export lock."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:349
+msgid "Security check failed. Please try again."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:386
+#, php-format
+msgid "A multisite export lock is set by \"%1$s\" (%2$s)."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:390
+msgid "An export process appears to be active on that site."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:390
+msgid "No active export detected; the lock may be stale."
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:393
+msgid "Simply Static – Multisite Export Lock"
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:396
+msgid "Open Activity Log"
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:397
+msgid "Are you sure you want to reset the multisite export lock?"
+msgstr ""
+
+#: src/integrations/class-ssp-multisite.php:397
+msgid "Reset Multisite Export Lock"
+msgstr ""
+
+#: src/integrations/class-ssp-nsg-seo-generator.php:27
+msgid "SEO Generator"
+msgstr ""
+
+#: src/integrations/class-ssp-nsg-seo-generator.php:28
+msgid "Efficiently crawl, queue and export pSEO websites with this integration."
+msgstr ""
+
+#: src/integrations/class-ssp-redirection.php:17
+msgid "Redirection"
+msgstr ""
+
+#: src/integrations/class-ssp-redirection.php:18
+msgid "Integrates redirections from the \"Redirection\" Plugin automatically on each export."
+msgstr ""
+
+#: src/integrations/class-ssp-redirection.php:63
+msgid "Redirection URL"
+msgstr ""
+
+#: src/integrations/class-ssp-search-and-filter.php:19
+msgid "Search and Filter"
+msgstr ""
+
+#: src/integrations/class-ssp-search-and-filter.php:20
+msgid "Integrates the popular Search and Filter plugin to be used on static sites."
+msgstr ""
+
+#: src/integrations/class-ssp-shortpixel.php:31
+msgid "Shortpixel"
+msgstr ""
+
+#: src/integrations/class-ssp-shortpixel.php:32
+msgid "Optimizes Images before exporting them for static sites."
+msgstr ""
+
+#: src/integrations/class-ssp-the-events-calendar.php:28
+msgid "The Events Calendar"
+msgstr ""
+
+#: src/integrations/class-ssp-the-events-calendar.php:29
+msgid "Support for events, archives, and assets from The Events Calendar."
+msgstr ""
+
+#: src/integrations/class-ssp-uam.php:20
+msgid "User Access Management (Core)"
+msgstr ""
+
+#: src/integrations/class-ssp-uam.php:21
+msgid "Control access to Simply Static pages, menus, and features by assigning a minimum role."
+msgstr ""
+
+#: src/integrations/class-ssp-uam.php:202
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: src/integrations/github/class-api.php:144
+msgid "Something went wrong with the request"
+msgstr ""
+
+#: src/integrations/github/class-api.php:196
+msgid "Something went wrong with the request. Code: "
+msgstr ""
+
+#: src/integrations/wpml/class-ssp-wpml-task.php:98
+msgid "WPML Error while copying language files:"
+msgstr ""
+
+#: src/integrations/wpml/class-ssp-wpml-task.php:98
+msgid "Continuing export without them..."
+msgstr ""
+
+#: src/minifier/class-ssp-minify-task.php:36
+msgid "Finding Files to Minify."
+msgstr ""
+
+#: src/minifier/class-ssp-minify-task.php:42
+#, php-format
+msgid "Found %d files to minify."
+msgstr ""
+
+#: src/minifier/class-ssp-minify-task.php:43
+msgid "Minifying pages/files..."
+msgstr ""
+
+#. translators: 1: processed count, 2: total files
+#: src/minifier/class-ssp-minify-task.php:50
+#, php-format
+msgid "Minified %1$d of %2$d pages/files"
+msgstr ""
+
+#: src/optimize/class-ssp-optimize-directories.php:34
+msgid "Replace Directories..."
+msgstr ""
+
+#: src/optimize/class-ssp-optimize-directories.php:140
+msgid "Replaced Directories"
+msgstr ""
+
+#: src/optimize/class-ssp-shortpixel-change-task.php:155
+#: src/optimize/class-ssp-shortpixel-change-task.php:219
+#, php-format
+msgid "Replacing optimized files with webp... Left: %d"
+msgstr ""
+
+#: src/optimize/class-ssp-shortpixel-download-task.php:165
+#: src/optimize/class-ssp-shortpixel-download-task.php:193
+#, php-format
+msgid "Downloading optimized files... Left: %d"
+msgstr ""
+
+#: src/optimize/class-ssp-shortpixel-task.php:156
+#, php-format
+msgid "Uploaded %d of %d pages/files to Shortpixel"
+msgstr ""
+
+#: src/search/class-ssp-search-shortcode.php:261
+msgid "Search"
+msgstr ""
+
+#: src/search/class-ssp-search-shortcode.php:262
+msgid "Search.."
+msgstr ""
+
+#: src/search/class-ssp-search-shortcode.php:296
+msgid "No results found."
+msgstr ""
+
+#: src/search/class-ssp-search-task.php:602
+#, php-format
+msgid "Indexed %d of %d pages"
+msgstr ""
+
+#: src/single/class-ssp-single.php:86
+#: src/single/class-ssp-single.php:453
+msgid "Single Exports are disabled in Simply Static settings."
+msgstr ""
+
+#: src/single/class-ssp-single.php:813
+#: src/single/class-ssp-single.php:874
+msgid "Related URL"
+msgstr ""
+
+#: src/single/class-ssp-single.php:836
+msgid "Additional File"
+msgstr ""
+
+#: src/single/class-ssp-single.php:850
+msgid "Additional Dir"
+msgstr ""
+
+#: src/tasks/class-ssp-delete-tracked-pages-task.php:48
+msgid "Deleting tracked pages/files from destination"
+msgstr ""
+
+#: src/tasks/class-ssp-delete-tracked-pages-task.php:58
+msgid "No tracked deletions to process"
+msgstr ""
+
+#: src/tasks/class-ssp-delete-tracked-pages-task.php:90
+#, php-format
+msgid "Deleted %d tracked pages/files"
+msgstr ""
+
+#: src/tasks/class-ssp-delete-tracked-pages-task.php:144
+msgid "Deleted file via tracker"
+msgstr ""
+
+#: src/tasks/class-ssp-delete-tracked-pages-task.php:148
+msgid "Deleted feed via tracker"
+msgstr ""
+
+#: src/tasks/class-ssp-discover-changes-task.php:45
+msgid "Cleared URL queue before detection"
+msgstr ""
+
+#: src/tasks/class-ssp-discover-changes-task.php:49
+msgid "Discovering changed URLs"
+msgstr ""
+
+#: src/tasks/class-ssp-discover-changes-task.php:92
+#, php-format
+msgid "Added %d URLs via Detect Changes Crawler"
+msgstr ""
+
+#: src/tasks/class-ssp-multisite-queue.php:23
+msgid "Waiting in queue..."
+msgstr ""
+
+#: src/tasks/class-ssp-multisite-queue.php:27
+msgid "Starting soon..."
+msgstr ""
+
+#: src/wp-cli/class-ssp-activate-command.php:85
+msgid "License is required."
+msgstr ""
+
+#: src/wp-cli/class-ssp-activate-command.php:107
+msgid "License activated."
+msgstr ""
+
+#: src/wp-cli/class-ssp-run-command.php:243
+#, php-format
+msgid "Export Completed. Finished in %s"
+msgstr ""
+
+#: src/form/src/Fields.jsx:96
+#: src/form/src/Fields.jsx:103
+#: src/form/src/Fields.jsx:994
+msgid "Custom CSS"
+msgstr ""
+
+#: src/form/src/Fields.jsx:136
+msgid "Choose Form Type.."
+msgstr ""
+
+#: src/form/src/Fields.jsx:137
+msgid "Embedded Form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:138
+msgid "Webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:142
+msgid "your-form-id"
+msgstr ""
+
+#: src/form/src/Fields.jsx:152
+msgid "[contact-form-7 id=\"1234\" title=\"Contact form 1\"]"
+msgstr ""
+
+#: src/form/src/Fields.jsx:195
+msgid "No page selected"
+msgstr ""
+
+#: src/form/src/Fields.jsx:379
+msgid "Choose Form Plugin.."
+msgstr ""
+
+#: src/form/src/Fields.jsx:444
+msgid "Form ID is required. Please enter your form’s ID before saving."
+msgstr ""
+
+#: src/form/src/Fields.jsx:452
+msgid "Webhook URL is required for Webhook forms. Please enter a valid URL."
+msgstr ""
+
+#: src/form/src/Fields.jsx:460
+msgid "Shortcode is required for Embedded forms. Please enter the form shortcode."
+msgstr ""
+
+#: src/form/src/Fields.jsx:474
+msgid "Choose your form type"
+msgstr ""
+
+#: src/form/src/Fields.jsx:479
+msgid "How do you want to use your form?"
+msgstr ""
+
+#: src/form/src/Fields.jsx:495
+msgid "Connect your form plugin"
+msgstr ""
+
+#: src/form/src/Fields.jsx:592
+msgid "Hidden input name (optional)"
+msgstr ""
+
+#: src/form/src/Fields.jsx:593
+msgid "If your form exposes a unique identifier in a hidden input, enter its name (e.g., form_id). We'll read its value at submit time."
+msgstr ""
+
+#: src/form/src/Fields.jsx:605
+msgid "How to find your form's unique ID"
+msgstr ""
+
+#: src/form/src/Fields.jsx:608
+msgid "Open the page with your form and inspect the form element."
+msgstr ""
+
+#: src/form/src/Fields.jsx:609
+msgid "Prefer the exact <form> id attribute (e.g., my-contact-form). Copy it exactly as shown."
+msgstr ""
+
+#: src/form/src/Fields.jsx:610
+msgid "If there is no id on the <form>, use the Hidden input name above to tell us which hidden field carries the unique value (e.g., input[name=\"form_id\"])."
+msgstr ""
+
+#: src/form/src/Fields.jsx:611
+msgid "Paste the DOM id into Form ID (above), or rely on the hidden input name so we can read its value at runtime."
+msgstr ""
+
+#: src/form/src/Fields.jsx:621
+msgid "How to embed a Contact Form 7 form from WordPress"
+msgstr ""
+
+#: src/form/src/Fields.jsx:623
+msgid "Embed a Contact Form 7 form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:628
+msgid "How to use Contact Form 7 with a webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:630
+msgid "Contact Form 7 with FormSpree"
+msgstr ""
+
+#: src/form/src/Fields.jsx:642
+msgid "How to embed a WP Forms form from WordPress"
+msgstr ""
+
+#: src/form/src/Fields.jsx:644
+msgid "Embed a WP Forms form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:649
+msgid "How to use WP Forms with a webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:651
+msgid "WP Forms with FormSpree"
+msgstr ""
+
+#: src/form/src/Fields.jsx:661
+msgid "We currently don't support embedding WS Form forms."
+msgstr ""
+
+#: src/form/src/Fields.jsx:664
+msgid "How to use WS Forms with a webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:666
+msgid "WS Forms with FormSpree"
+msgstr ""
+
+#: src/form/src/Fields.jsx:678
+msgid "How to embed a Elementor Forms form from WordPress"
+msgstr ""
+
+#: src/form/src/Fields.jsx:680
+msgid "Embed a Elementor Forms form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:685
+msgid "How to use Elementor Forms with a webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:687
+msgid "Elementor Forms with FormSpree"
+msgstr ""
+
+#: src/form/src/Fields.jsx:696
+msgid "We currently don't support embedding Bricks forms."
+msgstr ""
+
+#: src/form/src/Fields.jsx:707
+msgid "How to embed a Gravity Forms form from WordPress"
+msgstr ""
+
+#: src/form/src/Fields.jsx:709
+msgid "Embed a Gravity Forms form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:714
+msgid "How to use Gravity Forms with a webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:716
+msgid "Gravity Forms with FormSpree"
+msgstr ""
+
+#: src/form/src/Fields.jsx:728
+msgid "How to embed a Fluent Forms form from WordPress"
+msgstr ""
+
+#: src/form/src/Fields.jsx:730
+msgid "Embed a Fluent Forms form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:735
+msgid "How to use Fluent Forms with a webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:737
+msgid "Fluent Forms with FormSpree"
+msgstr ""
+
+#: src/form/src/Fields.jsx:751
+msgid "Define your webhook"
+msgstr ""
+
+#: src/form/src/Fields.jsx:758
+msgid "Webhook URL"
+msgstr ""
+
+#: src/form/src/Fields.jsx:764
+msgid "Use the Simply Static endpoint to store entries in Simply Static -> Form Entries."
+msgstr ""
+
+#: src/form/src/Fields.jsx:767
+msgid "Use the "
+msgstr ""
+
+#: src/form/src/Fields.jsx:777
+msgid "Insert Simply Static endpoint into the Webhook URL field"
+msgstr ""
+
+#: src/form/src/Fields.jsx:779
+msgid "Simply Static endpoint"
+msgstr ""
+
+#: src/form/src/Fields.jsx:781
+msgid " to store entries in Simply Static → Entries or use an external webhook like "
+msgstr ""
+
+#: src/form/src/Fields.jsx:808
+msgid "Custom Headers"
+msgstr ""
+
+#: src/form/src/Fields.jsx:814
+msgid "Uses a unique secret key to authenticated against your WordPress installation."
+msgstr ""
+
+#: src/form/src/Fields.jsx:817
+msgid "Add custom headers to your webhook request (arguments separated by comma). "
+msgstr ""
+
+#: src/form/src/Fields.jsx:818
+msgid "For WordPress-based verification, add "
+msgstr ""
+
+#: src/form/src/Fields.jsx:828
+msgid "Insert Simply Static secret header into the Custom Headers field"
+msgstr ""
+
+#: src/form/src/Fields.jsx:830
+msgid "Simply Static secret header"
+msgstr ""
+
+#: src/form/src/Fields.jsx:858
+msgid "Embed a form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:863
+msgid "Add the shortcode of your form"
+msgstr ""
+
+#: src/form/src/Fields.jsx:864
+msgid "We will replace the form inside of the HTML with an embedded one from your WordPress website."
+msgstr ""
+
+#: src/form/src/Fields.jsx:893
+#: src/form/src/Fields.jsx:904
+#: src/form/src/Fields.jsx:915
+msgid "Preview"
+msgstr ""
+
+#: src/form/src/Fields.jsx:904
+#, js-format
+msgid "Preview: %s"
+msgstr ""
+
+#: src/form/src/Fields.jsx:947
+msgid "Height"
+msgstr ""
+
+#: src/form/src/Fields.jsx:954
+msgid "Form Height (optional)"
+msgstr ""
+
+#: src/form/src/Fields.jsx:974
+msgid "Unit"
+msgstr ""
+
+#: src/form/src/Fields.jsx:988
+msgid "Modify the height of the embedded form to fit your needs."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1008
+msgid "Add custom CSS to the embedded form (without affecting the rest of your website)."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1022
+msgid "Customize Feedback"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1029
+msgid "Success Message"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1030
+msgid "We will show this text below the form if the submission was successful."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1042
+msgid "Use \"Thank You\" page instead"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1043
+msgid "Redirect the user to a specific page after the form was submitted instead of showing the success message."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1071
+msgid "Error Message"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1072
+msgid "We will show this text below the form if there was an error on submission."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1083
+msgid "Disable Feedback"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1084
+msgid "Disable the feedback output from Simply Static and only use messages from the form plugin."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1103
+msgid "E-Mail Notifications"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1108
+msgid "E-mail recipient"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1112
+msgid "This setting is not supported for Contact Form 7. Please use this filter instead: add_filter('sss_form_recipient_email', function() { return 'new@email.com';} );"
+msgstr ""
+
+#: src/form/src/Fields.jsx:1114
+msgid "Configure a different e-mail to receive notifications about new entries. Leave it empty to use your account e-mail address."
+msgstr ""
+
+#: src/form/src/Fields.jsx:1150
+msgid "Save Settings"
+msgstr ""

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head><meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<!-- title is emitted by Yoast SEO via wp_head() below -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="alternate" href="https://hoasentable.com/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive/" hreflang="en">
+<link rel="alternate" href="https://hoasentable.com/vi/giai-ma-direct-i-o-o_direct-va-os-page-cache-trong-co-so-du-lieu-phan-tich-chuyen-sau-ve-vi-kien-truc/" hreflang="vi">
+<link rel="alternate" href="https://hoasentable.com/ja/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8Bdirect-i-o%EF%BC%88o_direct%EF%BC%89%E3%81%A8os%E3%83%9A%E3%83%BC%E3%82%B8%E3%82%AD%E3%83%A3%E3%83%83%E3%82%B7/" hreflang="ja">
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.0 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Demystifying Direct I/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive - HoaSen</title>
+	<link rel="canonical" href="https://hoasentable.com/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive/">
+	<meta property="og:locale" content="en_US">
+	<meta property="og:locale:alternate" content="vi_VN">
+	<meta property="og:locale:alternate" content="ja_JP">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Demystifying Direct I/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive - HoaSen">
+	<meta property="og:description" content="Executive Summary &amp; Problem Statement In the realm of extreme-throughput, ultra-low-latency distributed data systems, the boundary between software algorithms and hardware physics becomes infinitesimally thin. Operating systems are fundamentally designed as general-purpose resource managers, attempting to provide an abstraction layer that works “well enough” for everything from web browsers to word processors. However, when a […]">
+	<meta property="og:url" content="https://hoasentable.com/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive/">
+	<meta property="og:site_name" content="HoaSen">
+	<meta property="article:published_time" content="2026-07-22T01:30:50+00:00">
+	<meta property="article:modified_time" content="2026-07-22T06:28:57+00:00">
+	<meta name="author" content="admin">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:label1" content="Written by">
+	<meta name="twitter:data1" content="admin">
+	<meta name="twitter:label2" content="Est. reading time">
+	<meta name="twitter:data2" content="21 minutes">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"Article","@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#article","isPartOf":{"@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/"},"author":{"name":"admin","@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"headline":"Demystifying Direct I\/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive","datePublished":"2026-07-22T01:30:50+00:00","dateModified":"2026-07-22T06:28:57+00:00","mainEntityOfPage":{"@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/"},"wordCount":3530,"commentCount":0,"image":{"@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/02-direct-io-vs-os-page-cache.svg","inLanguage":"en-US","potentialAction":[{"@type":"CommentAction","name":"Comment","target":["https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#respond"]}]},{"@type":"WebPage","@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/","url":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/","name":"Demystifying Direct I\/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive - HoaSen","isPartOf":{"@id":"https:\/\/hoasentable.com\/#website"},"primaryImageOfPage":{"@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#primaryimage"},"image":{"@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#primaryimage"},"thumbnailUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/02-direct-io-vs-os-page-cache.svg","datePublished":"2026-07-22T01:30:50+00:00","dateModified":"2026-07-22T06:28:57+00:00","author":{"@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01"},"breadcrumb":{"@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/"]}]},{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#primaryimage","url":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/02-direct-io-vs-os-page-cache.svg","contentUrl":"https:\/\/hoasentable.com\/wp-content\/uploads\/hoasen-covers\/02-direct-io-vs-os-page-cache.svg","width":800,"height":450},{"@type":"BreadcrumbList","@id":"https:\/\/hoasentable.com\/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/hoasentable.com\/"},{"@type":"ListItem","position":2,"name":"Blog","item":"https:\/\/hoasentable.com\/blog\/"},{"@type":"ListItem","position":3,"name":"Demystifying Direct I\/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive"}]},{"@type":"WebSite","@id":"https:\/\/hoasentable.com\/#website","url":"https:\/\/hoasentable.com\/","name":"HoaSen","description":"Modern Native Database Client for PostgreSQL, MySQL &amp; SQLite","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/hoasentable.com\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":"Person","@id":"https:\/\/hoasentable.com\/#\/schema\/person\/abbfba643fc96dacbc55e03af6103f01","name":"admin","image":{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","url":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","contentUrl":"https:\/\/secure.gravatar.com\/avatar\/258d8dc916db8cea2cafb6c3cd0cb0246efe061421dbd83ec3a350428cabda4f?s=96&d=mm&r=g","caption":"admin"},"sameAs":["http:\/\/localhost:8080"],"url":"https:\/\/hoasentable.com\/author\/admin\/"}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel="alternate" type="application/rss+xml" title="HoaSen » Demystifying Direct I/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive Comments Feed" href="https://hoasentable.com/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive/feed/">
+
+
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-color]){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://hoasentable.com/xmlrpc.php?rsd">
+<meta name="generator" content="WordPress 7.0.2">
+<link rel="shortlink" href="https://hoasentable.com/?p=931">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="ai-summary" content="Executive Summary &amp; Problem Statement In the realm of extreme-throughput, ultra-low-latency distributed data systems, the boundary between software algorithms and hardware physics becomes infinitesimally thin. Operating systems are fundamentally designed as general-purpose resource managers, attempting to provide an abstraction layer that works “well enough” for everything from web browsers to word processors. However, when a […]">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Demystifying Direct I/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive","description":"Executive Summary &amp; Problem Statement In the realm of extreme-throughput, ultra-low-latency distributed data systems, the boundary between software algorithms and hardware physics becomes infinitesimally thin. Operating systems are fundamentally designed as general-purpose resource managers, attempting to provide an abstraction layer that works “well enough” for everything from web browsers to word processors. However, when a […]","inLanguage":"en_US","datePublished":"2026-07-22T01:30:50+00:00","dateModified":"2026-07-22T06:28:57+00:00","author":{"@type":"Organization","name":"HoaSen Table"},"publisher":{"@type":"Organization","name":"HoaSen Table","url":"https://hoasentable.com/"},"mainEntityOfPage":"https://hoasentable.com/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive/","about":["schema-aware SQL editor","minimal SQL client","developer workflow","large-table browsing","custom plugins","creative widgets"]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Public+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f0;--red-rgb:190,24,74;--red2-rgb:219,39,119;--red:rgb(var(--red-rgb));--red2:rgb(var(--red2-rgb));--text:#1c1917;--rs:rgba(var(--red-rgb),.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Public Sans",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 14% 13%,rgba(var(--red-rgb),.042),transparent 31%),linear-gradient(168deg,#f3f2ef,#e9e6e0 55%,#eee8e1)}
+.bg-lotus{position:fixed;top:50%;left:65%;transform:translate(-50%,-50%);width:max(90vh,600px);height:max(90vh,600px);z-index:0;opacity:.035;pointer-events:none;background-image:url('https://hoasentable.com/wp-content/themes/hoasen-theme/logo.png');background-size:contain;background-repeat:no-repeat;background-position:center}
+.dot-grid{position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,.16) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 10%,black,transparent 70%)}
+.brand{position:absolute;top:22px;left:32px;z-index:40;display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-name{font-family:"Public Sans",sans-serif;font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.03em}
+.back-btn{position:absolute;top:28px;right:32px;z-index:40;font-size:11px;font-weight:700;color:#6b7280;text-decoration:none;transition:color .15s}
+.back-btn:hover{color:var(--red)}
+.single-wrap{position:relative;z-index:5;max-width:760px;margin:120px auto 80px;padding:50px;background:#fff;border-radius:6px;border:1px solid rgba(0,0,0,0.08);box-shadow:0 12px 42px rgba(0,0,0,0.02)}
+.post-cover{margin:-50px -50px 32px;border-radius:6px 6px 0 0;overflow:hidden}
+.post-cover img{width:100%;height:auto;display:block}
+@media(max-width:768px){.post-cover{margin:-30px -20px 24px}}
+.post-header{margin-bottom:38px;border-bottom:1.5px solid rgba(0,0,0,.08);padding-bottom:32px}
+.post-kicker{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-family:"Public Sans",sans-serif}
+.post-header h1{font-family:"Spectral",serif;font-size:clamp(32px,5vw,46px);line-height:1.15;font-weight:600;font-style:italic;color:#1c1917;margin-bottom:16px;letter-spacing:-.02em;text-wrap:balance}
+.post-deck{font-size:15px;line-height:1.65;color:#57534e;max-width:700px;margin:18px 0;text-wrap:pretty;font-family:"Public Sans",sans-serif}
+.meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:#6b7280;font-family:"Public Sans",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.post-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.post-tags a{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(var(--red-rgb),.07);color:var(--red);text-decoration:none;font:700 10px "Public Sans",sans-serif;letter-spacing:.03em}
+.post-body{font-family:"Public Sans",sans-serif;font-size:15.5px;line-height:1.75;color:#292524}
+.post-body p{margin-bottom:24px;text-wrap:pretty}
+.post-body code{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:rgba(var(--red-rgb),0.05);padding:2px 6px;border-radius:4px;color:var(--red)}
+.post-body h2,.post-body h3{font-family:"Spectral",serif;font-weight:600;font-style:italic;margin:38px 0 16px;color:#1c1917;letter-spacing:-.01em}
+.post-body h2{font-size:27px}.post-body h3{font-size:21px}
+.post-body blockquote{border-left:2px solid rgba(var(--red-rgb),.4);padding-left:20px;margin:28px 0;font-style:italic;color:#57534e;font-size:17px;line-height:1.7}
+.post-body ul,.post-body ol{margin:20px 0 24px 24px;font-size:15px;color:#374151;font-family:"Public Sans",sans-serif;line-height:1.7}
+.post-body li{margin-bottom:8px}
+.post-body pre{background:#f8f9fa;padding:20px;border-radius:6px;overflow-x:auto;margin:28px 0;border:1px solid rgba(0,0,0,.05)}
+.post-body pre code{background:transparent;padding:0;color:#1f2937;font-size:13px}
+.post-body pre.mermaid{background:#fff;padding:24px;text-align:center}
+.post-body hr{border:none;border-top:1.5px solid rgba(0,0,0,.08);margin:36px 0}
+.post-body table{width:100%;border-collapse:collapse;margin:28px 0;font-size:14px}
+.post-body th,.post-body td{padding:10px 14px;border:1px solid rgba(0,0,0,.08);text-align:left}
+.post-body thead th{background:#f8f9fa;font-family:"Public Sans",sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#57534e}
+.post-body a{color:var(--red);text-decoration:underline;text-decoration-color:rgba(var(--red-rgb),.3)}
+.related-wrap{margin-top:46px;padding-top:30px;border-top:1.5px solid rgba(0,0,0,.08)}
+.related-wrap h2{font-family:"Spectral",serif;font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.01em;margin-bottom:18px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.related-card{display:block;text-decoration:none;color:inherit;padding:18px;border:1px solid rgba(0,0,0,.08);border-radius:6px;background:#ffffff;transition:transform .18s,border-color .18s,background .18s}
+.related-card:hover{transform:translateY(-2px);border-color:rgba(var(--red-rgb),.22);background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.02)}
+.related-card small{display:block;font:700 10px "Public Sans",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.related-card strong{display:block;font-family:"Spectral",serif;font-size:17px;font-weight:600;line-height:1.3;margin-bottom:8px;letter-spacing:-.01em}
+.related-card span{display:block;font-size:12px;line-height:1.5;color:#6b7280;font-family:"Public Sans",sans-serif}
+@media(max-width:768px){.brand{left:18px;top:18px}.back-btn{right:18px;top:25px}.single-wrap{margin:96px 12px 52px;padding:30px 20px;border-radius:6px}.post-header h1{font-size:28px}.post-deck{font-size:14.5px}.post-body{font-size:14.5px}.related-grid{grid-template-columns:1fr}}
+.lang-sw{position:absolute;top:28px;right:150px;z-index:40;font-family:"Public Sans",sans-serif;font-size:11px;font-weight:700}
+.lang-sw ul{list-style:none;display:flex;gap:4px}
+.lang-sw a{text-decoration:none;color:#6b7280;padding:4px 8px;border-radius:4px;transition:color .15s}
+.lang-sw a:hover{color:var(--red)}
+.lang-sw .current-lang a{color:var(--red);pointer-events:none}
+@media(max-width:768px){.lang-sw{position:static;margin:70px 18px 0;display:flex;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="bg-lotus" aria-hidden="true"></div>
+<div class="dot-grid"></div>
+<a href="https://hoasentable.com/" class="brand">
+  <img src="https://hoasentable.com/wp-content/themes/hoasen-theme/logo_svg.svg" width="32" height="32" alt="HoaSen Table logo" style="filter:drop-shadow(0 3px 10px rgba(var(--red-rgb),.22))">
+  <div class="brand-name">HoaSen Table</div>
+</a>
+<a href="https://hoasentable.com/blog/" class="back-btn">← Back to Blog</a>
+<div class="lang-sw"><ul>	<li class="lang-item lang-item-2 lang-item-en current-lang lang-item-first"><a lang="en-US" hreflang="en-US" href="https://hoasentable.com/demystifying-direct-i-o-o_direct-vs-os-page-cache-in-database-systems-a-micro-architectural-deep-dive/" aria-current="true">English</a></li>
+	<li class="lang-item lang-item-5 lang-item-vi"><a lang="vi" hreflang="vi" href="https://hoasentable.com/vi/giai-ma-direct-i-o-o_direct-va-os-page-cache-trong-co-so-du-lieu-phan-tich-chuyen-sau-ve-vi-kien-truc/">Tiếng Việt</a></li>
+	<li class="lang-item lang-item-9 lang-item-ja"><a lang="ja" hreflang="ja" href="https://hoasentable.com/ja/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8Bdirect-i-o%EF%BC%88o_direct%EF%BC%89%E3%81%A8os%E3%83%9A%E3%83%BC%E3%82%B8%E3%82%AD%E3%83%A3%E3%83%83%E3%82%B7/">日本語</a></li>
+</ul></div>
+<div class="single-wrap">
+                <div class="post-cover"><img width="800" height="450" src="https://hoasentable.com/wp-content/uploads/hoasen-covers/02-direct-io-vs-os-page-cache.svg" class="attachment-large size-large wp-post-image" alt="" decoding="async" fetchpriority="high"></div>
+        <header class="post-header">
+      <div class="post-kicker">Uncategorized</div>
+      <h1>Demystifying Direct I/O (O_DIRECT) vs. OS Page Cache in Database Systems: A Micro-Architectural Deep Dive</h1>
+            <div class="meta">
+        <span>July 22, 2026</span>
+        <span>· admin</span>
+        <span>· 19 min read</span>
+      </div>
+          </header>
+    <main class="post-body">
+      <h2>Executive Summary &amp; Problem Statement</h2>
+<p>In the realm of extreme-throughput, ultra-low-latency distributed data systems, the boundary between software algorithms and hardware physics becomes infinitesimally thin. Operating systems are fundamentally designed as general-purpose resource managers, attempting to provide an abstraction layer that works “well enough” for everything from web browsers to word processors. However, when a database management system (DBMS) scales to process millions of transactions per second (TPS) on hardware capable of gigabytes-per-second throughput (e.g., PCIe Gen 5 NVMe SSDs), this general-purpose abstraction transforms from a convenience into a catastrophic bottleneck.</p>
+<p><strong>The Core Problem:</strong> The operating system’s default Virtual Memory and Page Cache subsystem—designed to hide disk latency through heuristic caching and read-ahead algorithms—actively competes against, and severely degrades, a database’s own highly deterministic, semantically-aware memory management. This results in the infamous “double buffering” memory anomaly, unpredictable latency spikes due to kernel lock contention (e.g., <code>mmap_sem</code>), and massive CPU cycle waste from user-kernel space memory copying.</p>
+<p>This technical whitepaper will comprehensively deconstruct the micro-architectural differences between relying on the OS Page Cache and bypassing it entirely using Direct I/O (<code>O_DIRECT</code>). We will explore the mathematical realities of hardware DMA transfers, the catastrophic costs of TLB misses and Context Switches, the revolutionary impact of asynchronous I/O frameworks (<code>io_uring</code>), and the immense engineering burden required to build a custom user-space Buffer Pool. Finally, we provide empirical lessons learned for systems engineers designing next-generation data infrastructure.</p>
+<h2>Architectural Paradigms of Operating System Memory Management and Page Cache Mechanics</h2>
+<p>The foundational architecture of contemporary operating systems (Linux, FreeBSD, Windows NT) relies heavily on virtual memory management and intermediate caching layers to obfuscate the vast performance disparity between volatile dynamic random-access memory (DRAM) and non-volatile block storage devices.</p>
+<p>In standard POSIX-compliant environments, whenever a user-space application initiates a synchronous <code>read()</code> or <code>write()</code> system call, the operating system intervenes by traversing the Virtual File System (VFS) abstraction layer. The VFS acts as a universally unified interface that delegates the actual block retrieval or persistence to underlying file systems such as ext4, XFS, or Btrfs.</p>
+<p>Within this traversal, the operating system attempts to minimize the exorbitant latency of physical disk head movements (in HDDs) or NAND flash memory cell programming (in SSDs) by utilizing the <strong>OS Page Cache</strong>. The Page Cache is essentially a highly optimized software-based memory pool residing within the kernel space, continuously mapping logical file offsets to physical memory page frames (typically 4KB in size).</p>
+<h3>The Mathematics of Cache Probabilities</h3>
+<p>When an application requests a block of data, the kernel executes a lookup within the Page Cache’s radix tree (or XArray in modern Linux kernels).</p>
+<p>Let $P(x)$ denote the statistical probability of a page cache hit for a specific logical block $x$. Let $T_{mem}$ represent the latency of accessing a page from main memory (DRAM), whereas $T_{disk}$ encapsulates the latency of a physical block device access. The expected access time $E[T]$ can be formalized as:</p>
+<p>$$ E[T] = P(x) cdot T_{mem} + (1 – P(x)) cdot T_{disk} $$</p>
+<p>Given that $T_{disk}$ typically ranges from tens of microseconds ($approx 50-100mu s$) for modern NVMe solid-state drives to several milliseconds for traditional magnetic hard disk drives, while $T_{mem}$ remains strictly constrained within the sub-microsecond domain (typically around 60 to 100 nanoseconds), maximizing the probabilistic parameter $P(x)$ becomes the quintessential objective of the kernel’s memory management subsystem.</p>
+<h3>Heuristic Eviction and Read-Ahead Algorithms</h3>
+<p>To maximize $P(x)$, the operating system employs sophisticated heuristic eviction algorithms, traditionally variations of the Least Recently Used (LRU) algorithm, augmented with multi-generational lists such as the <em>active</em> and <em>inactive</em> LRU lists utilized within the Linux kernel architecture.</p>
+<p>The kernel operates under the fundamental assumption of both <strong>temporal</strong> and <strong>spatial locality</strong>:</p>
+<ol>
+<li><strong>Temporal Locality:</strong> Postulates that recently accessed data is highly likely to be accessed again in the imminent future.</li>
+<li><strong>Spatial Locality:</strong> Hypothesizes that data residing in adjacent logical addresses will likely be accessed sequentially.</li>
+</ol>
+<p>Consequently, upon a page fault—a hardware interrupt triggered by the Memory Management Unit (MMU) when a requested virtual page is absent from physical memory—the kernel does not merely fetch the explicitly requested 4-kilobyte page. Instead, it proactively executes sequential read-ahead operations.</p>
+<p>The read-ahead window size, denoted by $W$, is dynamically adjusted based on the observed sequentiality of the application’s access patterns. If we define $S(t)$ as the sequential access metric at time $t$, the read-ahead window expansion can be modeled as:</p>
+<p>$$ W_{t+1} = min(W_{max}, W_t cdot alpha) $$</p>
+<p>where $alpha &gt; 1$ represents the exponential growth factor applied during consecutive sequential reads. This aggressive caching and prefetching mechanism is highly effective for general-purpose computing workloads (like reading a video file), seamlessly masking the underlying storage latency.</p>
+<h3>The Breakdown: When Heuristics Fail Databases</h3>
+<p>However, for specialized, high-performance data-intensive applications such as relational database management systems (RDBMS), this generic kernel-level heuristic metamorphoses into a severe performance bottleneck.</p>
+<p>Database engines possess deterministic, algorithmic knowledge of their own data access patterns, rendering the OS-level heuristic predictions not merely redundant but occasionally detrimental. For instance, consider a sequential table scan over a massive database table spanning terabytes of data. This scan will inevitably pollute the OS Page Cache, relentlessly evicting highly valuable index pages (such as B-Tree internal nodes) to accommodate transient table tuples that will only be accessed exactly once during the scan. This phenomenon, academically referred to as <strong>cache thrashing</strong>, drastically degrades the overall throughput of the system.</p>
+<p>Furthermore, relying on the OS Page Cache introduces the infamous <strong>Double Buffering</strong> problem. Since the database engine typically maintains its own user-space Buffer Pool to guarantee ACID properties—specifically through Write-Ahead Logging (WAL) mechanisms and specialized page eviction algorithms optimized for transactional workloads—the identical physical data blocks end up residing redundantly in both the user-space Buffer Pool and the kernel-space Page Cache. This redundant memory allocation essentially halves the effective caching capacity of the available, highly expensive DRAM.</p>
+<pre class="mermaid">sequenceDiagram
+    participant App as Database Application
+    participant VFS as Virtual File System
+    participant Cache as OS Page Cache
+    participant Driver as Block Device Driver
+    participant Disk as Physical Storage
+
+    App-&gt;&gt;VFS: read(fd, buffer, size)
+    VFS-&gt;&gt;Cache: Radix Tree Lookup (Page Fault)
+    alt Page Cache Hit
+        Cache--&gt;&gt;VFS: Return Physical Memory Address
+        VFS--&gt;&gt;App: SIMD Copy data to User Buffer
+    else Page Cache Miss
+        Cache-&gt;&gt;Driver: Submit Block I/O Request (BIO)
+        Driver-&gt;&gt;Disk: Issue DMA Transfer Request
+        Disk--&gt;&gt;Driver: Hardware Interrupt (Data Ready)
+        Driver--&gt;&gt;Cache: Populate Page Cache Frame
+        Cache--&gt;&gt;VFS: Update Radix Tree Mapping
+        VFS--&gt;&gt;App: SIMD Copy data to User Buffer
+    end</pre>
+<h2>The CPU Toll: Context Switches, TLB Flushes, and Memory Copies</h2>
+<p>To fully comprehend the systemic inefficiencies imposed by the OS Page Cache on highly engineered database systems, one must scrutinize the central processing unit (CPU) overhead associated with standard POSIX read and write system calls.</p>
+<p>The execution of a standard buffered read initiates a mandatory <strong>context switch</strong> from user mode (Ring 3 on x86_64 architectures) to kernel mode (Ring 0). This transition incurs a pipeline flush and a catastrophic perturbation of the Translation Lookaside Buffer (TLB).</p>
+<p>The TLB is a specialized, extremely fast hardware cache residing inside the CPU core, responsible for caching virtual-to-physical address translations established by the kernel’s page tables. When a context switch occurs, the TLB is often flushed or severely polluted, leading to subsequent TLB misses upon returning to user space.</p>
+<p>A TLB miss forces the CPU’s hardware page table walker to traverse the multi-level radix tree structure of the page tables (e.g., PML4, PDP, PD, and PT in Intel processors) in main memory. Let $T_{tlb_miss}$ be the latency penalty of a TLB miss, and $N_{pages}$ be the number of 4KB pages touched during the I/O operation. The total TLB penalty equates to:</p>
+<p>$$ text{Penalty}_{TLB} = N_{pages} cdot T_{tlb_miss} $$</p>
+<p>which scales linearly with the I/O transfer size.</p>
+<p>Furthermore, assuming a cache hit, the kernel must execute a memory-to-memory copy operation from the page cache pages residing in kernel space to the application-provided buffer residing in user space. The CPU cycles consumed by this memory copy operation, typically executed via optimized SIMD instructions (such as AVX-512 <code>vmovdqu8</code> or <code>rep movsq</code>), become a mathematically non-trivial factor when transferring gigabytes of data per second.</p>
+<p>Let $C_{copy}$ be the CPU cost per byte transferred; the total CPU utilization dedicated purely to memory manipulation becomes:</p>
+<p>$$ U_{cpu} = B_{throughput} cdot C_{copy} $$</p>
+<p>where $B_{throughput}$ denotes the aggregate disk bandwidth. In modern NVMe arrays capable of delivering upwards of 10-15 gigabytes per second of sustained sequential read throughput via the PCIe Gen 4 or Gen 5 bus, the $U_{cpu}$ component alone can saturate multiple high-frequency CPU cores. This effectively starves the database engine’s core query execution threads, turning a storage operation into a CPU-bound bottleneck.</p>
+<h3>The Illusion of <code>mmap</code></h3>
+<p>Historically, databases like early MongoDB attempted to mitigate the memory copy overhead by using <code>mmap()</code> (memory mapping). This system call maps kernel page cache pages directly into the application’s virtual address space via Page Table Entries (PTE), allowing the database to access file data via standard memory pointer dereferencing without explicit <code>read()</code> syscalls.</p>
+<p>However, <code>mmap</code> remains heavily reliant on the kernel’s page fault handler for fetching non-resident pages and the kernel’s asynchronous flusher threads (such as <code>pdflush</code> or <code>kworker</code>) for persisting dirty pages to disk. This reliance strips the database of deterministic control over physical I/O scheduling.</p>
+<p>Worse, <code>mmap</code> suffers from severe lock contention within the kernel’s memory management data structures—specifically the <code>mmap_sem</code> (a reader-writer semaphore protecting virtual memory areas). In heavily multi-threaded workloads, <code>mmap_sem</code> contention leads to unpredictable latency spikes, commonly known as micro-stalls.</p>
+<p>Consequently, to achieve the ultimate zenith of deterministic performance, strict hardware resource accounting, and absolute algorithmic control over the data lifecycle, database architects invariably turn to bypassing the kernel entirely through the utilization of <strong>Direct I/O</strong>.</p>
+<h2>The Mechanics and Implications of Direct I/O (O_DIRECT)</h2>
+<p>Direct I/O, invoked in POSIX-compliant operating systems by explicitly specifying the <code>O_DIRECT</code> flag during the <code>open()</code> system call, fundamentally alters the I/O traversal path by explicitly instructing the kernel to bypass the OS Page Cache entirely.</p>
+<p>When an application executes a read or write operation utilizing a file descriptor opened with <code>O_DIRECT</code>, the Virtual File System layer immediately delegates the request directly to the block device driver layer. The driver translates the application’s user-space memory buffer addresses directly into hardware <strong>Scatter-Gather Lists (SGLs)</strong> suitable for Direct Memory Access (DMA) controllers embedded within the NVMe controller itself.</p>
+<p>This direct translation completely eliminates the CPU overhead associated with the memory-to-memory copy between kernel space and user space. It definitively resolves the double buffering anomaly and reclaims vast quantities of precious DRAM for the database’s proprietary Buffer Pool architecture.</p>
+<p>The mathematical representation of expected access time under Direct I/O drastically simplifies, as the probability of a kernel-level cache hit $P(x)$ evaluates strictly to zero. Thus, the expected latency $E[T_{direct}]$ becomes exclusively a function of the underlying storage media’s response time and interconnect latency:</p>
+<p>$$ E[T_{direct}] = T_{disk} + T_{dma} + T_{context_switch} $$</p>
+<p>where $T_{dma}$ represents the time required for the PCIe bus to negotiate and execute the hardware DMA transfer directly into the user-space RAM. By entirely eliminating the stochastic variability introduced by the kernel’s heuristic caching and background eviction algorithms, Direct I/O bestows the database engine with uncompromisingly deterministic I/O latencies. This predictability is a critical, non-negotiable prerequisite for achieving stringent Service Level Agreements (SLAs) in multi-tenant cloud database architectures.</p>
+<h3>The Unforgiving Geometry of Memory Alignment</h3>
+<p>However, the utilization of <code>O_DIRECT</code> imposes severe, unforgiving geometric constraints upon the application’s memory layout and I/O request granularities. The underlying block storage devices operate on fixed logical sector sizes, traditionally 512 bytes but overwhelmingly 4096 bytes (Advanced Format) in contemporary NAND flash storage.</p>
+<p>Consequently, Direct I/O mandates strict topological alignment parameters across three separate axes. Let $S_{sector}$ denote the logical sector size of the underlying block device (e.g., 4096). The application-provided memory buffer address $A_{buffer}$, the total size of the I/O transfer $L_{transfer}$, and the logical file offset $O_{file}$ must all concurrently satisfy the modulo congruence condition:</p>
+<p>$$ A_{buffer} equiv 0 pmod{S_{sector}} $$<br>
+$$ L_{transfer} equiv 0 pmod{S_{sector}} $$<br>
+$$ O_{file} equiv 0 pmod{S_{sector}} $$</p>
+<p>Failure to meticulously adhere to these stringent mathematical alignment constraints results in the Linux kernel instantly rejecting the system call with an <code>EINVAL</code> (Invalid Argument) error code. To satisfy the crucial memory alignment constraint, database developers must explicitly utilize specialized memory allocation functions such as <code>posix_memalign</code>, <code>aligned_alloc</code>, or anonymous <code>mmap</code> calls instead of standard <code>malloc</code> or <code>new</code>.</p>
+<pre><code class="language-cpp">#include &lt;fcntl.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;cstdlib&gt;
+#include &lt;stdexcept&gt;
+#include &lt;iostream&gt;
+#include &lt;cstdint&gt;
+#include &lt;sys/mman.h&gt;
+
+class DirectIOAlignedBuffer {
+private:
+    void* raw_buffer;
+    size_t allocation_size;
+    size_t hardware_alignment;
+
+public:
+    DirectIOAlignedBuffer(size_t size, size_t alignment = 4096) 
+        : allocation_size(size), hardware_alignment(alignment) {
+        
+        // Enforce the L_transfer alignment constraint mathematically
+        if (allocation_size % hardware_alignment != 0) {
+            throw std::invalid_argument(&quot;I/O size strictly violates hardware sector alignment.&quot;);
+        }
+        
+        // Enforce the A_buffer alignment constraint via posix_memalign
+        if (posix_memalign(&amp;raw_buffer, hardware_alignment, allocation_size) != 0) {
+            throw std::runtime_error(&quot;posix_memalign geometric allocation failed.&quot;);
+        }
+        
+        // Ensure memory is pinned and not swapped out to disk (critical for DMA performance)
+        if (mlock(raw_buffer, allocation_size) != 0) {
+            std::cerr &lt;&lt; &quot;Warning: mlock failed, memory could be paged out.&quot; &lt;&lt; std::endl;
+        }
+    }
+
+    ~DirectIOAlignedBuffer() {
+        munlock(raw_buffer, allocation_size);
+        free(raw_buffer);
+    }
+
+    void* get_pointer() const { return raw_buffer; }
+    size_t get_size() const { return allocation_size; }
+};
+
+void execute_deterministic_direct_read(const char* target_filepath) {
+    // Open the file descriptor bypassing the OS Page Cache
+    int fd = open(target_filepath, O_RDONLY | O_DIRECT);
+    if (fd &lt; 0) {
+        throw std::runtime_error(&quot;Failed to acquire O_DIRECT file descriptor.&quot;);
+    }
+
+    // 16KB exact buffer, 4KB aligned dynamically
+    DirectIOAlignedBuffer dio_buf(16384); 
+
+    // O_file must also be a multiple of 4096 (e.g., offset 0, 4096, 8192)
+    off_t logical_offset = 8192; 
+
+    ssize_t bytes_read = pread(fd, dio_buf.get_pointer(), dio_buf.get_size(), logical_offset);
+    if (bytes_read &lt; 0) {
+        close(fd);
+        throw std::runtime_error(&quot;Direct I/O hardware DMA read failed catastrophically.&quot;);
+    }
+
+    std::cout &lt;&lt; &quot;Successfully transferred &quot; &lt;&lt; bytes_read &lt;&lt; &quot; bytes via DMA to user-space.&quot; &lt;&lt; std::endl;
+    close(fd);
+}</code></pre>
+<h2>The Synergy of Direct I/O and io_uring Asynchronous Execution</h2>
+<p>The adoption of Direct I/O invariably necessitates the implementation of highly sophisticated asynchronous I/O (AIO) frameworks within the database engine. Because <code>O_DIRECT</code> explicitly disables the OS Page Cache, standard synchronous read system calls (<code>read()</code>, <code>pread()</code>) will unequivocally block the calling operating system thread until the physical disk successfully completes the hardware DMA transfer.</p>
+<p>In a massively concurrent database system designed to process tens of thousands of complex transactions per second, blocking operating system threads while waiting for microsecond-scale physical disk latencies leads to catastrophic thread starvation, CPU pipeline stalls, and excessive context switching overhead as the kernel desperately attempts to schedule other runnable threads.</p>
+<p>To fundamentally decouple mathematical query execution from physical storage latency, modern databases heavily leverage Linux asynchronous I/O APIs. Historically, this was achieved via <code>libaio</code>. However, <code>libaio</code> is notorious for undocumented blocking behaviors (especially regarding file metadata or ext4 block allocation) and a convoluted API.</p>
+<p>The modern revolution is the <strong><code>io_uring</code></strong> subsystem, introduced into the Linux kernel by Jens Axboe.</p>
+<p>By synergistically pairing <code>O_DIRECT</code> with <code>io_uring</code>, the database engine can submit hundreds of asynchronous read or write requests through a shared memory <strong>Submission Queue (SQ)</strong> ring buffer without executing a single expensive system call context switch.</p>
+<p>Let $N_{req}$ be the number of simultaneous I/O requests generated by a complex query plan. The total latency under a naïve synchronous Direct I/O model would scale linearly as $sum_{i=1}^{N_{req}} T_{disk}(i)$, assuming a single thread of execution.</p>
+<p>Conversely, under an advanced asynchronous Direct I/O model utilizing <code>io_uring</code>, the requests are submitted concurrently to the NVMe host controller’s internal hardware submission queues, explicitly exploiting the massive internal parallelism of the solid-state drive’s multiple NAND flash dies and parallel channels. The aggregate latency thereby approaches the maximum individual latency:</p>
+<p>$$ text{Latency} approx max(T_{disk}(1), T_{disk}(2), dots, T_{disk}(N_{req})) + T_{queue_overhead} $$</p>
+<p>This effectively maximizes storage bandwidth utilization and keeps CPU execution threads completely unblocked and mathematically productive. This exact synergy between <code>O_DIRECT</code> and asynchronous polling I/O forms the architectural bedrock of next-generation distributed systems like ScyllaDB (leveraging the Seastar C++ framework) and recent versions of PostgreSQL.</p>
+<pre class="mermaid">graph TD
+    subgraph User Space
+        DB[Database Query Engine]
+        BP[Custom User-Space Buffer Pool]
+        SQ[io_uring Submission Queue Ring]
+        CQ[io_uring Completion Queue Ring]
+    end
+    subgraph Kernel Space
+        VFS[Virtual File System]
+        IOU[io_uring Subsystem]
+        NVMeDrv[NVMe PCIe Kernel Driver]
+    end
+    subgraph Hardware Layer
+        PCIe[PCIe Gen 4/5 Bus Interconnect]
+        NVMeSQ[NVMe Hardware Submission Queue]
+        NVMeCQ[NVMe Hardware Completion Queue]
+        NAND[NAND Flash Channels]
+    end
+
+    DB -- Cache Miss / Bypass OS Cache --&gt; BP
+    BP -- Submits async aligned SQE --&gt; SQ
+    SQ -- Polled by kernel thread (io_sq_thread) --&gt; IOU
+    IOU -- Translates to BIO --&gt; NVMeDrv
+    NVMeDrv -- Writes to NVMe Doorbell --&gt; NVMeSQ
+    NVMeSQ -- Hardware DMA Transfer --&gt; PCIe
+    PCIe -- Programs memory cells --&gt; NAND
+    NAND -- Generates MSI-X Hardware Interrupt --&gt; NVMeCQ
+    NVMeCQ -- Driver handles IRQ --&gt; IOU
+    IOU -- Posts CQE --&gt; CQ
+    CQ -- Lockless reaping by application --&gt; DB</pre>
+<h2>Algorithmic Complexities in Buffer Pool Engineering</h2>
+<p>The transition from a monolithic OS Page Cache-dependent architecture to an entirely self-managed, deterministic Direct I/O framework represents a monumental shift in the locus of control. It mandates the absolute reinvention and architectural reimagining of the caching layer strictly within the user application space.</p>
+<p>The database must implement its own highly concurrent Buffer Pool, meticulously managing the lifecycle of physical data pages fetched from storage.</p>
+<h3>The Inadequacy of Naïve LRU and the Rise of CLOCK</h3>
+<p>When operating blindly under the OS Page Cache, the kernel attempts to optimize via rudimentary, mathematically flawed LRU semantics. The kernel’s blind eviction policies inevitably penalize heavily accessed database structural metadata pages (like B+Tree root nodes), treating them indistinguishably from transient leaf node data accessed strictly once during a full table scan.</p>
+<p>In stark architectural contrast, a user-space Buffer Pool operating directly atop raw Direct I/O possesses intimate, declarative semantic knowledge of the underlying page topologies. Database architects implement rigorous page pinning mechanisms, mathematically guaranteeing that critical structural metadata remains completely resident in DRAM.</p>
+<p>However, implementing a highly concurrent user-space Buffer Pool introduces severe multi-core synchronization bottlenecks. A naïve implementation utilizing a single global mutex lock to protect the global hash table (which maps logical Page IDs to physical memory frames) will instantly suffer catastrophic lock contention when subjected to hundreds of concurrent query execution threads.</p>
+<p>To mitigate this, database systems mathematically partition the global Buffer Pool into $M$ strictly independent instances, hashing the logical Page ID via a modulo function $f(PageID) = PageID pmod{M}$. This partitioning reduces the statistical probability of lock collision by a geometric factor of $M$.</p>
+<p>Furthermore, the eviction algorithm itself must be engineered for extreme concurrency. Traditional strict LRU algorithms mandate mutating pointers within a doubly linked list upon <em>every single page access</em>. This continuous mutation of shared data structures requires exclusive write latches, destroying multi-core scalability and saturating the CPU cache coherence protocol (MESI).</p>
+<p>Therefore, modern databases universally abandon strict LRU in favor of <strong>Clock-based approximation algorithms</strong>, such as the generalized CLOCK sweep algorithm, Clock-PRO, or Adaptive Replacement Cache (ARC). The CLOCK algorithm utilizes a fixed circular buffer of physical page frames. Instead of destructively mutating linked lists upon every read access, the system simply sets a single atomic reference bit $R_{bit}$ associated with the page frame. When eviction is required, a sweeping virtual hand evaluates the $R_{bit}$. If $1$, it resets to $0$; if $0$, the page is evicted. This allows lock-free read path optimizations.</p>
+<h3>HugePages and the TLB Pressure</h3>
+<p>Database engineers must also account for the integration of HugePages. When allocating gigabytes of RAM for the proprietary Buffer Pool, utilizing standard 4KB pages results in catastrophic TLB pressure and immense page table structures. By combining <code>O_DIRECT</code> DMA transfers with buffer pools backed by 2MB or 1GB Transparent HugePages (THP) or explicitly via <code>hugetlbfs</code>, the system exponentially reduces the $T_{tlb_miss}$ penalty discussed earlier. A single TLB entry now maps a massive 2MB or 1GB contiguous physical region, entirely eliminating the hardware page table walker overhead during high-throughput analytical scans.</p>
+<h2>The WAL Subsystem and Deterministic Durability</h2>
+<p>The uncompromising decision to adopt Direct I/O also fundamentally dictates the architecture of the database’s Write-Ahead Logging (WAL) subsystem. The WAL demands strictly synchronous, relentlessly sequential physical writes to mathematically guarantee durability (the absolute ‘D’ in ACID) before a transaction commit can be safely acknowledged to the waiting client.</p>
+<p>When utilizing the OS Page Cache via buffered I/O, the database writes the log record into the volatile kernel cache and subsequently invokes the <code>fsync</code> system call to forcefully compel the kernel to flush the dirty page to the physical storage media. The <code>fsync</code> operation is notoriously expensive and non-deterministic, as it might inadvertently flush thousands of dirty pages belonging to entirely unrelated files on the system, leading to unpredictable, catastrophic latency spikes.</p>
+<p>By bypassing the kernel entirely through Direct I/O combined mathematically with the <code>O_DSYNC</code> flag, the database engine assumes explicit, byte-level control over the granularity of the log write. The application dynamically constructs a logically complete transactional log block, pads the remaining bytes with absolute zeros to satisfy the rigid hardware $S_{sector}$ alignment constraints, and submits a synchronous Direct I/O write directly to the PCIe bus. Once the kernel system call returns, the data is mathematically guaranteed to have reached the physical storage controller’s non-volatile domain.</p>
+<p>To aggressively minimize the severe write amplification penalty introduced by padding microscopically small log records to the rigid 4-kilobyte sector boundary, modern databases universally employ mathematical <strong>Group Commit</strong> algorithms. Group commit artificially delays the flushing of individual transactions for a minute fraction of a millisecond ($T_{wait}$), accumulating multiple independent log records into a single, massive contiguous block. This mathematically aggregated block is then dispatched via a single, highly efficient Direct I/O operation.</p>
+<h2>Lessons Learned and Architectural Takeaways</h2>
+<p>The transition to a Direct I/O architecture is a defining characteristic of tier-one data infrastructure. For systems engineers navigating this domain, several core lessons emerge:</p>
+<ol>
+<li><strong>The Kernel is Not Your Friend at Scale:</strong> For generic applications, the Linux kernel provides a beautiful, seamless abstraction. For extreme-scale databases, the kernel is an adversary. Its heuristic assumptions (like aggressive read-ahead) directly conflict with a database’s deterministic execution plans. Bypassing the kernel is mandatory for predictable tail latency.</li>
+<li><strong>Double Buffering is a Silent Killer:</strong> Relying on the OS Page Cache while maintaining a user-space Buffer Pool effectively halves your usable RAM. By moving to <code>O_DIRECT</code>, you reclaim 100% of your DRAM for intelligent, semantically-aware caching.</li>
+<li><strong>Synchronous Direct I/O is a Trap:</strong> Never use <code>O_DIRECT</code> with synchronous <code>read()</code> or <code>write()</code> calls in a highly concurrent system. Because the OS Page Cache is bypassed, every synchronous call blocks until the physical hardware responds. You <em>must</em> pair <code>O_DIRECT</code> with an asynchronous I/O framework like <code>io_uring</code> to keep your CPU threads actively executing queries while the NVMe controller handles the DMA transfers in the background.</li>
+<li><strong>Memory Alignment is Unforgiving:</strong> The mathematics of 4KB sector alignment dictate your entire memory allocation strategy. Standard <code>malloc</code> is useless for I/O buffers in this paradigm. Entire subsystems must be designed around <code>posix_memalign</code> and block-aligned sizes.</li>
+<li><strong>Concurrency Demands Lock-Free Paradigms:</strong> Building a custom Buffer Pool exposes you to extreme multi-core synchronization challenges. You must abandon strict LRU linked-list mutations in favor of Clock-sweep approximation algorithms and heavily partitioned lock stripes to survive lock contention.</li>
+</ol>
+<h2>Conclusion</h2>
+<p>The utilization of Direct I/O (<code>O_DIRECT</code>) represents the absolute, paramount architectural design choice for engineering state-of-the-art, high-performance database management systems. While it mandates the undertaking of massive, highly complex engineering challenges, the mathematical performance dividends are unequivocal and transformative. By explicitly circumventing the operating system’s generalized Page Cache, advanced databases definitively eliminate the catastrophic double buffering memory anomaly, eradicate the exorbitant CPU cycle overhead of kernel-to-user memory copying, and achieve absolute mathematical determinism over their physical hardware I/O latency distributions. As hardware paradigms continue to aggressively evolve, the explicit, byte-level control granted by Direct I/O will remain the absolute bedrock upon which all future state-of-the-art storage engines are constructed.</p>
+    </main>
+          <aside class="related-wrap" aria-label="Related articles">
+        <h2>Related articles</h2>
+        <div class="related-grid">
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-51-htap-databases-the-architecture-of-hybrid-transactional-analytical-processing/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #51: HTAP Databases – The Architecture of Hybrid Transactional/Analytical Processing</strong>
+              <span>Executive Summary This technical whitepaper provides an exhaustive, micro-architectural analysis of Hybrid Transactional/Analytical Processing (HTAP) database systems. Historically,...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-50-time-series-databases-tsdb-dissecting-the-gorilla-compression-algorithm-and-memory-chunking-architecture/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #50: Time-Series Databases (TSDB) – Dissecting the Gorilla Compression Algorithm and Memory Chunking Architecture</strong>
+              <span>Executive Summary This whitepaper provides a deep, comprehensive look at how the world’s leading time-series databases (TSDB) —...</span>
+            </a>
+                      <a class="related-card" href="https://hoasentable.com/technical-whitepaper-49-the-nature-of-graph-databases-and-the-marvel-of-index-free-adjacency/">
+              <small>Read next</small>
+              <strong>Technical Whitepaper #49: The Nature of Graph Databases and the Marvel of Index-Free Adjacency</strong>
+              <span>Executive Summary This technical whitepaper delves into the limits of Relational Database Management Systems (RDBMS) when handling highly-connected...</span>
+            </a>
+                  </div>
+      </aside>
+      </div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hoasen-theme/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <span class="ssp-id" style="display:none">931</span>
+        <script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://hoasentable.com/wp-includes/js/wp-emoji-release.min.js?ver=7.0.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://hoasentable.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>if (window.mermaid) { mermaid.initialize({ startOnLoad: true, theme: 'neutral' }); }</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.querySelector('.post-body'), {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</body>
+</html>
